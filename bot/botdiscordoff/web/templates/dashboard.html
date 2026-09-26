@@ -1,0 +1,2196 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Miaouscle Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f111a;
+            --bg-secondary: #161922;
+            --bg-card: #1f232d;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+            --accent-hover: #6d28d9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: rgba(22, 25, 34, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 0.6rem; text-decoration: none; letter-spacing: -0.02em; }
+        .logo span { color: var(--accent); }
+        .nav-right { display: flex; gap: 1.2rem; align-items: center; }
+        .logout-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.6rem 1.2rem; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar h3 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .server-list { display: flex; flex-direction: column; gap: 0.6rem; }
+
+        .server-item {
+            padding: 0.85rem 1rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .server-item i {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+        .server-avatar-wrap {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #5865f2, #7c3aed);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+        }
+        .server-avatar {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .server-avatar-fallback {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            height: 100%;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .server-avatar-fallback[hidden] { display: none; }
+        .server-name {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .server-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+        }
+
+        .server-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--accent);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .server-item.active i {
+            background: var(--accent);
+            color: white;
+        }
+
+        .server-item.bot-absent {
+            opacity: 0.5;
+            border-left: 3px solid rgba(239, 68, 68, 0.4);
+        }
+        .server-item.bot-absent:hover { opacity: 0.8; }
+        .server-item.bot-present {
+            border-left: 3px solid rgba(16, 185, 129, 0.5);
+        }
+        .server-item .bot-badge {
+            margin-left: auto;
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+        }
+        .server-item .bot-badge.present {
+            background: rgba(16, 185, 129, 0.18);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.15);
+        }
+        .server-item .bot-badge.absent {
+            background: rgba(239, 68, 68, 0.14);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .server-item.bot-absent i {
+            color: #f87171 !important;
+        }
+
+        .content {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            min-height: calc(100vh - 120px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.4rem;
+            border-radius: 14px;
+            margin-bottom: 2.5rem;
+            width: fit-content;
+        }
+
+        .tab-btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+        }
+
+        .tab-btn:hover { color: var(--text-primary); }
+
+        .tab-btn.active { 
+            background: var(--bg-card); 
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            padding: 2rem; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .premium-card-sidebar {
+            background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(124,58,237,0.15));
+            border: 1px solid rgba(251,191,36,0.35);
+            border-radius: 14px;
+            padding: 0.9rem 1rem;
+            font-size: 0.82rem;
+            color: var(--text-primary);
+        }
+        .premium-card-sidebar .pcs-tier {
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.3rem;
+        }
+        .premium-card-sidebar .pcs-sub {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+        .premium-card-sidebar a {
+            display: inline-block;
+            background: rgba(251,191,36,0.2);
+            color: #fbbf24;
+            text-decoration: none;
+            padding: 0.35rem 0.7rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        .premium-card-sidebar a:hover { background: rgba(251,191,36,0.3); }
+
+        .premium-welcome-card {
+            background: linear-gradient(135deg, rgba(251,191,36,0.1), rgba(124,58,237,0.12));
+            border: 1px solid rgba(251,191,36,0.25);
+            border-radius: 18px;
+            padding: 1.5rem 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            text-align: left;
+            flex-wrap: wrap;
+        }
+        .premium-welcome-card .pwc-left h3 {
+            font-size: 1.05rem;
+            font-weight: 800;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .premium-welcome-card .pwc-left p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .premium-welcome-card a {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0f111a;
+            font-weight: 800;
+            padding: 0.7rem 1.4rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        .premium-welcome-card a:hover { transform: translateY(-2px); }
+
+        /* === Section Premium (Bienvenue / Départ / DM) === */
+        .premium-fields {
+            border-top: 1px dashed rgba(251,191,36,0.3);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            position: relative;
+        }
+        .premium-fields-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.78rem;
+            font-weight: 800;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.8rem;
+        }
+        .premium-fields-header .pf-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0f111a;
+            padding: 0.15rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.65rem;
+        }
+        .premium-fields.locked .pf-content {
+            opacity: 0.45;
+            pointer-events: none;
+            filter: blur(0.4px);
+        }
+        .premium-lock-overlay {
+            display: none;
+            margin-top: 0.8rem;
+            padding: 1rem 1.1rem;
+            background: linear-gradient(135deg, rgba(251,191,36,0.12), rgba(124,58,237,0.12));
+            border: 1px solid rgba(251,191,36,0.4);
+            border-radius: 12px;
+            text-align: center;
+        }
+        .premium-fields.locked .premium-lock-overlay { display: block; }
+        .premium-lock-overlay .plo-title {
+            font-weight: 800;
+            color: #fbbf24;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .premium-lock-overlay .plo-sub {
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            margin-bottom: 0.7rem;
+        }
+        .premium-lock-overlay a.plo-cta {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #0f111a;
+            font-weight: 800;
+            padding: 0.55rem 1.1rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 0.82rem;
+            transition: transform 0.2s;
+        }
+        .premium-lock-overlay a.plo-cta:hover { transform: translateY(-2px); }
+        .premium-card-plus {
+            background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(251,191,36,0.05));
+            border: 1px solid rgba(124,58,237,0.3);
+        }
+
+        .server-tier-badge {
+            margin-left: auto;
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 0.18rem 0.45rem;
+            border-radius: 6px;
+            background: rgba(251,191,36,0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251,191,36,0.35);
+            white-space: nowrap;
+        }
+        .server-tier-badge.plus {
+            background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(124,58,237,0.25));
+            color: #fde68a;
+        }
+        .server-tier-badge.free-gift {
+            background: rgba(16,185,129,0.18);
+            color: #34d399;
+            border-color: rgba(16,185,129,0.35);
+        }
+
+        /* --- Bouton annulation abonnement --- */
+        .btn-cancel-sub {
+            background: transparent;
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #f87171;
+            padding: 0.3rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-cancel-sub:hover {
+            background: rgba(239,68,68,0.12);
+            border-color: rgba(239,68,68,0.7);
+        }
+
+        /* --- Liste serveurs premium dans la welcome card --- */
+        .premium-guild-list {
+            margin-top: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        .premium-guild-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+        }
+        .premium-guild-row .pgr-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .premium-guild-row .pgr-tier {
+            font-size: 0.68rem;
+            color: #fbbf24;
+            font-weight: 700;
+            margin-right: 0.4rem;
+            flex-shrink: 0;
+        }
+
+        /* --- Premium+ slot management --- */
+        .plus-slots-panel {
+            margin-top: 1rem;
+            width: 100%;
+        }
+        .plus-slots-panel h4 {
+            font-size: 0.78rem;
+            color: #a855f7;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0 0 0.5rem 0;
+        }
+        .plus-slot-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.6rem;
+            background: rgba(168,85,247,0.07);
+            border: 1px solid rgba(168,85,247,0.2);
+            border-radius: 10px;
+            padding: 0.45rem 0.75rem;
+            font-size: 0.82rem;
+            margin-bottom: 0.4rem;
+        }
+        .plus-slot-row.empty {
+            background: rgba(255,255,255,0.03);
+            border-style: dashed;
+            border-color: rgba(168,85,247,0.25);
+        }
+        .plus-slot-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .plus-slot-badge {
+            font-size: 0.65rem;
+            color: #a855f7;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-right: 0.3rem;
+        }
+        .btn-slot-remove {
+            background: transparent;
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #f87171;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-slot-remove:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.7); }
+        .plus-slot-add-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .plus-slot-select {
+            flex: 1;
+            min-width: 120px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(168,85,247,0.3);
+            color: var(--text-primary);
+            border-radius: 7px;
+            padding: 0.3rem 0.5rem;
+            font-size: 0.78rem;
+        }
+        .btn-slot-add {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: #fff;
+            border: none;
+            padding: 0.3rem 0.8rem;
+            border-radius: 7px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+        .btn-slot-add:hover { opacity: 0.85; }
+        .btn-slot-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* --- Modal confirmation annulation --- */
+        #cancel-sub-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        #cancel-sub-modal.active { display: flex; }
+        .cancel-modal-box {
+            background: #1a1d2e;
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 440px;
+            width: 90%;
+            text-align: center;
+        }
+        .cancel-modal-box h3 {
+            color: #f87171;
+            font-size: 1.15rem;
+            margin-bottom: 0.5rem;
+        }
+        .cancel-modal-box p {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin-bottom: 1.4rem;
+        }
+        .cancel-modal-box .modal-btns {
+            display: flex;
+            gap: 0.8rem;
+            justify-content: center;
+        }
+        .cancel-modal-box .modal-btns button {
+            padding: 0.6rem 1.4rem;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            border: none;
+        }
+        .cancel-modal-box .modal-btn-confirm {
+            background: #ef4444;
+            color: #fff;
+        }
+        .cancel-modal-box .modal-btn-confirm:hover { background: #dc2626; }
+        .cancel-modal-box .modal-btn-back {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-primary);
+        }
+        .cancel-modal-box .modal-btn-back:hover { background: rgba(255,255,255,0.14); }
+        
+        .card:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .card h4 { 
+            color: white; 
+            font-size: 1.1rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.8rem; 
+            font-weight: 700;
+        }
+
+        .card h4 i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-group label { font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-hint { font-size: 0.78rem; color: rgba(255,255,255,0.35); margin-top: -0.2rem; }
+        
+        .tab-content { display: none; animation: fadeIn 0.2s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        .server-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        .server-header h2 { font-size: 1.8rem; font-weight: 800; }
+        .server-badge { display: flex; gap: 0.6rem; align-items: center; }
+        .badge { font-size: 0.75rem; font-weight: 700; padding: 0.35rem 0.9rem; border-radius: 20px; }
+        .badge-purple { background: rgba(124, 58, 237, 0.2); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); }
+        .badge-green { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.25); }
+
+        .notif-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+        .notif-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: rgba(255,255,255,0.02); border-radius: 10px; border: 1px solid var(--border); }
+        .notif-item span { font-size: 0.88rem; font-weight: 500; color: var(--text-secondary); }
+
+        .card-desc { font-size: 0.82rem; color: rgba(255,255,255,0.4); margin-top: -0.5rem; margin-bottom: 0.5rem; }
+
+        textarea { resize: vertical; min-height: 90px; }
+        
+        .switch-group { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn-save-floating {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-save-floating:hover { 
+            transform: translateY(-2px); 
+            background: var(--accent-hover);
+            box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.4);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .toast i { color: var(--success); }
+        .toast.active { transform: translateX(-50%) translateY(0); }
+
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { height: auto; position: static; }
+            .server-list { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; }
+            .server-item { white-space: nowrap; }
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 17, 26, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(124, 58, 237, 0.1);
+            border-top: 4px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p style="font-weight: 600; letter-spacing: 0.05em;">Chargement de la configuration...</p>
+    </div>
+    <!-- Modal confirmation annulation abonnement -->
+    <div id="cancel-sub-modal">
+        <div class="cancel-modal-box">
+            <h3>⚠️ Annuler l'abonnement</h3>
+            <p id="cancel-modal-text">Confirme l'annulation de l'abonnement Premium pour ce serveur. Le Premium restera actif jusqu'à la fin de la période déjà payée.</p>
+            <div class="modal-btns">
+                <button class="modal-btn-back" onclick="closeCancelModal()">← Retour</button>
+                <button class="modal-btn-confirm" id="cancel-modal-confirm-btn" onclick="confirmCancelSubscription()">Annuler l'abonnement</button>
+            </div>
+        </div>
+    </div>
+
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle<span> Bot</span></a>
+        <div class="nav-right">
+            <span id="user-info" style="font-size: 0.9rem; color: var(--text-secondary); margin-right: 1rem;"></span>
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Quitter</a>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div id="premium-card" class="premium-card-sidebar" style="display:none;"></div>
+            <h3><i class="fas fa-server"></i> Mes Serveurs</h3>
+            <div id="server-list" class="server-list">
+                <div class="server-item"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div id="content" class="welcome">
+                <div id="welcome-premium" style="margin-bottom:2rem;"></div>
+                <i class="fas fa-magic"></i>
+                <h2>Prêt à configurer ?</h2>
+                <p>Sélectionnez un serveur à gauche pour commencer l'aventure.</p>
+            </div>
+        </main>
+    </div>
+
+    <button id="save-btn" class="btn-save-floating" style="display: none;" onclick="saveAll()">
+        <i class="fas fa-save"></i> Enregistrer les changements
+    </button>
+
+    <div id="toast" class="toast">Configuration enregistrée avec succès !</div>
+
+    <script>
+        let selectedServer = null;
+        let currentConfig = {};
+        let unsavedChanges = false;
+
+        async function selectServer(id, name, inGuild = true) {
+            if (unsavedChanges && !confirm("Vous avez des changements non enregistrés. Voulez-vous continuer sans enregistrer ?")) return;
+
+            history.pushState({ serverId: id }, '', `/user/server/${id}`);
+
+            const loading = document.getElementById('loading');
+            loading.style.display = 'flex';
+
+            selectedServer = { id, name, inGuild };
+            document.querySelectorAll('.server-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.id === id) el.classList.add('active');
+            });
+
+            if (!inGuild) {
+                const BOT_CLIENT_ID = '1157699815833088001';
+                const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${BOT_CLIENT_ID}&permissions=8&scope=bot%20applications.commands&guild_id=${id}`;
+                document.getElementById('content').innerHTML = `
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.5rem;padding:4rem 2rem;text-align:center;">
+                        <div style="font-size:3.5rem;">🤖</div>
+                        <h2 style="font-size:1.4rem;font-weight:700;">Le bot n'est pas sur <span style="color:var(--accent);">${name}</span></h2>
+                        <p style="color:var(--text-secondary);max-width:420px;">Ajoutez Miaouscle Bot à ce serveur pour pouvoir le configurer depuis le dashboard.</p>
+                        <a href="${inviteUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:0.6rem;background:var(--accent);color:white;padding:0.8rem 1.8rem;border-radius:12px;text-decoration:none;font-weight:700;font-size:0.95rem;transition:background 0.2s;" onmouseover="this.style.background='var(--accent-hover)'" onmouseout="this.style.background='var(--accent)'">
+                            ➕ Ajouter le bot au serveur
+                        </a>
+                    </div>`;
+                document.getElementById('save-btn').style.display = 'none';
+                setTimeout(() => { loading.style.display = 'none'; }, 300);
+                return;
+            }
+
+            try {
+                const [configRes, channelsRes, rolesRes] = await Promise.all([
+                    fetch(`/api/server/${id}/config`),
+                    fetch(`/api/server/${id}/channels`),
+                    fetch(`/api/server/${id}/roles`)
+                ]);
+
+                currentConfig = configRes.ok ? await configRes.json() : {};
+                const channels = channelsRes.ok ? (await channelsRes.json()).channels : [];
+                const roles = rolesRes.ok ? (await rolesRes.json()).roles : [];
+
+                showConfig(name, currentConfig, channels, roles);
+                unsavedChanges = false;
+                document.getElementById('save-btn').style.display = 'none';
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setTimeout(() => {
+                    loading.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        function escapeHtml(v) {
+            if (v === null || v === undefined) return '';
+            return String(v)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function showConfig(name, config, channels, roles) {
+            const content = document.getElementById('content');
+            const premium = config._premium || { tier: 'free', is_premium: false, is_premium_plus: false };
+            const isPremium = !!premium.is_premium;
+            const isPremiumPlus = !!premium.is_premium_plus;
+            const lockOverlay = (label) => `
+                <div class="premium-lock-overlay">
+                    <div class="plo-title">🔒 ${label} réservé aux serveurs Premium</div>
+                    <div class="plo-sub">Active Premium pour personnaliser les couleurs, images, titres et notifications.</div>
+                    <a class="plo-cta" href="/premium" target="_blank">💎 Découvrir Premium</a>
+                </div>`;
+            const lockOverlayPlus = (label) => `
+                <div class="premium-lock-overlay">
+                    <div class="plo-title">👑 ${label} réservé à Premium+</div>
+                    <div class="plo-sub">Premium+ permet d'envoyer un message privé personnalisé à chaque nouveau membre.</div>
+                    <a class="plo-cta" href="/premium" target="_blank">👑 Passer à Premium+</a>
+                </div>`;
+            const notifLabels = {
+                ban:    '🔨 Bannissements',
+                unban:  '🔓 Débannissements',
+                kick:   '👢 Expulsions',
+                warn:   '⚠️ Avertissements',
+                mute:   '🔇 Mutes',
+                unmute: '🔊 Démutes',
+                lock:   '🔒 Verrouillages',
+                unlock: '🔓 Déverrouillages',
+                clear:  '🧹 Suppressions'
+            };
+
+            const tierBadge = (() => {
+                if (premium.tier === 'premium_plus') {
+                    return `<span class="badge" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:1px solid rgba(168,85,247,0.4);">👑 Premium+</span>`;
+                } else if (premium.is_premium) {
+                    const free = premium.is_free_premium ? ' (offert)' : '';
+                    return `<span class="badge" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f111a;border:1px solid rgba(251,191,36,0.4);">💎 Premium${free}</span>`;
+                } else {
+                    return `<span class="badge" style="background:rgba(148,163,184,0.15);color:#94a3b8;border:1px solid rgba(148,163,184,0.3);">🆓 Free</span>`;
+                }
+            })();
+            // Le Premium fonctionne uniquement par serveur,
+            // donc plus besoin d'afficher la source : c'est toujours le serveur.
+            const tierSource = '';
+
+            content.innerHTML = `
+                <div class="server-header">
+                    <h2>🖥️ ${escapeHtml(name)}</h2>
+                    <div class="server-badge">
+                        ${tierBadge}
+                        ${tierSource}
+                        <span class="badge badge-green">✅ Synchronisé</span>
+                        <span class="badge badge-purple">ID ${selectedServer.id}</span>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab(0)"><i class="fas fa-cog"></i> Général</button>
+                    <button class="tab-btn" onclick="switchTab(1)"><i class="fas fa-comment-dots"></i> Messages</button>
+                    <button class="tab-btn" onclick="switchTab(2)"><i class="fas fa-shield-halved"></i> Sécurité</button>
+                    <button class="tab-btn" onclick="switchTab(3)"><i class="fas fa-bell"></i> Logs</button>
+                    <button class="tab-btn" onclick="switchTab(4)"><i class="fas fa-star"></i> XP</button>
+                    <button class="tab-btn" onclick="switchTab(5)"><i class="fas fa-chart-line"></i> Stats</button>
+                </div>
+
+                <!-- Tab 0: Général -->
+                <div class="tab-content active">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card">
+                            <h4><i class="fas fa-language"></i> Langue du Bot</h4>
+                            <p class="card-desc">Langue utilisée pour toutes les réponses du bot sur ce serveur.</p>
+                            <div class="form-group">
+                                <label>Langue</label>
+                                <select onchange="update('language', this.value)">
+                                    <option value="fr" ${config.language === 'fr' ? 'selected' : ''}>🇫🇷 Français</option>
+                                    <option value="en" ${config.language === 'en' ? 'selected' : ''}>🇬🇧 English</option>
+                                    <option value="es" ${config.language === 'es' ? 'selected' : ''}>🇪🇸 Español</option>
+                                    <option value="de" ${config.language === 'de' ? 'selected' : ''}>🇩🇪 Deutsch</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-user-tag"></i> Rôle Booster XP</h4>
+                            <p class="card-desc">Les membres avec ce rôle gagnent 2× plus d'XP par message.</p>
+                            <div class="form-group">
+                                <label>Rôle</label>
+                                <select onchange="update('booster_role', this.value)">
+                                    <option value="">— Aucun rôle —</option>
+                                    ${roles.map(r => `<option value="${r.id}" ${config.booster_role == r.id ? 'selected' : ''}>@ ${r.name}</option>`).join('')}
+                                </select>
+                                <span class="form-hint">Optionnel — laissez vide pour désactiver</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 1: Messages -->
+                <div class="tab-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card">
+                            <h4><i class="fas fa-door-open"></i> Message de Bienvenue</h4>
+                            <p class="card-desc">Envoyé automatiquement quand un membre rejoint le serveur.</p>
+                            <div class="form-group">
+                                <label>Canal</label>
+                                <select onchange="update('welcome_channel', this.value)">
+                                    <option value="">— Désactivé —</option>
+                                    ${channels.map(c => `<option value="${c.id}" ${config.welcome_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea placeholder="Ex: Bienvenue {user} sur {guild} ! 🎉" onchange="update('welcome_message', this.value)">${escapeHtml(config.welcome_message)}</textarea>
+                                <span class="form-hint">Variables disponibles: {user}, {username}, {guild}, {count}</span>
+                            </div>
+                            <div class="premium-fields ${isPremium ? '' : 'locked'}">
+                                <div class="premium-fields-header">
+                                    <span class="pf-badge">PREMIUM</span>
+                                    <span>💎 Personnalisation embed</span>
+                                </div>
+                                <div class="pf-content">
+                                    <div class="form-group">
+                                        <label>Titre de l'embed</label>
+                                        <input type="text" placeholder="Ex: 🎉 Bienvenue !" value="${escapeHtml(config.welcome_title)}" onchange="update('welcome_title', this.value)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Couleur (hex)</label>
+                                        <input type="color" value="${escapeHtml(config.welcome_color || '#5865F2')}" onchange="update('welcome_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Image / GIF (URL)</label>
+                                        <input type="url" placeholder="https://..." value="${escapeHtml(config.welcome_image)}" onchange="update('welcome_image', this.value)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Footer de l'embed</label>
+                                        <input type="text" placeholder="Ex: Amusez-vous bien !" value="${escapeHtml(config.welcome_footer)}" onchange="update('welcome_footer', this.value)">
+                                    </div>
+                                    <div class="switch-group">
+                                        <div>
+                                            <span style="font-weight:600;">Ping le nouveau membre</span>
+                                            <p class="form-hint" style="margin-top:2px;">Mentionne le membre dans le message</p>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" ${config.welcome_ping ? 'checked' : ''} onchange="update('welcome_ping', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                ${isPremium ? '' : lockOverlay('Personnalisation embed')}
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-door-closed"></i> Message de Départ</h4>
+                            <p class="card-desc">Envoyé automatiquement quand un membre quitte le serveur.</p>
+                            <div class="form-group">
+                                <label>Canal</label>
+                                <select onchange="update('goodbye_channel', this.value)">
+                                    <option value="">— Désactivé —</option>
+                                    ${channels.map(c => `<option value="${c.id}" ${config.goodbye_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Message</label>
+                                <textarea placeholder="Ex: {user} nous a quitté... 👋" onchange="update('goodbye_message', this.value)">${escapeHtml(config.goodbye_message)}</textarea>
+                                <span class="form-hint">Variables disponibles: {user}, {username}, {guild}, {count}</span>
+                            </div>
+                            <div class="premium-fields ${isPremium ? '' : 'locked'}">
+                                <div class="premium-fields-header">
+                                    <span class="pf-badge">PREMIUM</span>
+                                    <span>💎 Personnalisation embed</span>
+                                </div>
+                                <div class="pf-content">
+                                    <div class="form-group">
+                                        <label>Titre de l'embed</label>
+                                        <input type="text" placeholder="Ex: 👋 Au revoir !" value="${escapeHtml(config.goodbye_title)}" onchange="update('goodbye_title', this.value)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Couleur (hex)</label>
+                                        <input type="color" value="${escapeHtml(config.goodbye_color || '#ED4245')}" onchange="update('goodbye_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Image / GIF (URL)</label>
+                                        <input type="url" placeholder="https://..." value="${escapeHtml(config.goodbye_image)}" onchange="update('goodbye_image', this.value)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Footer de l'embed</label>
+                                        <input type="text" placeholder="Ex: À bientôt !" value="${escapeHtml(config.goodbye_footer)}" onchange="update('goodbye_footer', this.value)">
+                                    </div>
+                                    <div class="switch-group">
+                                        <div>
+                                            <span style="font-weight:600;">Ping le membre partant</span>
+                                            <p class="form-hint" style="margin-top:2px;">Mentionne le membre dans le message</p>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" ${config.goodbye_ping ? 'checked' : ''} onchange="update('goodbye_ping', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                </div>
+                                ${isPremium ? '' : lockOverlay('Personnalisation embed')}
+                            </div>
+                        </div>
+                        <div class="card premium-card-plus">
+                            <h4><i class="fas fa-crown" style="color:#fbbf24;"></i> MP de Bienvenue <span class="pf-badge" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;padding:0.15rem 0.5rem;border-radius:6px;font-size:0.65rem;font-weight:800;">PREMIUM+</span></h4>
+                            <p class="card-desc">Envoie un message privé personnalisé à chaque nouveau membre.</p>
+                            <div class="premium-fields ${isPremiumPlus ? '' : 'locked'}" style="border-top:none;margin-top:0;padding-top:0;">
+                                <div class="pf-content">
+                                    <div class="switch-group">
+                                        <div>
+                                            <span style="font-weight:600;">Activer le MP de bienvenue</span>
+                                            <p class="form-hint" style="margin-top:2px;">Le bot enverra un MP au membre</p>
+                                        </div>
+                                        <label class="switch">
+                                            <input type="checkbox" ${config.welcome_dm_enabled ? 'checked' : ''} onchange="update('welcome_dm_enabled', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Message du MP</label>
+                                        <textarea placeholder="Ex: Salut {user}, bienvenue sur {guild} !" onchange="update('welcome_dm_message', this.value)">${escapeHtml(config.welcome_dm_message)}</textarea>
+                                        <span class="form-hint">Variables disponibles: {user}, {username}, {guild}, {count}</span>
+                                    </div>
+                                </div>
+                                ${isPremiumPlus ? '' : lockOverlayPlus('MP de bienvenue')}
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-user-edit"></i> Demande de Pseudo</h4>
+                            <p class="card-desc">Canal où les membres peuvent soumettre une demande de pseudo.</p>
+                            <div class="form-group">
+                                <label>Canal</label>
+                                <select onchange="update('nickname_request_channel', this.value)">
+                                    <option value="">— Désactivé —</option>
+                                    ${channels.map(c => `<option value="${c.id}" ${config.nickname_request_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Sécurité (AutoMod + Anti-Raid) -->
+                <div class="tab-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card">
+                            <h4><i class="fas fa-robot"></i> AutoMod</h4>
+                            <p class="card-desc">Le bot surveille automatiquement les messages et applique des sanctions en cas d'infraction.</p>
+                            <div class="switch-group">
+                                <div>
+                                    <span style="font-weight: 600;">Activer AutoMod</span>
+                                    <p class="form-hint" style="margin-top: 2px;">Surveillance automatique des messages</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" ${config.automod_enabled ? 'checked' : ''} onchange="update('automod_enabled', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-top: 0.5rem;">
+                                <label>Action en cas d'infraction</label>
+                                <select onchange="update('automod_action', this.value)">
+                                    <option value="warn" ${config.automod_action === 'warn' ? 'selected' : ''}>⚠️ Avertissement (Warn)</option>
+                                    <option value="mute" ${config.automod_action === 'mute' ? 'selected' : ''}>🔇 Mute temporaire</option>
+                                    <option value="kick" ${config.automod_action === 'kick' ? 'selected' : ''}>👢 Expulsion (Kick)</option>
+                                    <option value="ban"  ${config.automod_action === 'ban'  ? 'selected' : ''}>🔨 Bannissement (Ban)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Durée du Mute (si action = Mute)</label>
+                                <input type="number" value="${config.automod_mute_duration || 10}" min="1" max="1440" onchange="update('automod_mute_duration', parseInt(this.value))">
+                                <span class="form-hint">En minutes — de 1 à 1440 min (24h)</span>
+                            </div>
+                        </div>
+                        <div class="card premium-fields ${isPremium ? '' : 'locked'}" style="position:relative;">
+                            <h4><i class="fas fa-user-shield"></i> Anti-Raid <span class="pf-badge" style="margin-left:0.5rem;">PREMIUM</span></h4>
+                            <p class="card-desc">Détecte les arrivées massives de comptes suspects et applique une action automatique.</p>
+                            <div class="pf-content">
+                                <div class="switch-group">
+                                    <div>
+                                        <span style="font-weight:600;">Activer Anti-Raid</span>
+                                        <p class="form-hint" style="margin-top:2px;">Surveille les vagues d'arrivées suspectes</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" ${(config.anti_raid || {}).enabled ? 'checked' : ''} ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('enabled', this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-top:0.5rem;">
+                                    <label>Seuil de déclenchement</label>
+                                    <input type="number" value="${escapeHtml(parseInt((config.anti_raid || {}).threshold) || 5)}" min="2" max="100" ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('threshold', Math.max(2, Math.min(100, parseInt(this.value) || 5)))">
+                                    <span class="form-hint">Nombre de nouvelles arrivées dans la fenêtre</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Fenêtre de détection (secondes)</label>
+                                    <input type="number" value="${escapeHtml(parseInt((config.anti_raid || {}).window) || 10)}" min="5" max="600" ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('window', Math.max(5, Math.min(600, parseInt(this.value) || 10)))">
+                                    <span class="form-hint">Durée d'analyse — entre 5 et 600 secondes</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Âge minimum du compte (jours)</label>
+                                    <input type="number" value="${escapeHtml(parseInt((config.anti_raid || {}).min_account_age_days) || 7)}" min="0" max="365" ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('min_account_age_days', Math.max(0, Math.min(365, parseInt(this.value) || 7)))">
+                                    <span class="form-hint">Comptes plus jeunes considérés comme suspects</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Action en cas de raid</label>
+                                    <select ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('action', this.value)">
+                                        <option value="lockdown" ${(config.anti_raid || {}).action === 'lockdown' ? 'selected' : ''}>🔒 Lockdown du serveur</option>
+                                        <option value="kick" ${(config.anti_raid || {}).action === 'kick' ? 'selected' : ''}>👢 Kick des suspects</option>
+                                        <option value="ban" ${(config.anti_raid || {}).action === 'ban' ? 'selected' : ''}>🔨 Ban des suspects</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Canal d'alerte</label>
+                                    <select ${isPremium ? '' : 'disabled'} onchange="updateAntiRaid('log_channel_id', this.value ? parseInt(this.value) : null)">
+                                        <option value="">— Canal Logs par défaut —</option>
+                                        ${channels.map(c => `<option value="${c.id}" ${(config.anti_raid || {}).log_channel_id == c.id ? 'selected' : ''}># ${escapeHtml(c.name)}</option>`).join('')}
+                                    </select>
+                                    <span class="form-hint">Où envoyer les alertes anti-raid</span>
+                                </div>
+                            </div>
+                            ${isPremium ? '' : lockOverlay('Anti-Raid')}
+                        </div>
+                        <div class="card" style="position:relative;">
+                            <h4><i class="fas fa-link-slash"></i> Anti-Lien (Automod)</h4>
+                            <p class="card-desc">Supprime automatiquement les messages contenant un lien externe non autorisé.</p>
+                            <div class="pf-content">
+                                <div class="switch-group">
+                                    <div>
+                                        <span style="font-weight:600;">Activer Anti-Lien</span>
+                                        <p class="form-hint" style="margin-top:2px;">Supprime tout message contenant un lien non autorisé.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" ${config.antilink_enabled ? 'checked' : ''} onchange="update('antilink_enabled', this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <div class="switch-group" style="margin-top:0.5rem;background:rgba(255,80,80,0.08);border-radius:8px;padding:0.5rem 0.6rem;">
+                                    <div>
+                                        <span style="font-weight:600;color:#ff6b6b;">🚫 Bloquer TOUS les liens</span>
+                                        <p class="form-hint" style="margin-top:2px;">Bloque même les liens Discord, Tenor et Giphy. La whitelist est ignorée.</p>
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" ${config.antilink_block_all ? 'checked' : ''} onchange="update('antilink_block_all', this.checked)">
+                                        <span class="slider" style="--slider-on:#ff6b6b;"></span>
+                                    </label>
+                                </div>
+                                <div class="form-group" style="margin-top:0.75rem;">
+                                    <label>Domaines whitelistés</label>
+                                    <div id="antilink-tags" style="display:flex;flex-wrap:wrap;gap:0.4rem;min-height:36px;padding:0.4rem;background:var(--input-bg,#1e1f22);border:1px solid var(--border,#3a3b3d);border-radius:8px;margin-bottom:0.4rem;">
+                                        ${((config.antilink_whitelist) || []).map(d => `
+                                        <span class="al-tag" style="display:inline-flex;align-items:center;gap:0.3rem;background:var(--accent,#5865f2);color:#fff;border-radius:6px;padding:0.2rem 0.5rem;font-size:0.82rem;font-family:monospace;">
+                                            ${escapeHtml(d)}
+                                            <button onclick="removeAntilinkDomain('${escapeHtml(d)}')" style="background:none;border:none;color:#fff;cursor:pointer;font-size:0.9rem;line-height:1;padding:0;opacity:0.8;" title="Supprimer">×</button>
+                                        </span>`).join('')}
+                                    </div>
+                                    <div style="display:flex;gap:0.5rem;">
+                                        <input id="antilink-input" type="text" placeholder="ex: youtube.com" style="flex:1;padding:0.4rem 0.6rem;border-radius:8px;border:1px solid var(--border,#3a3b3d);background:var(--input-bg,#1e1f22);color:inherit;font-size:0.9rem;" onkeydown="if(event.key==='Enter'){event.preventDefault();addAntilinkDomain();}">
+                                        <button onclick="addAntilinkDomain()" style="padding:0.4rem 0.9rem;border-radius:8px;background:var(--accent,#5865f2);color:#fff;border:none;cursor:pointer;font-size:0.85rem;font-weight:600;">+ Ajouter</button>
+                                    </div>
+                                    <span class="form-hint">Sous-domaines inclus automatiquement (ex: <code>youtube.com</code> couvre <code>music.youtube.com</code>). Appuie sur Entrée ou clique + Ajouter.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Logs -->
+                <div class="tab-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card">
+                            <h4><i class="fas fa-history"></i> Canal de Logs</h4>
+                            <p class="card-desc">Toutes les actions de modération seront envoyées dans ce canal.</p>
+                            <div class="form-group">
+                                <label>Canal</label>
+                                <select onchange="update('log_channel', this.value)">
+                                    <option value="">— Désactivé —</option>
+                                    ${channels.map(c => `<option value="${c.id}" ${config.log_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-bell"></i> Notifications de Modération</h4>
+                            <p class="card-desc">Choisissez quelles actions sont enregistrées dans les logs.</p>
+                            <div class="notif-grid">
+                                ${Object.entries(notifLabels).map(([type, label]) => `
+                                    <div class="notif-item">
+                                        <span>${label}</span>
+                                        <label class="switch" style="transform: scale(0.85); flex-shrink: 0;">
+                                            <input type="checkbox" ${(config.log_notifications || {})[type] !== false ? 'checked' : ''} 
+                                                   onchange="updateNotification('${type}', this.checked)">
+                                            <span class="slider"></span>
+                                        </label>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="card premium-fields ${isPremium ? '' : 'locked'}" style="position:relative;grid-column: 1 / -1;">
+                            <h4><i class="fas fa-search"></i> Recherche dans les logs <span class="pf-badge" style="margin-left:0.5rem;">PREMIUM</span></h4>
+                            <p class="card-desc">Filtrez les sanctions et événements automod persistés sur le serveur.</p>
+                            <div class="pf-content">
+                                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;">
+                                    <div class="form-group">
+                                        <label>Texte libre</label>
+                                        <input type="text" id="logsearch-q" ${isPremium ? '' : 'disabled'} placeholder="raison, pseudo, ID...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select id="logsearch-type" ${isPremium ? '' : 'disabled'}>
+                                            <option value="all">Tous</option>
+                                            <option value="mod">Modération</option>
+                                            <option value="automod">Automod</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Action</label>
+                                        <select id="logsearch-action" ${isPremium ? '' : 'disabled'}>
+                                            <option value="">Toutes</option>
+                                            <option value="warn">Warn</option>
+                                            <option value="mute">Mute</option>
+                                            <option value="kick">Kick</option>
+                                            <option value="ban">Ban</option>
+                                            <option value="unmute">Unmute</option>
+                                            <option value="unban">Unban</option>
+                                            <option value="forbidden_words">Mots interdits</option>
+                                            <option value="uppercase_spam">Spam majuscules</option>
+                                            <option value="mention_spam">Spam mentions</option>
+                                            <option value="url_link">Lien interdit</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>ID utilisateur</label>
+                                        <input type="text" id="logsearch-user" ${isPremium ? '' : 'disabled'} placeholder="ex: 123456789012345678">
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+                                    <button class="btn-primary" ${isPremium ? '' : 'disabled'} onclick="runLogSearch()" style="display:inline-flex;align-items:center;gap:0.4rem;">
+                                        <i class="fas fa-search"></i> Rechercher
+                                    </button>
+                                    <span id="logsearch-status" class="form-hint" style="align-self:center;"></span>
+                                </div>
+                                <div id="logsearch-results" style="margin-top:1rem;max-height:420px;overflow-y:auto;"></div>
+                            </div>
+                            ${isPremium ? '' : lockOverlay('Recherche dans les logs')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: XP -->
+                <div class="tab-content">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="card">
+                            <h4><i class="fas fa-chart-line"></i> Système de Niveaux</h4>
+                            <p class="card-desc">Configurez comment les membres gagnent de l'XP sur ce serveur.</p>
+                            <div class="switch-group">
+                                <div>
+                                    <span style="font-weight: 600;">Activer le système XP</span>
+                                    <p class="form-hint" style="margin-top: 2px;">Les membres gagnent de l'XP en envoyant des messages</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" ${config.xp_enabled !== false ? 'checked' : ''} onchange="update('xp_enabled', this.checked)">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group" style="margin-top: 0.5rem;">
+                                <label>XP par message</label>
+                                <input type="number" value="${config.xp_per_message || 15}" min="1" max="100" onchange="update('xp_per_message', parseInt(this.value))">
+                                <span class="form-hint">Entre 1 et 100 XP par message envoyé</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Canal d'annonce de niveau</label>
+                                <select onchange="update('level_up_channel', this.value)">
+                                    <option value="">— Même canal que le message —</option>
+                                    ${channels.map(c => `<option value="${c.id}" ${config.level_up_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                                </select>
+                                <span class="form-hint">Canal où le bot annonce les montées de niveau</span>
+                            </div>
+                        </div>
+                        <div class="card premium-fields ${isPremium ? '' : 'locked'}" style="position:relative;">
+                            <h4><i class="fas fa-palette"></i> Carte de niveau personnalisée <span class="pf-badge" style="margin-left:0.5rem;">PREMIUM</span></h4>
+                            <p class="card-desc">Personnalisez les couleurs et l'image de fond affichée par <code>/niveau</code>.</p>
+                            <div class="pf-content">
+                                <div class="form-group">
+                                    <label>Couleur de fond</label>
+                                    <input type="color" value="${escapeHtml(config.rank_bg_color || '#1a1b1f')}" ${isPremium ? '' : 'disabled'} onchange="update('rank_bg_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Couleur du texte</label>
+                                    <input type="color" value="${escapeHtml(config.rank_text_color || '#ffffff')}" ${isPremium ? '' : 'disabled'} onchange="update('rank_text_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Barre XP — début (gradient)</label>
+                                    <input type="color" value="${escapeHtml(config.rank_bar_start_color || '#5865f2')}" ${isPremium ? '' : 'disabled'} onchange="update('rank_bar_start_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Barre XP — fin (gradient)</label>
+                                    <input type="color" value="${escapeHtml(config.rank_bar_end_color || '#ffd700')}" ${isPremium ? '' : 'disabled'} onchange="update('rank_bar_end_color', this.value)" style="height:42px;padding:4px;cursor:pointer;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Image de fond (URL)</label>
+                                    <input type="url" placeholder="https://exemple.com/mon-fond.png" value="${escapeHtml(config.rank_bg_image || '')}" ${isPremium ? '' : 'disabled'} onchange="update('rank_bg_image', this.value.trim())">
+                                    <span class="form-hint">PNG/JPG public. Un voile sombre est ajouté pour la lisibilité.</span>
+                                </div>
+                            </div>
+                            ${isPremium ? '' : lockOverlay('Carte de niveau personnalisée')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 5: Stats avancées -->
+                <div class="tab-content">
+                    <div class="card premium-fields ${isPremium ? '' : 'locked'}" style="position:relative;">
+                        <h4><i class="fas fa-chart-line"></i> Stats avancées <span class="pf-badge" style="margin-left:0.5rem;">PREMIUM</span></h4>
+                        <p class="card-desc">Suivez l'évolution de votre serveur. Les données s'enrichissent au fil du temps — la première courbe complète demande quelques jours de collecte.</p>
+                        <div class="pf-content">
+                            <div id="stats-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                                <div class="card" style="padding:0.9rem;text-align:center;">
+                                    <div style="font-size:0.78rem;opacity:0.7;">Membres actuels</div>
+                                    <div id="stat-members" style="font-size:1.6rem;font-weight:700;margin-top:0.25rem;">—</div>
+                                </div>
+                                <div class="card" style="padding:0.9rem;text-align:center;">
+                                    <div style="font-size:0.78rem;opacity:0.7;">Messages 30j</div>
+                                    <div id="stat-messages" style="font-size:1.6rem;font-weight:700;margin-top:0.25rem;">—</div>
+                                </div>
+                                <div class="card" style="padding:0.9rem;text-align:center;">
+                                    <div style="font-size:0.78rem;opacity:0.7;">Sanctions 30j</div>
+                                    <div id="stat-sanctions" style="font-size:1.6rem;font-weight:700;margin-top:0.25rem;color:#fca5a5;">—</div>
+                                </div>
+                                <div class="card" style="padding:0.9rem;text-align:center;">
+                                    <div style="font-size:0.78rem;opacity:0.7;">Tickets 30j</div>
+                                    <div id="stat-tickets" style="font-size:1.6rem;font-weight:700;margin-top:0.25rem;color:#fbbf24;">—</div>
+                                </div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:1rem;">
+                                <div class="card" style="padding:1rem;">
+                                    <h5 style="margin-bottom:0.5rem;font-size:0.95rem;"><i class="fas fa-users"></i> Évolution des membres (30j)</h5>
+                                    <div style="height:220px;"><canvas id="chart-members"></canvas></div>
+                                </div>
+                                <div class="card" style="padding:1rem;">
+                                    <h5 style="margin-bottom:0.5rem;font-size:0.95rem;"><i class="fas fa-comments"></i> Messages par jour (30j)</h5>
+                                    <div style="height:220px;"><canvas id="chart-messages"></canvas></div>
+                                </div>
+                                <div class="card" style="padding:1rem;">
+                                    <h5 style="margin-bottom:0.5rem;font-size:0.95rem;"><i class="fas fa-gavel"></i> Sanctions par type (30j)</h5>
+                                    <div style="height:220px;"><canvas id="chart-sanctions"></canvas></div>
+                                </div>
+                                <div class="card" style="padding:1rem;">
+                                    <h5 style="margin-bottom:0.5rem;font-size:0.95rem;"><i class="fas fa-info-circle"></i> Activité quotidienne</h5>
+                                    <div id="stats-activity" style="font-size:0.85rem;line-height:1.7;">Chargement…</div>
+                                </div>
+                            </div>
+                            <p class="form-hint" style="margin-top:0.75rem;">📌 Cette section est en lecture seule. Les graphiques s'enrichissent automatiquement à mesure que le bot collecte les données quotidiennes.</p>
+                        </div>
+                        ${isPremium ? '' : lockOverlay('Stats avancées')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateNotification(type, enabled) {
+            if (!currentConfig.log_notifications) currentConfig.log_notifications = {};
+            currentConfig.log_notifications[type] = enabled;
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        function updateAntiRaid(key, value) {
+            if (!currentConfig.anti_raid) {
+                currentConfig.anti_raid = {
+                    enabled: false, threshold: 5, window: 10,
+                    min_account_age_days: 7, action: 'lockdown', log_channel_id: null
+                };
+            }
+            currentConfig.anti_raid[key] = value;
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        async function runLogSearch() {
+            if (!selectedServer) return;
+            const status = document.getElementById('logsearch-status');
+            const results = document.getElementById('logsearch-results');
+            const params = new URLSearchParams();
+            const q = (document.getElementById('logsearch-q').value || '').trim();
+            const t = document.getElementById('logsearch-type').value || 'all';
+            const a = document.getElementById('logsearch-action').value || '';
+            const u = (document.getElementById('logsearch-user').value || '').trim();
+            if (q) params.set('q', q);
+            if (t && t !== 'all') params.set('type', t);
+            if (a) params.set('action', a);
+            if (u) params.set('user_id', u);
+            params.set('limit', '100');
+            status.textContent = 'Recherche…';
+            results.innerHTML = '';
+            try {
+                const res = await fetch(`/api/server/${selectedServer.id}/logs/search?${params.toString()}`);
+                if (res.status === 402) {
+                    status.textContent = 'Premium requis pour cette fonctionnalité.';
+                    return;
+                }
+                if (!res.ok) {
+                    status.textContent = `Erreur ${res.status}`;
+                    return;
+                }
+                const data = await res.json();
+                const logs = Array.isArray(data.logs) ? data.logs : [];
+                status.textContent = `${data.total || 0} résultat(s).`;
+                if (!logs.length) {
+                    results.innerHTML = '<p class="form-hint" style="margin-top:0.5rem;">Aucune entrée trouvée.</p>';
+                    return;
+                }
+                const fmt = (iso) => {
+                    if (!iso) return '—';
+                    try { return new Date(iso).toLocaleString('fr-FR'); } catch (e) { return iso; }
+                };
+                results.innerHTML = `
+                    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                        <thead>
+                            <tr style="text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);">
+                                <th style="padding:0.4rem;">Date</th>
+                                <th style="padding:0.4rem;">Type</th>
+                                <th style="padding:0.4rem;">Action</th>
+                                <th style="padding:0.4rem;">Cible</th>
+                                <th style="padding:0.4rem;">Modérateur</th>
+                                <th style="padding:0.4rem;">Raison</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${logs.map(l => `
+                                <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <td style="padding:0.4rem;white-space:nowrap;">${escapeHtml(fmt(l.ts))}</td>
+                                    <td style="padding:0.4rem;">${escapeHtml(l.kind || '')}</td>
+                                    <td style="padding:0.4rem;">${escapeHtml(l.action || '')}</td>
+                                    <td style="padding:0.4rem;">${escapeHtml(l.user_name || '')}<br><small style="opacity:0.6;">${escapeHtml(String(l.user_id || ''))}</small></td>
+                                    <td style="padding:0.4rem;">${escapeHtml(l.moderator_name || '')}</td>
+                                    <td style="padding:0.4rem;">${escapeHtml(l.reason || '')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (e) {
+                console.error(e);
+                status.textContent = 'Erreur réseau.';
+            }
+        }
+
+        function switchTab(idx) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+            if (idx === 5) loadAdvancedStats();
+        }
+
+        // ============================================================
+        // STATS AVANCÉES (lecture seule, Premium)
+        // ============================================================
+        const _statsCharts = {};
+        async function loadAdvancedStats() {
+            if (!selectedServer) return;
+            const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+            const activity = document.getElementById('stats-activity');
+            try {
+                const res = await fetch(`/api/server/${selectedServer.id}/stats/advanced`);
+                if (res.status === 402) {
+                    if (activity) activity.innerHTML = '🔒 Cette section est réservée aux serveurs Premium.';
+                    return;
+                }
+                if (!res.ok) {
+                    if (activity) activity.innerHTML = '⚠️ Erreur de chargement des statistiques.';
+                    return;
+                }
+                const data = await res.json();
+                setText('stat-members', (data.member_count || 0).toLocaleString('fr-FR'));
+                setText('stat-messages', (data.messages_30d || 0).toLocaleString('fr-FR'));
+                setText('stat-sanctions', (data.sanctions_30d || 0).toLocaleString('fr-FR'));
+                setText('stat-tickets', `${(data.tickets_30d || 0).toLocaleString('fr-FR')}${data.tickets_open ? ' (' + data.tickets_open + ' ouverts)' : ''}`);
+
+                const history = Array.isArray(data.history) ? data.history : [];
+                const labels = history.map(h => h.date.slice(5));
+                const members = history.map(h => h.members || 0);
+                const messages = history.map(h => h.messages || 0);
+
+                _drawLineChart('chart-members', labels, members, '#7c3aed', 'Membres');
+                _drawLineChart('chart-messages', labels, messages, '#10b981', 'Messages');
+                _drawSanctionsChart('chart-sanctions', data.sanctions_by_action || {});
+
+                if (activity) {
+                    if (history.length === 0) {
+                        activity.innerHTML = '⏳ Aucune donnée historique pour le moment. Le bot collecte les statistiques chaque heure — reviens dans 24h pour voir les premières courbes.';
+                    } else {
+                        const lastDay = history[history.length - 1] || {};
+                        activity.innerHTML = `
+                            <div><strong>Dernière collecte :</strong> ${lastDay.date || '—'}</div>
+                            <div><strong>Membres ce jour-là :</strong> ${(lastDay.members || 0).toLocaleString('fr-FR')}</div>
+                            <div><strong>Messages ce jour-là :</strong> ${(lastDay.messages || 0).toLocaleString('fr-FR')}</div>
+                            <div><strong>Sanctions ce jour-là :</strong> ${(lastDay.sanctions || 0).toLocaleString('fr-FR')}</div>
+                            <div style="margin-top:0.5rem;opacity:0.7;">Historique disponible : ${history.length} jour(s).</div>
+                        `;
+                    }
+                }
+            } catch (e) {
+                console.error('loadAdvancedStats:', e);
+                if (activity) activity.innerHTML = '⚠️ Erreur réseau pendant le chargement.';
+            }
+        }
+        function _drawLineChart(canvasId, labels, values, color, label) {
+            const el = document.getElementById(canvasId);
+            if (!el || typeof Chart === 'undefined') return;
+            if (_statsCharts[canvasId]) _statsCharts[canvasId].destroy();
+            _statsCharts[canvasId] = new Chart(el, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label, data: values,
+                        borderColor: color, backgroundColor: color + '33',
+                        tension: 0.3, fill: true, pointRadius: 2,
+                    }],
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                    },
+                },
+            });
+        }
+        function _drawSanctionsChart(canvasId, byAction) {
+            const el = document.getElementById(canvasId);
+            if (!el || typeof Chart === 'undefined') return;
+            const entries = Object.entries(byAction);
+            const labels = entries.map(([k]) => k);
+            const values = entries.map(([, v]) => v);
+            const colors = ['#ef4444', '#f59e0b', '#fbbf24', '#a855f7', '#7c3aed', '#10b981', '#06b6d4', '#ec4899'];
+            if (_statsCharts[canvasId]) _statsCharts[canvasId].destroy();
+            if (entries.length === 0) {
+                const ctx = el.getContext('2d');
+                ctx.clearRect(0, 0, el.width, el.height);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Aucune sanction sur les 30 derniers jours.', el.width / 2, el.height / 2);
+                return;
+            }
+            _statsCharts[canvasId] = new Chart(el, {
+                type: 'bar',
+                data: { labels, datasets: [{ data: values, backgroundColor: labels.map((_, i) => colors[i % colors.length]) }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                    },
+                },
+            });
+        }
+
+        function update(key, value) {
+            currentConfig[key] = value;
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        function _renderAntilinkTags() {
+            const container = document.getElementById('antilink-tags');
+            if (!container) return;
+            const list = currentConfig.antilink_whitelist || [];
+            container.innerHTML = list.map(d => `
+                <span class="al-tag" style="display:inline-flex;align-items:center;gap:0.3rem;background:var(--accent,#5865f2);color:#fff;border-radius:6px;padding:0.2rem 0.5rem;font-size:0.82rem;font-family:monospace;">
+                    ${d.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+                    <button onclick="removeAntilinkDomain('${d.replace(/'/g,"\\'")}')" style="background:none;border:none;color:#fff;cursor:pointer;font-size:0.9rem;line-height:1;padding:0;opacity:0.8;" title="Supprimer">×</button>
+                </span>`).join('');
+        }
+
+        function addAntilinkDomain() {
+            const input = document.getElementById('antilink-input');
+            if (!input) return;
+            const raw = input.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+            if (!raw) return;
+            if (!currentConfig.antilink_whitelist) currentConfig.antilink_whitelist = [];
+            if (currentConfig.antilink_whitelist.includes(raw)) { input.value = ''; return; }
+            currentConfig.antilink_whitelist = [...currentConfig.antilink_whitelist, raw];
+            input.value = '';
+            _renderAntilinkTags();
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        function removeAntilinkDomain(domain) {
+            if (!currentConfig.antilink_whitelist) return;
+            currentConfig.antilink_whitelist = currentConfig.antilink_whitelist.filter(d => d !== domain);
+            _renderAntilinkTags();
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        async function saveAll() {
+            if (!selectedServer) return;
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sauvegarde...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`/api/server/${selectedServer.id}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentConfig)
+                });
+
+                let body = {};
+                try { body = await res.json(); } catch (_) { body = {}; }
+
+                if (!res.ok) {
+                    const msg = body.error || `Erreur ${res.status} ${res.statusText}`;
+                    console.error('Save failed', res.status, body);
+                    alert("❌ Sauvegarde refusée : " + msg);
+                    return;
+                }
+
+                const rejected = Array.isArray(body.rejected_premium_keys) ? body.rejected_premium_keys : [];
+                if (rejected.length > 0) {
+                    alert("⚠️ Certaines options Premium n'ont pas été sauvegardées car ce serveur n'a pas le tier requis :\n• " + rejected.join('\n• '));
+                }
+
+                showToast();
+                unsavedChanges = false;
+                btn.style.display = 'none';
+                // Recharger la config depuis le serveur pour confirmer la persistance
+                try {
+                    const reloadRes = await fetch(`/api/server/${selectedServer.id}/config`);
+                    if (reloadRes.ok) {
+                        currentConfig = await reloadRes.json();
+                        const [channelsRes, rolesRes] = await Promise.all([
+                            fetch(`/api/server/${selectedServer.id}/channels`),
+                            fetch(`/api/server/${selectedServer.id}/roles`)
+                        ]);
+                        const channels = channelsRes.ok ? (await channelsRes.json()).channels : [];
+                        const roles = rolesRes.ok ? (await rolesRes.json()).roles : [];
+                        showConfig(selectedServer.name, currentConfig, channels, roles);
+                    }
+                } catch (_) {}
+            } catch (e) {
+                console.error(e);
+                alert("❌ Erreur réseau lors de la sauvegarde : " + (e?.message || e));
+            } finally {
+                btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer les changements';
+                btn.disabled = false;
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('active');
+            setTimeout(() => toast.classList.remove('active'), 3000);
+        }
+
+        window.onbeforeunload = function() {
+            if (unsavedChanges) return "Vous avez des changements non enregistrés.";
+        };
+
+        let cachedServers = [];
+        let premiumInfo = { user: { tier: 'free', is_premium: false }, guilds: {} };
+
+        function premiumBadgeForGuild(gid) {
+            const info = premiumInfo.guilds[String(gid)];
+            if (!info || !info.is_premium) return '';
+            if (info.is_free_premium) {
+                return `<span class="server-tier-badge free-gift" title="Premium+ offert gratuitement">🎁 PREMIUM+</span>`;
+            }
+            const cls = info.tier === 'premium_plus' ? 'plus' : '';
+            const label = info.tier === 'premium_plus' ? '👑 PREMIUM+' : '💎 PREMIUM';
+            return `<span class="server-tier-badge ${cls}">${label}</span>`;
+        }
+
+        function renderServerList(servers, keepActive) {
+            const list = document.getElementById('server-list');
+            if (!list) return;
+            if (!servers.length) {
+                list.innerHTML = '<p style="text-align:center;padding:1rem;color:var(--text-secondary);">Aucun serveur trouvé</p>';
+                return;
+            }
+            const present = servers.filter(s => s.in_guild !== false);
+            const absent = servers.filter(s => s.in_guild === false);
+
+            function renderItem(s) {
+                const inGuild = s.in_guild !== false;
+                const presence = inGuild
+                    ? `<span class="bot-badge present">● En ligne</span>`
+                    : `<span class="bot-badge absent">+ Ajouter</span>`;
+                const tierBadge = premiumBadgeForGuild(s.id);
+                const statusClass = inGuild ? ' bot-present' : ' bot-absent';
+                const activeClass = (keepActive && selectedServer && selectedServer.id === s.id) ? ' active' : '';
+                const serverName = String(s.name || 'Serveur sans nom');
+                const safeName = serverName.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\r?\n/g, ' ');
+                const safeId = String(s.id || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+                const iconHash = String(s.icon || '').trim();
+                const iconExtension = iconHash.startsWith('a_') ? 'gif' : 'png';
+                const iconUrl = iconHash
+                    ? `https://cdn.discordapp.com/icons/${encodeURIComponent(s.id)}/${encodeURIComponent(iconHash)}.${iconExtension}?size=96`
+                    : '';
+                const initial = escapeHtml(serverName.trim().charAt(0) || '?');
+                const avatar = iconUrl
+                    ? `<img class="server-avatar" src="${iconUrl}" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">`
+                    : '';
+                return `<div class="server-item${statusClass}${activeClass}" data-id="${escapeHtml(s.id)}" data-in-guild="${inGuild}" onclick="selectServer('${safeId}', '${safeName}', ${inGuild})" title="${inGuild ? escapeHtml(serverName) : 'Cliquer pour ajouter le bot à ce serveur'}">
+                    <span class="server-avatar-wrap">
+                        ${avatar}
+                        <span class="server-avatar-fallback" ${iconUrl ? 'hidden' : ''}>${initial}</span>
+                    </span>
+                    <span class="server-name" title="${escapeHtml(serverName)}">${escapeHtml(serverName)}</span>
+                    ${tierBadge}
+                    ${presence}
+                </div>`;
+            }
+
+            let html = '';
+            if (present.length) {
+                html += present.map(renderItem).join('');
+            }
+            if (absent.length) {
+                html += `<div style="margin:0.75rem 0 0.4rem;padding:0.3rem 0.5rem;font-size:0.7rem;font-weight:700;letter-spacing:0.08em;color:var(--text-secondary);text-transform:uppercase;border-top:1px solid rgba(255,255,255,0.06);">➕ Ajouter le bot</div>`;
+                html += absent.map(renderItem).join('');
+            }
+            list.innerHTML = html;
+        }
+
+        function renderPremiumCards() {
+            const u = premiumInfo.user || {};
+            const sidebar = document.getElementById('premium-card');
+            const welcome = document.getElementById('welcome-premium');
+
+            // Le Premium fonctionne uniquement par serveur.
+            // On affiche le statut basé sur les serveurs admin de l'utilisateur,
+            // sauf cas spécial owner du bot (badge interne).
+            const premiumGuilds = Object.entries(premiumInfo.guilds || {})
+                .filter(([id, g]) => g.is_premium)
+                .map(([id, g]) => {
+                    const srv = (cachedServers || []).find(s => String(s.id) === id);
+                    return { ...g, id, name: srv ? srv.name : id };
+                });
+            const freeGifts = premiumGuilds.filter(g => g.is_free_premium).length;
+
+            // Sidebar mini-card
+            if (sidebar) {
+                sidebar.style.display = 'block';
+                if (u.is_owner) {
+                    sidebar.innerHTML = `
+                        <div class="pcs-tier">👑 Compte propriétaire du bot</div>
+                        <div class="pcs-sub">Accès aux commandes /premium-admin</div>
+                        <a href="/premium">Voir les avantages →</a>
+                    `;
+                } else if (premiumGuilds.length) {
+                    sidebar.innerHTML = `
+                        <div class="pcs-tier">💎 Accès Premium</div>
+                        <div class="pcs-sub">${premiumGuilds.length} serveur(s) Premium${freeGifts ? ` (dont ${freeGifts} offert)` : ''}</div>
+                        <a href="/premium">Découvrir les avantages →</a>
+                    `;
+                } else {
+                    sidebar.innerHTML = `
+                        <div class="pcs-tier">🆓 Plan Gratuit</div>
+                        <div class="pcs-sub">Active Premium sur tes serveurs</div>
+                        <a href="/premium">Voir les tarifs →</a>
+                    `;
+                }
+            }
+
+            // Construit la liste des guildes premium avec bouton annulation
+            // (utilisée dans toutes les branches ci-dessous)
+            function buildPremiumGuildRows(currentUserId) {
+                return premiumGuilds.map(g => {
+                    const tierLabel = g.tier === 'premium_plus' ? '👑 PREMIUM+' : '💎 PREMIUM';
+                    const isFree = g.is_free_premium;
+                    const isGrantedByMe = g.granted_by && String(g.granted_by) === String(currentUserId);
+                    const cancelBtn = (!isFree && isGrantedByMe)
+                        ? `<button class="btn-cancel-sub" onclick="openCancelModal('${g.id}', '${(g.name||'ce serveur').replace(/'/g,"\\'")}')">Annuler</button>`
+                        : '';
+                    const freeTag = isFree ? '<span style="font-size:0.65rem;color:#34d399;margin-left:4px;">🎁 offert</span>' : '';
+                    return `
+                        <div class="premium-guild-row">
+                            <span class="pgr-name">${g.name || g.id}</span>
+                            <span class="pgr-tier">${tierLabel}${freeTag}</span>
+                            ${cancelBtn}
+                        </div>`;
+                }).join('');
+            }
+
+            // Welcome banner
+            if (welcome && !selectedServer) {
+                const currentUserId = String(u.id || '');
+                const cancellableGuilds = premiumGuilds.filter(g =>
+                    !g.is_free_premium && g.granted_by && String(g.granted_by) === currentUserId
+                );
+                const hasPlusSubscription = cancellableGuilds.some(g => g.tier === 'premium_plus');
+
+                if (u.is_owner) {
+                    // Owner : carte propriétaire + liste des abonnements annulables en-dessous
+                    const ownerGuildSection = cancellableGuilds.length ? `
+                        <div style="margin-top:1rem;width:100%;">
+                            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem;">Tes abonnements actifs :</p>
+                            <div class="premium-guild-list">${buildPremiumGuildRows(currentUserId)}</div>
+                        </div>` : '';
+                    welcome.innerHTML = `
+                        <div class="premium-welcome-card" style="flex-direction:column;align-items:flex-start;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:1rem;flex-wrap:wrap;">
+                                <div class="pwc-left">
+                                    <h3>👑 Compte propriétaire du bot</h3>
+                                    <p style="margin:0;">Tu as accès aux commandes <code>/premium-admin</code> pour gérer les abonnements.</p>
+                                </div>
+                                <a href="/premium">Voir les avantages</a>
+                            </div>
+                            ${ownerGuildSection}
+                        </div>
+                    `;
+                } else if (premiumGuilds.length) {
+                    const guildRows = buildPremiumGuildRows(currentUserId);
+                    const slotsPanelPlaceholder = hasPlusSubscription
+                        ? `<div id="plus-slots-container" style="width:100%;"><p style="font-size:0.75rem;color:var(--text-secondary);margin:0.5rem 0;">Chargement des slots Premium+…</p></div>`
+                        : '';
+                    welcome.innerHTML = `
+                        <div class="premium-welcome-card" style="flex-direction:column;align-items:flex-start;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;gap:1rem;flex-wrap:wrap;">
+                                <div class="pwc-left">
+                                    <h3>${hasPlusSubscription ? '👑 Tu as accès au Premium+' : '💎 Tu as accès au Premium'}</h3>
+                                    <p style="margin:0;">${premiumGuilds.length} serveur(s) Premium actif(s).</p>
+                                </div>
+                                <a href="/premium" style="flex-shrink:0;">Voir les avantages</a>
+                            </div>
+                            <div class="premium-guild-list">${guildRows}</div>
+                            ${slotsPanelPlaceholder}
+                        </div>
+                    `;
+                    if (hasPlusSubscription) loadPlusSlots();
+                } else {
+                    welcome.innerHTML = `
+                        <div class="premium-welcome-card">
+                            <div class="pwc-left">
+                                <h3>💎 Passez au Premium</h3>
+                                <p>Anti-Raid, embeds personnalisés, rappels, sondages multi-options et plus — activable sur chaque serveur.</p>
+                            </div>
+                            <a href="/premium">Découvrir Premium</a>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        async function loadPremiumInfo() {
+            try {
+                // Cassement cache : le statut Premium peut changer à tout moment.
+                const res = await fetch('/api/user/premium?_=' + Date.now(), {
+                    cache: 'no-store',
+                    headers: { 'Cache-Control': 'no-cache' },
+                });
+                if (!res.ok) return;
+                premiumInfo = await res.json();
+                renderPremiumCards();
+                if (cachedServers.length) renderServerList(cachedServers, true);
+            } catch(e) { console.error(e); }
+        }
+
+        // Rafraîchit le statut Premium toutes les 30s pour suivre les
+        // grant/revoke faits via /premium-admin sans recharger la page.
+        setInterval(() => { loadPremiumInfo(); }, 30000);
+
+        async function refreshBadges() {
+            try {
+                const res = await fetch('/api/servers/presence');
+                if (!res.ok) return;
+                const { bot_ids } = await res.json();
+                const botSet = new Set(bot_ids);
+                let changed = false;
+
+                cachedServers.forEach(s => {
+                    const nowInGuild = botSet.has(String(s.id));
+                    if ((s.in_guild !== false) !== nowInGuild) {
+                        s.in_guild = nowInGuild;
+                        changed = true;
+                        if (selectedServer && selectedServer.id === String(s.id)) {
+                            selectedServer.inGuild = nowInGuild;
+                        }
+                    }
+                });
+
+                if (changed) renderServerList(cachedServers, true);
+            } catch(e) {}
+        }
+
+        async function reloadFullList() {
+            try {
+                const res = await fetch('/api/servers');
+                if (!res.ok) return;
+                const servers = await res.json();
+                if (!Array.isArray(servers)) return;
+                if (servers.length === 0 && cachedServers.length > 0) {
+                    console.warn('reloadFullList: API a renvoyé une liste vide, on garde le cache pour éviter de faire disparaître les serveurs.');
+                    return;
+                }
+                const oldIds = new Set(cachedServers.map(s => String(s.id)));
+                const newIds = new Set(servers.map(s => String(s.id)));
+                const hasNew = servers.some(s => !oldIds.has(String(s.id)));
+                const hasRemoved = cachedServers.some(s => !newIds.has(String(s.id)));
+                if (hasNew || hasRemoved) {
+                    cachedServers = servers;
+                    renderServerList(servers, true);
+                }
+            } catch(e) {}
+        }
+
+        async function loadServers() {
+            try {
+                const res = await fetch('/api/servers');
+                if (!res.ok) {
+                    console.error('Échec /api/servers', res.status, res.statusText);
+                    const list = document.getElementById('server-list');
+                    if (list) {
+                        if (res.status === 401) {
+                            list.innerHTML = `
+                                <div style="text-align:center;padding:1.5rem;color:#e57373;">
+                                    <p style="margin-bottom:0.75rem;">⚠️ Ta session Discord a expiré (les jetons OAuth durent 7 jours).</p>
+                                    <a href="/login" style="display:inline-block;padding:0.5rem 1rem;background:#5865f2;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">🔄 Me reconnecter avec Discord</a>
+                                </div>`;
+                        } else {
+                            list.innerHTML = `<p style="text-align:center;padding:1rem;color:#e57373;">⚠️ Impossible de charger la liste (${res.status}). Réessaie dans quelques secondes.</p>`;
+                        }
+                    }
+                    return;
+                }
+                let servers = await res.json();
+                if (!Array.isArray(servers)) {
+                    console.error('Format inattendu /api/servers', servers);
+                    servers = [];
+                }
+                cachedServers = servers;
+                renderServerList(servers, false);
+                // Re-render premium cards maintenant que cachedServers est rempli
+                // (résout la race condition avec loadPremiumInfo)
+                if (Object.keys(premiumInfo.guilds || {}).length) renderPremiumCards();
+
+                const pathMatch = window.location.pathname.match(/\/user\/server\/(\d+)/);
+                if (pathMatch) {
+                    const guildId = pathMatch[1];
+                    const server = servers.find(s => String(s.id) === guildId);
+                    if (server) selectServer(String(server.id), server.name, server.in_guild !== false);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // ----- Premium+ Slot Management -----
+        let _plusSlotsData = null;
+
+        async function loadPlusSlots() {
+            try {
+                const res = await fetch('/api/subscription/slots', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                _plusSlotsData = await res.json();
+                renderPlusSlots(_plusSlotsData);
+            } catch(e) { console.error('[slots]', e); }
+        }
+
+        function renderPlusSlots(data) {
+            const container = document.getElementById('plus-slots-container');
+            if (!container || !data || !data.has_plus_subscription) return;
+
+            const { guild_ids, max_slots, order_id } = data;
+            const usedCount = guild_ids.length;
+            const filledRows = guild_ids.map(gid => {
+                const srv = (cachedServers || []).find(s => String(s.id) === String(gid));
+                const name = srv ? srv.name : gid;
+                return `
+                    <div class="plus-slot-row">
+                        <span class="plus-slot-badge">👑</span>
+                        <span class="plus-slot-name" title="${name}">${name}</span>
+                        <button class="btn-slot-remove" onclick="removePlusSlot('${gid}', '${name.replace(/'/g, "\\'")}')">Retirer</button>
+                    </div>`;
+            }).join('');
+
+            const emptySlots = max_slots - usedCount;
+            let emptyRowsHtml = '';
+            if (emptySlots > 0) {
+                const eligibleServers = (cachedServers || []).filter(s =>
+                    !guild_ids.includes(String(s.id))
+                );
+                const options = eligibleServers.map(s =>
+                    `<option value="${s.id}">${s.name}</option>`
+                ).join('');
+                for (let i = 0; i < emptySlots; i++) {
+                    emptyRowsHtml += `
+                        <div class="plus-slot-row empty">
+                            <span class="plus-slot-name" style="color:var(--text-secondary);font-style:italic;">Slot disponible</span>
+                        </div>`;
+                }
+                emptyRowsHtml += `
+                    <div class="plus-slot-add-row" style="margin-top:0.4rem;">
+                        <select class="plus-slot-select" id="plus-slot-select">
+                            <option value="">Choisir un serveur…</option>
+                            ${options}
+                        </select>
+                        <button class="btn-slot-add" onclick="addPlusSlot()">+ Activer</button>
+                    </div>`;
+            }
+
+            container.innerHTML = `
+                <div class="plus-slots-panel">
+                    <h4>👑 Serveurs Premium+ (${usedCount}/${max_slots})</h4>
+                    ${filledRows}
+                    ${emptyRowsHtml}
+                </div>`;
+        }
+
+        async function addPlusSlot() {
+            const sel = document.getElementById('plus-slot-select');
+            if (!sel || !sel.value) { alert('Sélectionne un serveur à activer.'); return; }
+            const guildId = sel.value;
+            const btn = sel.parentElement.querySelector('.btn-slot-add');
+            if (btn) { btn.disabled = true; btn.textContent = 'Activation…'; }
+            try {
+                const res = await fetch('/api/subscription/slots/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guild_id: guildId }),
+                    credentials: 'same-origin',
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    await loadPlusSlots();
+                    await loadPremiumInfo();
+                } else {
+                    alert('❌ ' + (data.error || 'Erreur lors de l\'ajout.'));
+                    if (btn) { btn.disabled = false; btn.textContent = '+ Activer'; }
+                }
+            } catch(e) {
+                alert('❌ Erreur réseau.');
+                if (btn) { btn.disabled = false; btn.textContent = '+ Activer'; }
+            }
+        }
+
+        async function removePlusSlot(guildId, guildName) {
+            if (!confirm(`Retirer "${guildName}" du Premium+ ? Le serveur repassera en plan Gratuit immédiatement.`)) return;
+            try {
+                const res = await fetch('/api/subscription/slots/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guild_id: guildId }),
+                    credentials: 'same-origin',
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    await loadPlusSlots();
+                    await loadPremiumInfo();
+                } else {
+                    alert('❌ ' + (data.error || 'Erreur lors de la suppression.'));
+                }
+            } catch(e) {
+                alert('❌ Erreur réseau.');
+            }
+        }
+
+        // ----- Annulation d'abonnement -----
+        let _cancelGuildId = null;
+        let _cancelGuildName = null;
+
+        function openCancelModal(guildId, guildName) {
+            _cancelGuildId = guildId;
+            _cancelGuildName = guildName;
+            document.getElementById('cancel-modal-text').textContent =
+                `Confirme l'annulation de l'abonnement Premium pour "${guildName}". Le Premium restera actif jusqu'à la fin de la période déjà payée, puis sera automatiquement retiré.`;
+            document.getElementById('cancel-sub-modal').classList.add('active');
+        }
+
+        function closeCancelModal() {
+            _cancelGuildId = null;
+            _cancelGuildName = null;
+            document.getElementById('cancel-sub-modal').classList.remove('active');
+        }
+
+        async function confirmCancelSubscription() {
+            if (!_cancelGuildId) return;
+            const btn = document.getElementById('cancel-modal-confirm-btn');
+            btn.disabled = true;
+            btn.textContent = 'Annulation...';
+            try {
+                const res = await fetch('/api/subscription/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ guild_id: _cancelGuildId }),
+                });
+                const data = await res.json();
+                closeCancelModal();
+                if (res.ok && data.success) {
+                    alert(`✅ Abonnement annulé avec succès pour "${_cancelGuildName || _cancelGuildId}".\n\nLe Premium restera actif jusqu'à la fin de la période déjà payée.`);
+                    await loadPremiumInfo();
+                } else {
+                    alert(`❌ Erreur : ${data.error || 'Impossible d\'annuler l\'abonnement.'}`);
+                }
+            } catch(e) {
+                closeCancelModal();
+                alert('❌ Erreur réseau. Réessaie dans quelques instants.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Annuler l'abonnement";
+            }
+        }
+
+        // Fermer le modal en cliquant en dehors
+        document.getElementById('cancel-sub-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeCancelModal();
+        });
+
+        loadServers();
+        loadPremiumInfo();
+        setInterval(refreshBadges, 3000);
+        setInterval(reloadFullList, 30000);
+        setInterval(loadPremiumInfo, 60000);
+    </script>
+</body>
+</html>

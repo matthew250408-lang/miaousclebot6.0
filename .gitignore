@@ -30,6 +30,8 @@ node_modules
 # misc
 /.sass-cache
 /connect.lock
+bot/botdiscordoff/web/data/.maintenance-checker.lock
+bot/botdiscordoff/web/data/maintenance_history.json
 /coverage
 /libpeerconnection.log
 npm-debug.log

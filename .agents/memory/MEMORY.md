@@ -1,0 +1,5 @@
+- [Bot dashboard source](active-dashboard.md) — le preview actif du dashboard Flask et du bot utilise `bot/botdiscordoff`, pas les copies `botbot/`.
+- [Maintenance sous Gunicorn](maintenance-gunicorn.md) — la boucle planifiée doit démarrer à l’import avec un verrou inter-processus et comparer toutes les dates en UTC.
+- [Paiements administrables](payment-controls.md) — tout blocage de fournisseur ou de plan doit être appliqué par l’API et rester cohérent avec les états de la fenêtre d’achat.
+- [Imported repository startup](project-import.md) — après création d’un projet depuis un dépôt existant, le workflow racine doit viser les vrais dossiers de services.
+- [Dashboard dependency install](dashboard-dependency-install.md) — installer le dashboard avec le filtre pnpm si une dépendance de génération bloque l’installation globale.

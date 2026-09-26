@@ -1,0 +1,1342 @@
+# cogs/moderation.py
+"""
+Module de modération complètes avec sanctions, automod, et logging.
+- Mute / Ban / Kick / Warn / Unmute / Unban
+- Automod automatique pour vocabulaire interdit, spam
+- Logging complet avec translations multilangues
+"""
+import discord
+from discord.ext import commands
+from discord import app_commands, Interaction
+from utils.embeds import create_embed
+from utils.database import add_warning, get_warnings, load_config
+from utils.translations import get_text
+import asyncio
+import logging
+import random
+import string
+from datetime import datetime, timedelta, timezone
+from enum import Enum
+import re
+from typing import Optional, Union, Tuple, List
+
+logger = logging.getLogger(__name__)
+
+# Configuration
+OWNER_ID = 653038666625785866
+PRIORITY_IDS = {OWNER_ID, 1140296215469240401}
+
+# ============================================================================
+# Constants & Enums
+# ============================================================================
+class SanctionType(Enum):
+    """Types de sanctions disponibles"""
+    WARN = "warn"
+    BAN = "ban"
+    UNBAN = "unban"
+    KICK = "kick"
+    MUTE = "mute"
+    UNMUTE = "unmute"
+    AUTO_MOD = "auto_mod"
+
+
+class AutomodViolationType(Enum):
+    """Types de violations Automod"""
+    FORBIDDEN_WORDS = "forbidden_words"
+    UPPERCASE_SPAM = "uppercase_spam"
+    MENTION_SPAM = "mention_spam"
+
+
+# Vocabulaire interdit (gros mots français et anglais)
+FORBIDDEN_WORDS = {
+    # Français
+    "putain", "pute", "salope", "connard", "con", "conne", "merde", "chieur",
+    "encule", "enculee", "tard", "débile", "handicapé", "handicapée", "péde",
+    "tapette", "salaud", "salopard", "estropie", "pimbêche", "tarte", "connasse",
+    "fdp", "bâtard", "racaille", "gueule", "ferme-la",
+    # Anglais
+    "fuck", "shit", "ass", "bitch", "bastard", "asshole", "damn", "hell",
+    "crap", "piss", "whore", "slut", "douchebag", "dickhead",
+}
+
+# Expressions régulières interdites
+FORBIDDEN_PHRASES = [
+    r"\bta[ -]?gueule\b",
+    r"\bferme[ -]?(?:ta[ -]?)?gueule\b",
+    r"\bferme[ -]?la\b",
+    r"\b(?:pute|putain|salope|pimbêche)\b",
+    r"\bconnard\b",
+    r"\bcona?rd\b",
+    r"\bencul[ée]?\b",
+    r"\b(?:merde|chiant|chieur)\b",
+    r"\bestrop[ié]?e?\b",
+    r"\btard\b",
+    r"\b(?:débile|handicapé|handicapée)\b",
+    r"\b(?:pédé|tapette)\b",
+    r"\b(?:con|conne)\b(?!.*qu)",
+    r"\b(?:salaud|salopard)\b",
+    r"\b(?:pauvre type|débile profond)\b",
+]
+
+# Valeurs par défaut pour Automod
+DEFAULT_AUTOMOD_SETTINGS = {
+    "enabled": True,
+    "action": "warn",  # warn, mute, kick, ban
+    "duration_minutes": 10,
+}
+
+# ============================================================================
+# Utility Functions
+# ============================================================================
+def generate_sanction_id(sanction_type: Optional[SanctionType] = None) -> str:
+    """
+    Génère un ID intelligent pour une sanction au format: {TYPE}-{DATE}-{CODE}
+    Exemple: W-251130-A7X2K (Warn le 25/11/2030 avec code unique de 5 caractères)
+    
+    Args:
+        sanction_type: Type de sanction (pour le préfixe)
+        
+    Returns:
+        ID formaté du type: W-251130-A7X2K
+    """
+    # Mapping des préfixes pour chaque type
+    type_prefixes = {
+        SanctionType.WARN: "W",
+        SanctionType.BAN: "B",
+        SanctionType.UNBAN: "UB",
+        SanctionType.KICK: "K",
+        SanctionType.MUTE: "M",
+        SanctionType.UNMUTE: "UM",
+        SanctionType.AUTO_MOD: "AM",
+    }
+    
+    # Obtenir le préfixe selon le type
+    prefix = type_prefixes.get(sanction_type, "SN") if sanction_type else "SN"
+    
+    # Date au format DDMMYY (exemple: 251130 = 25/11/30)
+    now = datetime.now(timezone.utc)
+    date_str = now.strftime("%d%m%y")
+    
+    # Code aléatoire unique - EXACTEMENT 5 caractères min/max
+    code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    
+    # Format final: W-251130-A7X2K (avec code de EXACTEMENT 5 caractères)
+    return f"{prefix}-{date_str}-{code}"
+
+
+def format_duration(minutes: Optional[int]) -> Optional[str]:
+    """Formatte une durée en minutes de manière lisible."""
+    if minutes is None:
+        return None
+    if minutes < 60:
+        return f"{minutes}m"
+    hours = minutes // 60
+    mins = minutes % 60
+    return f"{hours}h {mins}m" if mins else f"{hours}h"
+
+
+def censor_forbidden_words(content: str) -> Tuple[str, bool]:
+    """
+    Remplace les gros mots interdits par des *** et retourne le texte censuré.
+    
+    Returns:
+        tuple: (texte_censuré, a_des_gros_mots)
+    """
+    censored = content
+    found_forbidden = False
+
+    # Remplacer les mots interdits simples
+    words_lower = content.lower().split()
+    for word in words_lower:
+        clean_word = word.strip('.,!?;:\'"')
+        if clean_word in FORBIDDEN_WORDS:
+            found_forbidden = True
+            censored = re.sub(r'\b' + word + r'\b', '*' * len(word), censored, flags=re.IGNORECASE)
+
+    # Vérifier les expressions interdites
+    for pattern in FORBIDDEN_PHRASES:
+        if re.search(pattern, content, re.IGNORECASE):
+            found_forbidden = True
+            censored = re.sub(pattern, lambda m: '*' * len(m.group(0)), censored, flags=re.IGNORECASE)
+
+    return censored, found_forbidden
+
+
+# ============================================================================
+# Moderation Cog
+# ============================================================================
+class Moderation(commands.Cog):
+    """Cog de modération: mute/ban/kick/warn/unmute/unban/automod."""
+
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
+        self._config_cache = {}  # Cache pour les configurations
+
+    # ========================================================================
+    # Helper Methods - Configuration & Cache
+    # ========================================================================
+    async def _get_config(self, guild_id: int) -> dict:
+        """Récupère la configuration du serveur avec cache."""
+        if guild_id not in self._config_cache:
+            self._config_cache[guild_id] = load_config(guild_id) or {}
+        return self._config_cache[guild_id]
+
+    def _invalidate_config_cache(self, guild_id: int) -> None:
+        """Invalide le cache de configuration d'un serveur."""
+        if guild_id in self._config_cache:
+            del self._config_cache[guild_id]
+
+    async def _resolve_log_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
+        """Résout le canal de logs configuré pour le serveur."""
+        try:
+            config = await self._get_config(guild.id)
+            channel_id = config.get("log_channel")
+            if not channel_id:
+                return None
+
+            try:
+                channel_id = int(channel_id)
+            except (TypeError, ValueError):
+                return None
+
+            channel = self.bot.get_channel(channel_id) or guild.get_channel(channel_id)
+            if isinstance(channel, discord.TextChannel):
+                return channel
+        except Exception as e:
+            logger.debug(f"Erreur lors de la résolution du canal de logs: {e}")
+
+        return None
+
+    async def _resolve_automod_channel(self, guild: discord.Guild) -> Optional[discord.TextChannel]:
+        """Résout le canal d'automod configuré pour le serveur."""
+        try:
+            config = await self._get_config(guild.id)
+            channel_id = config.get("automod_channel")
+            if not channel_id:
+                return None
+
+            try:
+                channel_id = int(channel_id)
+            except (TypeError, ValueError):
+                return None
+
+            channel = self.bot.get_channel(channel_id) or guild.get_channel(channel_id)
+            if isinstance(channel, discord.TextChannel):
+                return channel
+        except Exception as e:
+            logger.debug(f"Erreur lors de la résolution du canal automod: {e}")
+
+        return None
+
+    # ========================================================================
+    # Helper Methods - Notifications & Logging
+    # ========================================================================
+    async def _send_dm(
+        self,
+        user: Union[discord.User, discord.Member, int],
+        title: str,
+        fields: Optional[List[Tuple[str, str]]] = None,
+        footer: Optional[str] = None,
+        action_type: Optional[SanctionType] = None,
+        guild_id: Optional[int] = None,
+    ) -> bool:
+        """Envoie un DM stylisé avec design personnalisé."""
+        try:
+            # Si user est un int (ID), fetch l'utilisateur
+            if isinstance(user, int):
+                try:
+                    user = await self.bot.fetch_user(user)
+                    logger.info(f"✅ User fetch réussi pour ID {user.id}")
+                except Exception as e:
+                    logger.info(f"Impossible de fetch l'utilisateur {user}: {e}")
+                    return False
+            
+            color_map = {
+                SanctionType.BAN: 0xff0000,
+                SanctionType.KICK: 0xff5500,
+                SanctionType.MUTE: 0xff6600,
+                SanctionType.WARN: 0xffaa00,
+                SanctionType.UNMUTE: 0x00cc66,
+                SanctionType.UNBAN: 0x00cc66,
+            }
+            
+            emoji_map = {
+                SanctionType.BAN: "🚫",
+                SanctionType.KICK: "👢",
+                SanctionType.MUTE: "🔇",
+                SanctionType.WARN: "⚠️",
+                SanctionType.UNMUTE: "🔊",
+                SanctionType.UNBAN: "✅",
+            }
+            
+            color = color_map.get(action_type, 0xff5733) if action_type else 0xff5733
+            emoji = emoji_map.get(action_type, "⚠️") if action_type else "⚠️"
+            
+            embed = discord.Embed(
+                title=f"{emoji} {title}",
+                color=color,
+                description="Vous avez reçu une sanction sur un serveur Discord"
+            )
+            
+            if fields:
+                for name, value in fields:
+                    if name not in ["ID Sanction", "Sanction ID"]:
+                        embed.add_field(name=name, value=value, inline=False)
+            
+            # Ajouter le lien du serveur de débann si BAN du serveur 1188506879052238988
+            DEBAN_SERVER_ID = 1188506879052238988
+            if action_type == SanctionType.BAN and guild_id == DEBAN_SERVER_ID:
+                embed.add_field(
+                    name="\u200b",
+                    value="[🔗 Rejoins le serveur de déban](https://discord.gg/mq3pYpfxeV)",
+                    inline=False
+                )
+                embed.add_field(
+                    name="\u200b",
+                    value="*Vous avez la possibilité de demander un débannissement*",
+                    inline=False
+                )
+            
+            embed.set_thumbnail(url="https://cdn.discordapp.com/embed/avatars/0.png")
+            embed.set_footer(text="🐱 Miaouscle Moderation Team", icon_url="https://cdn.discordapp.com/embed/avatars/1.png")
+            embed.timestamp = datetime.now(timezone.utc)
+            
+            logger.info(f"📨 Tentative d'envoi DM à {user.id}")
+            await user.send(embed=embed)
+            logger.info(f"✅ DM envoyé à {user.id}")
+            return True
+        except discord.HTTPException as e:
+            logger.error(f"❌ Erreur HTTP DM pour {user}: {e}")
+            return False
+        except discord.ClientException as e:
+            logger.error(f"❌ Erreur Client DM pour {user}: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"❌ Erreur générale DM pour {user}: {type(e).__name__}: {e}")
+            return False
+
+    async def _send_mod_log(
+        self,
+        guild: discord.Guild,
+        action: str,
+        moderator: Union[discord.Member, discord.User],
+        target: Union[discord.Member, discord.User, str],
+        reason: Optional[str] = None,
+        duration: Optional[str] = None,
+        sanction_id: Optional[str] = None,
+        is_automod: bool = False,
+    ) -> None:
+        """Envoie un log détaillé et professionnel."""
+        try:
+            channel = await self._resolve_log_channel(guild)
+            if not channel:
+                return
+
+            action_config = {
+                "warn": ("⚠️", 0xffaa00, "AVERTISSEMENT"),
+                "mute": ("🔇", 0xff6600, "MUET"),
+                "unmute": ("🔊", 0x00cc66, "DÉMUET"),
+                "ban": ("🚫", 0xff0000, "BANNI"),
+                "unban": ("✅", 0x00cc66, "DÉBANNI"),
+                "kick": ("👢", 0xff5500, "EXPULSÉ"),
+            }
+            
+            emoji, color, action_name = action_config.get(action, ("🔨", 0xff9900, "SANCTION"))
+            if is_automod:
+                emoji, color, action_name = "🤖", 0x00aaff, "AUTOMOD"
+
+            embed = discord.Embed(
+                title=f"{emoji} Log de Modération",
+                color=color,
+                description=f"**Action**: {action_name}",
+                timestamp=datetime.now(timezone.utc)
+            )
+            
+            mod_str = moderator.mention if hasattr(moderator, 'mention') else str(moderator)
+            target_str = target.mention if isinstance(target, (discord.Member, discord.User)) else str(target)
+            
+            embed.add_field(name="👤 Cible", value=target_str, inline=True)
+            embed.add_field(name="⚔️ Modérateur", value=mod_str, inline=True)
+            
+            if reason:
+                embed.add_field(name="📝 Raison", value=f"```{reason}```", inline=False)
+            
+            if duration:
+                embed.add_field(name="⏱️ Durée", value=f"**{duration}**", inline=True)
+            
+            if sanction_id:
+                embed.add_field(name="🎫 ID Sanction", value=f"`{sanction_id}`", inline=True)
+            
+            embed.set_footer(text=f"Serveur: {guild.name}", icon_url=guild.icon.url if guild.icon else None)
+
+            await channel.send(embed=embed)
+        except Exception as e:
+            logger.debug(f"Erreur log: {e}")
+
+    async def _send_automod_log(
+        self,
+        guild: Optional[discord.Guild],
+        violation_type: AutomodViolationType,
+        user: Union[discord.Member, discord.User],
+        channel: Union[discord.TextChannel, discord.VoiceChannel],
+        reason: Optional[str],
+        censored_content: str,
+    ) -> None:
+        """Envoie un log d'automod dans le canal configuré."""
+        if not guild:
+            return
+        
+        try:
+            automod_channel = await self._resolve_automod_channel(guild)
+            if not automod_channel:
+                return
+
+            embed = discord.Embed(
+                title=get_text(guild.id, "moderation.automod_title"),
+                color=0xff6600,
+                timestamp=datetime.now(timezone.utc),
+            )
+
+            embed.add_field(
+                name=get_text(guild.id, "moderation.automod_user"),
+                value=f"{user.mention} ({user})",
+                inline=False,
+            )
+            embed.add_field(
+                name=get_text(guild.id, "moderation.automod_type"),
+                value=violation_type.value.upper(),
+                inline=True,
+            )
+            embed.add_field(
+                name=get_text(guild.id, "moderation.reason"),
+                value=reason,
+                inline=True,
+            )
+            embed.add_field(
+                name=get_text(guild.id, "moderation.channel"),
+                value=channel.mention,
+                inline=True,
+            )
+            embed.add_field(
+                name=get_text(guild.id, "moderation.message"),
+                value=f"```{censored_content[:200]}```",
+                inline=False,
+            )
+            embed.set_footer(text=f"User ID: {user.id}")
+
+            await automod_channel.send(embed=embed)
+        except Exception as e:
+            logger.debug(f"Erreur lors de l'envoi du log automod: {e}")
+
+    # ========================================================================
+    # Helper Methods - Sanction Application
+    # ========================================================================
+    async def _apply_sanction(
+        self,
+        interaction: discord.Interaction,
+        member: Union[discord.Member, discord.User, int],
+        reason: str,
+        action_type: SanctionType,
+        minutes: Optional[int] = None,
+    ) -> None:
+        """
+        Applique une sanction et effectue tous les logs/notifications.
+        """
+        sanction_id = generate_sanction_id(action_type)
+        duration_text = format_duration(minutes) if minutes else None
+        guild_id = interaction.guild.id if interaction.guild else 0
+
+        # Defer si pas encore répondu
+        try:
+            await interaction.response.defer(thinking=True)
+        except Exception:
+            pass
+
+        try:
+            guild = interaction.guild
+            actor = interaction.user
+
+            # Validation des permissions
+            if guild and isinstance(actor, discord.Member):
+                required_perms = {
+                    SanctionType.BAN: "ban_members",
+                    SanctionType.KICK: "kick_members",
+                    SanctionType.MUTE: "manage_messages",
+                    SanctionType.UNMUTE: "manage_messages",
+                    SanctionType.UNBAN: "ban_members",
+                    SanctionType.WARN: "manage_messages",
+                }
+
+                perm = required_perms.get(action_type)
+                if perm:
+                    has_perm = (
+                        getattr(actor.guild_permissions, perm, False)
+                        or actor.id in PRIORITY_IDS
+                    )
+                    if not has_perm:
+                        await interaction.followup.send(
+                            embed=create_embed(
+                                get_text(guild_id, "moderation.permission_error"),
+                                get_text(guild_id, "moderation.permission_error_desc"),
+                                0xff0000,
+                            ),
+                            ephemeral=True,
+                        )
+                        return
+
+            # Initialiser member_id au début
+            member_id = None
+            if isinstance(member, int):
+                member_id = member
+            elif member and hasattr(member, "id"):
+                member_id = member.id
+
+            # POUR BAN: Vérifier la possibilité AVANT d'envoyer DM
+            if guild and member_id and action_type == SanctionType.BAN:
+                already_banned = False
+                try:
+                    await guild.fetch_ban(discord.Object(member_id))
+                    already_banned = True
+                except discord.NotFound:
+                    already_banned = False
+                except Exception:
+                    already_banned = False
+                
+                if already_banned:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            "❌ Utilisateur Déjà Banni",
+                            f"L'utilisateur est déjà banni du serveur.",
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+                
+                # Vérifier si on peut vraiment bannir
+                can_ban = False
+                try:
+                    if isinstance(member, discord.Member):
+                        can_ban = guild.me.top_role > member.top_role
+                    else:
+                        can_ban = True  # Si pas de member, on peut essayer
+                except Exception:
+                    can_ban = False
+                
+                if not can_ban:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            "❌ Impossible de Bannir",
+                            f"Le bot n'a pas les permissions pour bannir cet utilisateur.",
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+
+            # ENVOYER LE DM AVANT L'ACTION - SAUF POUR WARN/UNMUTE/UNBAN
+            if guild and member_id and action_type in [SanctionType.BAN, SanctionType.KICK, SanctionType.MUTE]:
+                user_to_dm = None
+                try:
+                    if isinstance(member, (discord.User, discord.Member)):
+                        user_to_dm = member
+                    else:
+                        user_to_dm = await self.bot.fetch_user(member_id)
+                except Exception as e:
+                    logger.info(f"Impossible de fetch user {member_id}: {e}")
+                    user_to_dm = None
+                
+                if user_to_dm:
+                    dm_fields = [(get_text(guild_id, "common.server"), guild.name)]
+                    if reason:
+                        dm_fields.append((get_text(guild_id, "moderation.reason"), reason))
+                    if action_type == SanctionType.MUTE and duration_text:
+                        dm_fields.append((get_text(guild_id, "moderation.duration"), duration_text))
+                    dm_fields.append((get_text(guild_id, "moderation.sanction_id"), sanction_id))
+
+                    dm_result = await self._send_dm(
+                        user_to_dm,
+                        self._get_sanction_title(guild_id, action_type, guild_name=guild.name if action_type == SanctionType.BAN else None),
+                        dm_fields,
+                        get_text(guild_id, "moderation.timeout_end_footer"),
+                        action_type=action_type,
+                        guild_id=guild_id,
+                    )
+                    if dm_result:
+                        logger.info(f"✅ DM ENVOYÉ AVANT {action_type.value} à {member_id}")
+                    else:
+                        logger.warning(f"⚠️ Impossible d'envoyer DM AVANT {action_type.value} à {member_id}")
+
+            # Application de l'action
+            if action_type == SanctionType.MUTE:
+                if minutes is None:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            get_text(guild_id, "moderation.mute.missing_duration"),
+                            get_text(guild_id, "moderation.mute.missing_duration_desc"),
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+
+                if isinstance(member, discord.Member):
+                    until = datetime.now(timezone.utc) + timedelta(minutes=minutes)
+                    await member.timeout(until, reason=f"{actor}: {reason}")
+                    self.bot.loop.create_task(self._notify_timeout_end(member, minutes, sanction_id))
+                else:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            get_text(guild_id, "moderation.mute.member_only_error"),
+                            get_text(guild_id, "moderation.mute.member_only_error_desc"),
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+
+            elif action_type == SanctionType.BAN:
+                # Appliquer le ban (vérifications déjà faites plus haut)
+                if isinstance(member, discord.Member):
+                    await member.ban(reason=f"{actor}: {reason}")
+                elif isinstance(member, discord.User) and guild:
+                    await guild.ban(member, reason=f"{actor}: {reason}")
+                elif isinstance(member, int) and guild:
+                    user = await self.bot.fetch_user(member)
+                    await guild.ban(user, reason=f"{actor}: {reason}")
+
+            elif action_type == SanctionType.KICK:
+                if isinstance(member, discord.Member):
+                    await member.kick(reason=f"{actor}: {reason}")
+                else:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            get_text(guild_id, "moderation.kick.member_only_error"),
+                            "",
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+
+            elif action_type == SanctionType.UNMUTE:
+                if isinstance(member, discord.Member):
+                    await member.timeout(None, reason=f"{actor}: {reason}")
+                else:
+                    await interaction.followup.send(
+                        embed=create_embed(
+                            get_text(guild_id, "moderation.unmute.member_only_error"),
+                            get_text(guild_id, "moderation.unmute.member_only_error_desc"),
+                            0xff0000,
+                        ),
+                        ephemeral=True,
+                    )
+                    return
+
+            elif action_type == SanctionType.UNBAN:
+                if guild:
+                    try:
+                        # Si member est un int (ID), l'utiliser directement
+                        if isinstance(member, int):
+                            user = await self.bot.fetch_user(member)
+                            await guild.unban(user, reason=f"{actor}: {reason}")
+                        else:
+                            await guild.unban(member, reason=f"{actor}: {reason}")
+                    except discord.NotFound:
+                        await interaction.followup.send(
+                            embed=create_embed(
+                                "❌ Utilisateur Non Banni",
+                                f"L'utilisateur n'est pas banni du serveur.",
+                                0xff0000,
+                            ),
+                            ephemeral=True,
+                        )
+                        return
+                    except Exception as e:
+                        logger.debug(f"Erreur débannissement: {e}")
+                        raise
+
+            elif action_type == SanctionType.WARN:
+                pass  # Aucune action Discord, juste enregistrer
+
+            # Enregistrement en base de données
+            try:
+                if guild and member_id:
+                    add_warning(
+                        guild.id,
+                        member_id,
+                        actor.id,
+                        f"{reason} ({duration_text})" if duration_text else reason,
+                        action_type.value,
+                        sanction_id=sanction_id,
+                    )
+            except Exception as e:
+                logger.exception("Erreur lors de l'enregistrement de la sanction")
+
+            # DM APRÈS L'ACTION pour UNMUTE/UNBAN (débannissement réussi)
+            if guild and member_id and action_type in [SanctionType.UNMUTE, SanctionType.UNBAN]:
+                user_to_dm = None
+                try:
+                    if isinstance(member, (discord.User, discord.Member)):
+                        user_to_dm = member
+                    else:
+                        user_to_dm = await self.bot.fetch_user(member_id)
+                except Exception as e:
+                    logger.info(f"Impossible de fetch user {member_id}: {e}")
+                    user_to_dm = None
+                
+                if user_to_dm:
+                    dm_fields = [(get_text(guild_id, "common.server"), guild.name)]
+                    if reason:
+                        dm_fields.append((get_text(guild_id, "moderation.reason"), reason))
+                    dm_fields.append((get_text(guild_id, "moderation.sanction_id"), sanction_id))
+
+                    dm_result = await self._send_dm(
+                        user_to_dm,
+                        self._get_sanction_title(guild_id, action_type),
+                        dm_fields,
+                        get_text(guild_id, "moderation.timeout_end_footer"),
+                        action_type=action_type,
+                        guild_id=guild_id,
+                    )
+                    if dm_result:
+                        logger.info(f"✅ DM APRÈS {action_type.value} à {member_id}")
+                    else:
+                        logger.warning(f"⚠️ Impossible d'envoyer DM APRÈS {action_type.value} à {member_id}")
+
+                # Log
+                log_target = member if not isinstance(member, int) else str(member_id)
+                await self._send_mod_log(
+                    guild,
+                    action_type.value,
+                    actor,
+                    log_target,
+                    reason=reason,
+                    duration=duration_text,
+                    sanction_id=sanction_id,
+                )
+
+            # Confirmation en embed stylisé
+            action_names = {
+                SanctionType.WARN: "Avertissement",
+                SanctionType.MUTE: "Mute",
+                SanctionType.BAN: "Ban",
+                SanctionType.KICK: "Kick",
+                SanctionType.UNMUTE: "Démute",
+                SanctionType.UNBAN: "Débannissement",
+            }
+            
+            action_colors = {
+                SanctionType.WARN: 0xffaa00,
+                SanctionType.MUTE: 0xff6600,
+                SanctionType.BAN: 0xff0000,
+                SanctionType.KICK: 0xff5500,
+                SanctionType.UNMUTE: 0x00cc66,
+                SanctionType.UNBAN: 0x00cc66,
+            }
+            
+            member_str = getattr(member, "mention", str(member))
+            confirm_embed = discord.Embed(
+                title=f"✅ {action_names.get(action_type, 'Sanction')} Appliquée",
+                color=action_colors.get(action_type, 0xff6600),
+                description=f"{member_str} a bien été sanctionné(e)"
+            )
+            
+            confirm_embed.add_field(name="📋 Action", value=action_names.get(action_type, 'Sanction'), inline=True)
+            confirm_embed.add_field(name="👤 Cible", value=member_str, inline=True)
+            
+            if reason:
+                confirm_embed.add_field(name="📝 Raison", value=f"```{reason}```", inline=False)
+            
+            if duration_text:
+                confirm_embed.add_field(name="⏱️ Durée", value=f"**{duration_text}**", inline=True)
+            
+            confirm_embed.set_footer(text="Miaouscle Moderation")
+            confirm_embed.timestamp = datetime.now(timezone.utc)
+
+            await interaction.followup.send(embed=confirm_embed)
+
+        except discord.Forbidden:
+            await interaction.followup.send(
+                embed=create_embed(
+                    get_text(guild_id, "moderation.bot_permissions_error"),
+                    get_text(guild_id, "moderation.bot_permissions_error_desc"),
+                    0xff0000,
+                ),
+                ephemeral=True,
+            )
+        except Exception as e:
+            logger.exception(f"Erreur lors de l'application de la sanction: {e}")
+            error_embed = create_embed(
+                get_text(guild_id, "moderation.apply_error"),
+                get_text(guild_id, "moderation.apply_error_desc", error=str(e)),
+                0xff0000,
+            )
+            await interaction.followup.send(embed=error_embed, ephemeral=True)
+
+    async def _notify_timeout_end(self, member: Union[discord.Member, discord.User], minutes: int, sanction_id: str) -> None:
+        """Notifie l'utilisateur que son mute est terminé."""
+        if not minutes:
+            return
+
+        try:
+            await asyncio.sleep(minutes * 60)
+            await self._send_dm(
+                member,
+                get_text(0, "moderation.timeout_end_title"),
+                [
+                    (get_text(0, "moderation.reason"), get_text(0, "moderation.timeout_end_desc", duration=format_duration(minutes))),
+                    (get_text(0, "moderation.sanction_id"), sanction_id),
+                ],
+                get_text(0, "moderation.timeout_end_footer"),
+            )
+        except Exception as e:
+            logger.debug(f"Erreur notification fin de timeout: {e}")
+
+    def _get_sanction_title(self, guild_id: int, sanction_type: SanctionType, guild_name: Optional[str] = None) -> str:
+        """Retourne le titre formaté pour une sanction."""
+        titles = {
+            SanctionType.WARN: get_text(guild_id, "moderation.warn.title"),
+            SanctionType.BAN: get_text(guild_id, "moderation.ban.title"),
+            SanctionType.UNBAN: get_text(guild_id, "moderation.unban.title", default="📋 Débannissement"),
+            SanctionType.KICK: get_text(guild_id, "moderation.kick.title"),
+            SanctionType.MUTE: get_text(guild_id, "moderation.mute.title"),
+            SanctionType.UNMUTE: get_text(guild_id, "moderation.unmute.title"),
+        }
+        # Pour le BAN, afficher juste le nom du serveur
+        if sanction_type == SanctionType.BAN and guild_name:
+            return f"Ban du serveur ({guild_name})"
+        
+        title = titles.get(sanction_type, sanction_type.value.title())
+        return title
+
+    # ========================================================================
+    # Event Listeners - Automod
+    # ========================================================================
+    @commands.Cog.listener()
+    async def on_message(self, message: discord.Message) -> None:
+        """Automod: détecte et répond aux violations."""
+        # Ignorer les bots et les messages hors serveur
+        if message.author.bot or not isinstance(message.channel, discord.TextChannel) or not message.guild:
+            return
+
+        # Récupérer la config
+        config = await self._get_config(message.guild.id)
+        if not config.get("automod_enabled", True):
+            return
+
+        content = message.content or ""
+        violation_type = None
+        violation_reason = None
+        censored_content = content
+
+        # Vérifier le vocabulaire interdit
+        censored_content, has_forbidden = censor_forbidden_words(content)
+        if has_forbidden:
+            violation_type = AutomodViolationType.FORBIDDEN_WORDS
+            violation_reason: Optional[str] = get_text(message.guild.id, "moderation.reason", default="Vocabulaire interdit")
+
+        # Vérifier les majuscules excessives
+        if not violation_type and len(content) > 10:
+            uppercase_ratio = sum(1 for c in content if c.isupper()) / len(content)
+            if uppercase_ratio > 0.7:
+                violation_type = AutomodViolationType.UPPERCASE_SPAM
+                violation_reason = get_text(message.guild.id, "moderation.reason", default="Utilisation excessive de majuscules")
+
+        # Vérifier les mentions excessives
+        if not violation_type and len(message.mentions) > 5:
+            violation_type = AutomodViolationType.MENTION_SPAM
+            violation_reason = get_text(message.guild.id, "moderation.reason", default="Trop de mentions")
+
+        # Traiter la violation
+        if violation_type and violation_reason:
+            await self._handle_automod_violation(
+                message,
+                violation_type,
+                violation_reason,
+                censored_content,
+                config,
+            )
+
+    async def _handle_automod_violation(
+        self,
+        message: discord.Message,
+        violation_type: AutomodViolationType,
+        reason: str,
+        censored_content: str,
+        config: dict,
+    ) -> None:
+        """Traite une violation d'automod."""
+        if not message.guild:
+            return
+            
+        try:
+            # Supprimer le message
+            try:
+                await message.delete()
+            except Exception:
+                pass
+
+            # Avertir l'utilisateur
+            try:
+                await message.channel.send(
+                    get_text(message.guild.id, "moderation.automod_warning", user=message.author.mention, reason=reason),
+                    delete_after=10,
+                )
+            except Exception:
+                pass
+
+            # Log automod
+            if isinstance(message.channel, (discord.TextChannel, discord.VoiceChannel)):
+                await self._send_automod_log(
+                    message.guild,
+                    violation_type,
+                    message.author,
+                    message.channel,
+                    reason,
+                    censored_content,
+                )
+
+            # Enregistrer la violation
+            try:
+                bot_id = self.bot.user.id if self.bot.user else 0
+                add_warning(
+                    message.guild.id,
+                    message.author.id,
+                    bot_id,
+                    f"Automod: {reason}",
+                    SanctionType.AUTO_MOD.value,
+                )
+            except Exception as e:
+                logger.debug(f"Erreur enregistrement violation automod: {e}")
+
+            # Appliquer l'action si configurée
+            automod_action = config.get("automod_action", "warn")
+            if automod_action != "warn" and isinstance(message.author, discord.Member):
+                duration = config.get("automod_duration", 10)
+                try:
+                    if automod_action == "mute" and duration:
+                        until = datetime.now(timezone.utc) + timedelta(minutes=duration)
+                        await message.author.timeout(until, reason=f"Automod: {reason}")
+                    elif automod_action == "kick":
+                        await message.author.kick(reason=f"Automod: {reason}")
+                    elif automod_action == "ban":
+                        await message.author.ban(reason=f"Automod: {reason}")
+                except Exception as e:
+                    logger.debug(f"Erreur application action automod: {e}")
+
+        except Exception as e:
+            logger.exception(f"Erreur traitement violation automod: {e}")
+
+    # ========================================================================
+    # Commands - Moderation
+    # ========================================================================
+    @app_commands.command(name="mute", description="Rendre un membre muet")
+    @app_commands.describe(membre="Le membre à rendre muet", duree="Durée en minutes", raison="Raison du mute")
+    @app_commands.default_permissions(manage_messages=True)
+    async def mute(self, interaction: discord.Interaction, membre: discord.Member, duree: int, raison: str):
+        """Rend un membre muet pour une durée déterminée."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        await self._apply_sanction(
+            interaction,
+            membre,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.MUTE,
+            minutes=duree,
+        )
+
+    @app_commands.command(name="ban", description="Bannir un membre ou par ID")
+    @app_commands.describe(utilisateur="Le membre à bannir ou son ID", raison="Raison du ban")
+    @app_commands.default_permissions(ban_members=True)
+    async def ban(self, interaction: discord.Interaction, utilisateur: str, raison: str):
+        """Bannit un membre du serveur (mention ou ID)."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        
+        member_id = None
+        
+        # Essayer de résoudre l'utilisateur
+        try:
+            # Si c'est une mention <@123456>
+            if utilisateur.startswith('<@') and utilisateur.endswith('>'):
+                member_id = int(utilisateur[2:-1].replace('!', ''))
+            else:
+                # Essayer comme ID direct
+                member_id = int(utilisateur)
+        except ValueError:
+            try:
+                await interaction.response.send_message(
+                    embed=create_embed(
+                        "❌ Utilisateur invalide",
+                        "Veuillez fournir une mention (@user) ou un ID numérique valide",
+                        0xff0000,
+                    ),
+                    ephemeral=True,
+                )
+            except:
+                pass
+            return
+        
+        await self._apply_sanction(
+            interaction,
+            member_id,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.BAN,
+        )
+
+    @app_commands.command(name="kick", description="Expulser un membre")
+    @app_commands.describe(membre="Le membre à expulser", raison="Raison du kick")
+    @app_commands.default_permissions(kick_members=True)
+    async def kick(self, interaction: discord.Interaction, membre: discord.Member, raison: str):
+        """Expulse un membre du serveur."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        await self._apply_sanction(
+            interaction,
+            membre,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.KICK,
+        )
+
+    @app_commands.command(name="warn", description="Avertir un membre")
+    @app_commands.describe(membre="Le membre à avertir", raison="Raison de l'avertissement")
+    @app_commands.default_permissions(manage_messages=True)
+    async def warn(self, interaction: discord.Interaction, membre: discord.Member, raison: str):
+        """Avertit un membre."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        await self._apply_sanction(
+            interaction,
+            membre,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.WARN,
+        )
+
+    @app_commands.command(name="unmute", description="Retirer le mute d'un membre")
+    @app_commands.describe(membre="Le membre à démuter", raison="Raison du démuting")
+    @app_commands.default_permissions(manage_messages=True)
+    async def unmute(self, interaction: discord.Interaction, membre: discord.Member, raison: Optional[str] = None):
+        """Retire le mute d'un membre."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        await self._apply_sanction(
+            interaction,
+            membre,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.UNMUTE,
+        )
+
+    @app_commands.command(name="unban", description="Débannir un membre par ID")
+    @app_commands.describe(user_id="L'ID de l'utilisateur à débannir", raison="Raison du débannissement")
+    @app_commands.default_permissions(ban_members=True)
+    async def unban(self, interaction: discord.Interaction, user_id: str, raison: Optional[str] = None):
+        """Débannit un utilisateur du serveur via son ID."""
+        guild_id = interaction.guild.id if interaction.guild else 0
+        
+        # Convertir l'ID string en int
+        try:
+            user_id_int = int(user_id)
+        except ValueError:
+            try:
+                await interaction.response.send_message(
+                embed=create_embed(
+                    "❌ ID invalide",
+                    "Veuillez fournir un ID numérique valide",
+                    0xff0000,
+                ),
+                ephemeral=True,
+            )
+            except:
+                pass
+            return
+        
+        await self._apply_sanction(
+            interaction,
+            user_id_int,
+            raison or get_text(guild_id, "common.not_configured"),
+            SanctionType.UNBAN,
+        )
+
+    @app_commands.command(name="sanction-liste", description="Voir la liste des sanctions d'un membre")
+    @app_commands.describe(membre="Le membre dont vous voulez voir les sanctions")
+    @app_commands.default_permissions(manage_messages=True)
+    async def sanction_liste(self, interaction: discord.Interaction, membre: discord.Member):
+        """Affiche la liste des sanctions d'un membre."""
+        try:
+            if not interaction.guild:
+                try:
+                await interaction.response.send_message(
+                    embed=create_embed(
+                        get_text(0, "common.guild_only"),
+                        "",
+                        0xff0000,
+                    ),
+                    ephemeral=True,
+                )
+            except:
+                pass
+                return
+
+            warnings = get_warnings(interaction.guild.id, membre.id) or []
+            if not warnings:
+                try:
+                await interaction.response.send_message(
+                    embed=create_embed(
+                        get_text(interaction.guild.id, "moderation.no_sanctions"),
+                        get_text(interaction.guild.id, "moderation.no_sanctions_desc", member=membre.mention),
+                        0x00ff00,
+                    )
+                )
+            except:
+                pass
+                return
+
+            embed = discord.Embed(
+                title=f"📋 {get_text(interaction.guild.id, 'moderation.sanction_list_error', default='Sanctions de')} {membre.display_name}",
+                color=0xff9900,
+            )
+
+            # Afficher jusqu'à 10 dernières sanctions
+            for warning in warnings[-10:]:
+                sanction_type = warning.get("type", "warn")
+                sanction_reason = warning.get("reason", get_text(interaction.guild.id, "common.not_configured"))
+                sanction_id = warning.get("sanction_id") or warning.get("id", "-")
+                mod_id = warning.get("moderator_id")
+                mod = interaction.guild.get_member(mod_id) if mod_id else None
+                mod_str = mod.mention if mod else f"`ID: {mod_id}`" if mod_id else get_text(interaction.guild.id, "moderation.moderator", default="Modérateur inconnu")
+                timestamp = warning.get("timestamp")
+
+                if timestamp:
+                    try:
+                        timestamp = datetime.fromisoformat(timestamp).strftime("%d/%m/%Y %H:%M")
+                    except Exception:
+                        timestamp = str(timestamp)
+                else:
+                    timestamp = get_text(interaction.guild.id, "common.date", default="Date inconnue")
+
+                field_value = f"{self._get_sanction_title(interaction.guild.id, SanctionType(sanction_type))} - {sanction_reason}\n*{get_text(interaction.guild.id, 'moderation.executed_by', default='Par')} {mod_str} le {timestamp} | ID: {sanction_id}*"
+                embed.add_field(name="\u200b", value=field_value, inline=False)
+
+            embed.set_footer(text=get_text(interaction.guild.id, "moderation.fields.moderator", default="Affichage des 10 dernières sanctions"))
+            try:
+                await interaction.response.send_message(embed=embed)
+
+        except Exception as e:
+            logger.exception("Erreur sanction_liste")
+            guild_id = interaction.guild.id if interaction.guild else 0
+            error_embed = create_embed(
+                get_text(guild_id, "moderation.sanction_list_error"),
+                get_text(guild_id, "moderation.sanction_list_error_desc", error=str(e)),
+                0xff0000,
+            )
+            try:
+                await interaction.response.send_message(embed=error_embed, ephemeral=True)
+
+    @app_commands.command(
+        name="sanctions-serveur",
+        description="Voir toutes les sanctions du serveur",
+    )
+    @app_commands.default_permissions(manage_messages=True)
+    async def server_sanctions(self, interaction: Interaction) -> None:
+        """Affiche toutes les sanctions du serveur."""
+        if not interaction.guild:
+            try:
+                await interaction.response.send_message("❌ Cette commande ne fonctionne que sur un serveur", ephemeral=True)
+            except:
+                pass
+            return
+        
+        try:
+            guild_id = interaction.guild.id
+            
+            # Charger toutes les sanctions
+            from utils.database import DATA_FOLDER
+            import os, json
+            path = os.path.join(DATA_FOLDER, "warnings.json")
+            
+            all_sanctions = []
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    guild_sanctions = data.get(str(guild_id), {})
+                    
+                    # Collecter toutes les sanctions avec infos utilisateur
+                    for user_id_str, sanctions in guild_sanctions.items():
+                        for sanction in sanctions:
+                            try:
+                                user_id = int(user_id_str)
+                                user = interaction.guild.get_member(user_id)
+                                username = user.mention if user else f"`{user_id_str}`"
+                            except:
+                                username = f"`{user_id_str}`"
+                            
+                            all_sanctions.append({
+                                "user_id": user_id_str,
+                                "username": username,
+                                "sanction": sanction
+                            })
+            except:
+                pass
+            
+            if not all_sanctions:
+                embed = discord.Embed(
+                    title="📋 Sanctions du Serveur",
+                    description="✅ Aucune sanction enregistrée",
+                    color=0x00ff00
+                )
+                try:
+                await interaction.response.send_message(embed=embed)
+            except:
+                pass
+                return
+            
+            # Créer des embeds avec max 10 sanctions par embed
+            embeds = []
+            for i in range(0, len(all_sanctions), 10):
+                chunk = all_sanctions[i:i+10]
+                embed = discord.Embed(
+                    title="📋 Sanctions du Serveur",
+                    color=0xff9900,
+                    description=f"Page {len(embeds) + 1} ({len(all_sanctions)} sanctions totales)"
+                )
+                
+                for item in chunk:
+                    user = item["username"]
+                    sanction = item["sanction"]
+                    
+                    sanction_type = sanction.get("type", "warn")
+                    sanction_reason = sanction.get("reason", "Pas de raison")
+                    sanction_id = sanction.get("sanction_id") or sanction.get("id", "-")
+                    timestamp = sanction.get("timestamp", "Date inconnue")
+                    
+                    if timestamp and timestamp != "Date inconnue":
+                        try:
+                            timestamp = datetime.fromisoformat(timestamp).strftime("%d/%m/%Y %H:%M")
+                        except:
+                            pass
+                    
+                    # Emoji selon le type
+                    type_emoji = {
+                        "warn": "⚠️",
+                        "mute": "🔇",
+                        "ban": "🔨",
+                        "kick": "👢",
+                        "unmute": "🔊",
+                        "unban": "🔓",
+                        "auto_mod": "🛡️"
+                    }.get(sanction_type, "📌")
+                    
+                    field_name = f"{type_emoji} {user} [{sanction_id}]"
+                    field_value = f"**Raison:** {sanction_reason}\n**Date:** {timestamp}"
+                    
+                    embed.add_field(name=field_name, value=field_value, inline=False)
+                
+                embed.set_footer(text=f"Miaouscle Bot • Total: {len(all_sanctions)} sanctions")
+                embeds.append(embed)
+            
+            # Envoyer le premier embed
+            try:
+                await interaction.response.send_message(embed=embeds[0])
+            
+            # Envoyer les autres si plusieurs pages
+            for embed in embeds[1:]:
+                await interaction.followup.send(embed=embed)
+            
+        except Exception as e:
+            logger.exception("Erreur server_sanctions")
+            embed = discord.Embed(
+                title="❌ Erreur",
+                description=f"Impossible d'afficher les sanctions: {str(e)}",
+                color=0xff0000
+            )
+            try:
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @app_commands.command(
+        name="supprimer-sanction",
+        description="Supprimer une sanction par son ID",
+    )
+    @app_commands.describe(user="Utilisateur sanctionné", sanction_id="ID de la sanction à supprimer (ex: W-251130-A7X2K)")
+    async def delete_sanction(self, interaction: Interaction, user: discord.User, sanction_id: str) -> None:
+        """Supprime une sanction d'un membre par son ID."""
+        if not interaction.guild:
+            try:
+                await interaction.response.send_message("❌ Cette commande ne fonctionne que sur un serveur", ephemeral=True)
+            except:
+                pass
+            return
+        
+        try:
+            guild_id = interaction.guild.id
+            warnings = get_warnings(guild_id, user.id)
+            
+            # Chercher la sanction par ID
+            found = False
+            deleted_sanction: Optional[dict] = None
+            
+            for i, warning in enumerate(warnings):
+                if warning.get("sanction_id") == sanction_id or warning.get("id") == sanction_id:
+                    deleted_sanction = warning
+                    warnings.pop(i)
+                    found = True
+                    break
+            
+            if not found:
+                embed = discord.Embed(
+                    title="❌ Sanction Non Trouvée",
+                    description=f"Aucune sanction avec l'ID **{sanction_id}** trouvée pour {user.mention}",
+                    color=0xff0000
+                )
+                try:
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+            except:
+                pass
+                return
+            
+            # Sauvegarder les changements
+            from utils.database import DATA_FOLDER
+            import os, json
+            path = os.path.join(DATA_FOLDER, "warnings.json")
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+            except:
+                data = {}
+            
+            if str(guild_id) not in data:
+                data[str(guild_id)] = {}
+            data[str(guild_id)][str(user.id)] = warnings
+            
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            
+            # Confirmation
+            sanction_type = deleted_sanction.get("type", "sanction") if deleted_sanction else "sanction"
+            reason = deleted_sanction.get("reason", "Pas de raison") if deleted_sanction else "Pas de raison"
+            
+            embed = discord.Embed(
+                title="✅ Sanction Supprimée",
+                description=f"La sanction **{sanction_id}** a été supprimée avec succès pour {user.mention}",
+                color=0x00ff00
+            )
+            embed.add_field(name="📍 ID", value=sanction_id, inline=True)
+            embed.add_field(name="🏷️ Type", value=sanction_type, inline=True)
+            embed.add_field(name="📝 Raison", value=reason, inline=False)
+            embed.set_footer(text=f"Supprimée par {interaction.user.name}")
+            
+            try:
+                await interaction.response.send_message(embed=embed)
+            
+        except Exception as e:
+            logger.exception("Erreur supprimer_sanction")
+            embed = discord.Embed(
+                title="❌ Erreur",
+                description=f"Impossible de supprimer la sanction: {str(e)}",
+                color=0xff0000
+            )
+            try:
+                await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+# ============================================================================
+# Setup
+# ============================================================================
+async def setup(bot: commands.Bot):
+    """Charge le cog de modération."""
+    await bot.add_cog(Moderation(bot))

@@ -1,0 +1,16 @@
+{
+  "paypal_plan:premium_plus:monthly": {
+    "product_id": "PROD-3TV23413KX480191N",
+    "plan_id": "P-49M43406YG3641437NISHYVI",
+    "amount_cents": 599,
+    "currency": "EUR",
+    "created_at": 1780776021
+  },
+  "paypal_plan:premium:monthly": {
+    "product_id": "PROD-89S14319GL4134027",
+    "plan_id": "P-0BS90450BN756205FNIXH4DI",
+    "amount_cents": 299,
+    "currency": "EUR",
+    "created_at": 1781431821
+  }
+}

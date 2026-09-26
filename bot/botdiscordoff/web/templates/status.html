@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Status - Miaouscle Bot</title>
+<link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=1">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    background: #0b0e14;
+    color: #fff; 
+    min-height: 100vh;
+}
+
+nav { 
+    background: #11141b;
+    padding: 1rem 2rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.logo { 
+    font-size: 1.4rem; 
+    font-weight: 700; 
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    cursor: pointer;
+}
+.nav-links { display: flex; gap: 1.5rem; align-items: center; }
+.nav-links a { 
+    color: rgba(255,255,255,0.8); 
+    text-decoration: none; 
+    font-weight: 500; 
+    transition: all 0.3s;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+.nav-links a:hover { 
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+
+.hero { text-align: center; margin-bottom: 2.5rem; }
+.hero h1 { 
+    font-size: 2.8rem; 
+    margin-bottom: 0.5rem; 
+    font-weight: 800;
+    background: linear-gradient(135deg, #5865F2 0%, #34d399 50%, #fbbf24 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientPulse 4s ease-in-out infinite;
+}
+@keyframes gradientPulse {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+.hero p { font-size: 1.1rem; color: rgba(255,255,255,0.7); }
+
+.main-layout {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2rem;
+}
+
+.card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.status-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.status-icon {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.status-icon.online { background: linear-gradient(135deg, #10b981, #059669); }
+.status-icon.maintenance { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.status-icon.offline { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+.status-title h2 { font-size: 1.5rem; color: #fff; margin-bottom: 0.3rem; font-weight: 700; }
+.status-title p { color: rgba(255,255,255,0.6); font-size: 0.95rem; }
+
+.services-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.service-item {
+    background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+.service-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+}
+.service-item.online { 
+    border-color: rgba(16, 185, 129, 0.6);
+    animation: pulseGreen 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+.service-item.online::before { background: linear-gradient(90deg, #10b981, #34d399); }
+.service-item.offline { 
+    border-color: rgba(239, 68, 68, 0.6);
+    animation: pulseRed 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+.service-item.offline::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.service-item.maintenance { 
+    border-color: rgba(245, 158, 11, 0.6);
+    animation: pulseOrange 2s ease-in-out infinite;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);
+}
+.service-item.maintenance::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+
+@keyframes pulseGreen {
+    0%, 100% { 
+        border-color: rgba(16, 185, 129, 0.4);
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+    }
+    50% { 
+        border-color: rgba(52, 211, 153, 0.9);
+        box-shadow: 0 0 25px rgba(52, 211, 153, 0.4);
+    }
+}
+@keyframes pulseOrange {
+    0%, 100% { 
+        border-color: rgba(245, 158, 11, 0.4);
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+    }
+    50% { 
+        border-color: rgba(251, 191, 36, 0.9);
+        box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+    }
+}
+@keyframes pulseRed {
+    0%, 100% { 
+        border-color: rgba(239, 68, 68, 0.4);
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+    }
+    50% { 
+        border-color: rgba(248, 113, 113, 0.9);
+        box-shadow: 0 0 25px rgba(248, 113, 113, 0.4);
+    }
+}
+
+.service-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+.service-name { font-weight: 700; color: #fff; margin-bottom: 0.4rem; font-size: 1rem; }
+.service-status { font-size: 0.85rem; font-weight: 600; }
+.service-status.online { color: #34d399; }
+.service-status.offline { color: #f87171; }
+.service-status.maintenance { color: #fbbf24; }
+
+.maintenance-box {
+    background: linear-gradient(145deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.maint-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.maint-row:last-child { border-bottom: none; }
+
+.maint-label {
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.maint-value {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.countdown-container {
+    background: linear-gradient(145deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.2) 100%);
+    border-radius: 12px;
+    padding: 1.2rem;
+    margin-top: 1rem;
+    text-align: center;
+    border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.countdown-timer {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #a5b4fc, #c4b5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.countdown-label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.6);
+    margin-top: 0.4rem;
+}
+
+.dual-maintenance {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.maint-card {
+    background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border-radius: 14px;
+    padding: 1.2rem;
+    border-left: 3px solid #667eea;
+}
+.maint-card.bot { border-left-color: #5865F2; }
+.maint-card.site { border-left-color: #f59e0b; }
+
+.maint-card h4 {
+    font-size: 0.95rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.timeline-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.timeline-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.timeline-header h3 {
+    font-size: 1.3rem;
+    color: #fff;
+    font-weight: 700;
+}
+
+.timeline-list {
+    max-height: 450px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+.timeline-list::-webkit-scrollbar { width: 4px; }
+.timeline-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 4px; }
+.timeline-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+.timeline-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    position: relative;
+}
+.timeline-item:last-child { border-bottom: none; }
+
+.timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px currentColor;
+}
+.timeline-dot.start { background: #fbbf24; color: rgba(251, 191, 36, 0.5); }
+.timeline-dot.end { background: #34d399; color: rgba(52, 211, 153, 0.5); }
+.timeline-dot.scheduled { background: #60a5fa; color: rgba(96, 165, 250, 0.5); }
+
+.timeline-content { flex: 1; }
+.timeline-content h4 { 
+    font-size: 0.95rem; 
+    color: #fff; 
+    margin-bottom: 0.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+.timeline-content p { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 0.3rem; }
+.timeline-date { 
+    font-size: 0.75rem; 
+    color: rgba(255,255,255,0.4); 
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.badge.ended { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+.badge.started { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+.badge.scheduled { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; }
+
+.no-data {
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    padding: 3rem 1rem;
+    font-size: 0.95rem;
+}
+
+.last-update {
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.pulse {
+    width: 8px;
+    height: 8px;
+    background: #34d399;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+@media (max-width: 900px) {
+    .main-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+    nav { padding: 0.8rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .logo { font-size: 1.2rem; }
+    .nav-links { gap: 0.8rem; }
+    .nav-links a { font-size: 0.9rem; padding: 0.4rem 0.8rem; }
+    
+    .container { padding: 1rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero p { font-size: 0.95rem; }
+    
+    .card { padding: 1.5rem; border-radius: 16px; }
+    .status-icon { width: 55px; height: 55px; font-size: 1.6rem; }
+    .status-title h2 { font-size: 1.3rem; }
+    
+    .services-grid { grid-template-columns: 1fr; }
+    .dual-maintenance { grid-template-columns: 1fr; }
+    
+    .countdown-timer { font-size: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+    .nav-links a { font-size: 0.8rem; padding: 0.3rem 0.5rem; }
+    .hero h1 { font-size: 1.6rem; }
+    .status-header { flex-direction: column; text-align: center; }
+    .service-item { padding: 1rem; }
+    .service-icon { font-size: 2rem; }
+}
+</style>
+</head>
+<body>
+<nav>
+    <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle Bot</a>
+    <div class="nav-links">
+        <a href="/home">🏠 Accueil</a>
+        <a href="/status">📊 Status</a>
+        <a href="/docs">📚 Docs</a>
+        <a href="/premium">💎 Premium</a>
+        <a href="/support">🆘 Support</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="hero">
+        <h1>Status des Services</h1>
+        <p>Surveillez l'etat de nos services en temps reel</p>
+    </div>
+
+    <div class="main-layout">
+        <div class="card">
+            <div class="status-header">
+                <div class="status-icon online" id="mainStatusIcon">✅</div>
+                <div class="status-title">
+                    <h2 id="mainStatusTitle">Tous les services operationnels</h2>
+                    <p id="mainStatusDesc">Tous nos services fonctionnent normalement.</p>
+                </div>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-item online" id="botService">
+                    <div class="service-icon">🤖</div>
+                    <div class="service-name">Bot Discord</div>
+                    <div class="service-status online" id="botStatus">✅ Operationnel</div>
+                </div>
+                <div class="service-item online" id="siteService">
+                    <div class="service-icon">🌐</div>
+                    <div class="service-name">Site Web</div>
+                    <div class="service-status online" id="siteStatus">✅ Operationnel</div>
+                </div>
+            </div>
+
+            <div id="maintenanceDetails" style="display: none;">
+                <div class="maintenance-box">
+                    <div id="singleMaintenance">
+                        <div class="maint-row">
+                            <div class="maint-label">🔧 Type</div>
+                            <div class="maint-value" id="maintType">-</div>
+                        </div>
+                        <div class="maint-row" id="reasonSection" style="display: none;">
+                            <div class="maint-label">📝 Raison</div>
+                            <div class="maint-value" id="maintReason">-</div>
+                        </div>
+                        <div class="maint-row">
+                            <div class="maint-label">📅 Debut</div>
+                            <div class="maint-value" id="maintStart">-</div>
+                        </div>
+                        <div class="maint-row" id="endTimeRow">
+                            <div class="maint-label">🏁 Fin prevue</div>
+                            <div class="maint-value" id="maintEnd">-</div>
+                        </div>
+                        <div class="countdown-container" id="countdownSection" style="display: none;">
+                            <div class="countdown-timer" id="maintCountdown">--:--:--</div>
+                            <div class="countdown-label">⏱️ Temps restant estime</div>
+                        </div>
+                    </div>
+
+                    <div id="dualMaintenance" class="dual-maintenance" style="display: none;">
+                        <div class="maint-card bot">
+                            <h4>🤖 Bot Discord</h4>
+                            <div class="maint-row">
+                                <div class="maint-label">📅 Debut</div>
+                                <div class="maint-value" id="botMaintStart">-</div>
+                            </div>
+                            <div class="maint-row" id="botReasonSection" style="display: none;">
+                                <div class="maint-label">📝 Raison</div>
+                                <div class="maint-value" id="botReason">-</div>
+                            </div>
+                            <div class="countdown-container" id="botCountdownSection" style="display: none;">
+                                <div class="countdown-timer" id="botMaintCountdown">--:--:--</div>
+                                <div class="countdown-label">⏱️ Temps restant</div>
+                            </div>
+                        </div>
+                        <div class="maint-card site">
+                            <h4>🌐 Site Web</h4>
+                            <div class="maint-row">
+                                <div class="maint-label">📅 Debut</div>
+                                <div class="maint-value" id="siteMaintStart">-</div>
+                            </div>
+                            <div class="maint-row" id="siteReasonSection" style="display: none;">
+                                <div class="maint-label">📝 Raison</div>
+                                <div class="maint-value" id="siteReason">-</div>
+                            </div>
+                            <div class="countdown-container" id="siteCountdownSection" style="display: none;">
+                                <div class="countdown-timer" id="siteMaintCountdown">--:--:--</div>
+                                <div class="countdown-label">⏱️ Temps restant</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="timeline-header">
+                <div class="timeline-icon">📜</div>
+                <h3>Historique</h3>
+            </div>
+            <div class="timeline-list" id="timelineList">
+                <div class="no-data">⏳ Chargement...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="last-update">
+        <div class="pulse"></div>
+        Derniere mise a jour: <span id="lastUpdate">-</span>
+    </div>
+</div>
+
+<script>
+let countdownIntervals = {};
+
+function formatDateFr(isoString) {
+    if (!isoString) return null;
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return null;
+        // Correction du décalage -1h pour UTC+1 (Paris/Bruxelles)
+        // L'objet Date en JS utilise l'heure système. Si l'utilisateur voit un décalage, 
+        // on force l'affichage en Europe/Paris.
+        return date.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZone: 'Europe/Paris'
+        });
+    } catch (e) {
+        return null;
+    }
+}
+
+function formatDateShort(isoString) {
+    if (!isoString) return '-';
+    try {
+        const date = new Date(isoString);
+        if (isNaN(date.getTime())) return '-';
+        return date.toLocaleString('fr-FR', {
+            day: '2-digit',
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (e) {
+        return '-';
+    }
+}
+
+function parseEndTime(input) {
+    if (!input) return null;
+    let d = new Date(input);
+    if (!isNaN(d.getTime())) return d;
+    if (!input.includes('Z') && !input.includes('+')) {
+        d = new Date(input + 'Z');
+    }
+    return isNaN(d.getTime()) ? null : d;
+}
+
+function startCountdown(elementId, endTimeIso, sectionId) {
+    if (countdownIntervals[elementId]) {
+        clearInterval(countdownIntervals[elementId]);
+    }
+    
+    const element = document.getElementById(elementId);
+    const section = sectionId ? document.getElementById(sectionId) : null;
+    if (!element) return;
+    
+    const endTime = parseEndTime(endTimeIso);
+    if (!endTime) {
+        if (section) section.style.display = 'none';
+        return;
+    }
+    
+    if (section) section.style.display = 'block';
+    
+    function update() {
+        const now = new Date();
+        const diff = endTime - now;
+        
+        if (diff <= 0) {
+            element.textContent = '⏳ Arrêt automatique en cours...';
+            if (section) section.style.display = 'block';
+            clearInterval(countdownIntervals[elementId]);
+            return;
+        }
+        
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        let text = '';
+        if (days > 0) text += `${days}j `;
+        text += `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        element.textContent = text;
+    }
+    
+    update();
+    countdownIntervals[elementId] = setInterval(update, 1000);
+}
+
+async function loadStatus() {
+    try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        
+        const mainIcon = document.getElementById('mainStatusIcon');
+        const mainTitle = document.getElementById('mainStatusTitle');
+        const mainDesc = document.getElementById('mainStatusDesc');
+        const botService = document.getElementById('botService');
+        const siteService = document.getElementById('siteService');
+        const botStatus = document.getElementById('botStatus');
+        const siteStatus = document.getElementById('siteStatus');
+        const maintenanceDetails = document.getElementById('maintenanceDetails');
+        
+        // BOT STATE
+        const botActive = data.bot_data?.active || false;
+        const botRunning = data.bot_running || false;
+        
+        if (botActive) {
+            botService.className = 'service-item maintenance';
+            botStatus.className = 'service-status maintenance';
+            botStatus.textContent = '🔧 En Maintenance';
+        } else if (botRunning) {
+            botService.className = 'service-item online';
+            botStatus.className = 'service-status online';
+            botStatus.textContent = '✅ Operationnel';
+        } else {
+            botService.className = 'service-item offline';
+            botStatus.className = 'service-status offline';
+            botStatus.textContent = '🔴 Hors Ligne';
+        }
+
+        // SITE STATE
+        const siteActive = data.site_data?.active || false;
+        if (siteActive) {
+            siteService.className = 'service-item maintenance';
+            siteStatus.className = 'service-status maintenance';
+            siteStatus.textContent = '🔧 En Maintenance';
+        } else {
+            siteService.className = 'service-item online';
+            siteStatus.className = 'service-status online';
+            siteStatus.textContent = '✅ Operationnel';
+        }
+
+        // Main Status Header
+        if (botActive || siteActive) {
+            mainIcon.className = 'status-icon maintenance';
+            mainIcon.textContent = '🔧';
+            mainTitle.textContent = 'Maintenance en cours';
+            mainDesc.textContent = 'Certains services sont en cours de maintenance.';
+            maintenanceDetails.style.display = 'block';
+            
+            const isDual = botActive && siteActive;
+            const singleMaint = document.getElementById('singleMaintenance');
+            const dualMaint = document.getElementById('dualMaintenance');
+            
+            if (isDual) {
+                singleMaint.style.display = 'none';
+                dualMaint.style.display = 'grid';
+                
+                document.getElementById('botMaintStart').textContent = formatDateFr(data.bot_data.start_time) || 'Indéterminé';
+                if (data.bot_data.show_reason && data.bot_data.message) {
+                    document.getElementById('botReasonSection').style.display = 'flex';
+                    document.getElementById('botReason').textContent = data.bot_data.message;
+                } else {
+                    document.getElementById('botReasonSection').style.display = 'none';
+                }
+                
+                document.getElementById('siteMaintStart').textContent = formatDateFr(data.site_data.start_time) || 'Indéterminé';
+                if (data.site_data.show_reason && data.site_data.message) {
+                    document.getElementById('siteReasonSection').style.display = 'flex';
+                    document.getElementById('siteReason').textContent = data.site_data.message;
+                } else {
+                    document.getElementById('siteReasonSection').style.display = 'none';
+                }
+                
+                if (data.site_data.end_time) {
+                    const endTime = parseEndTime(data.site_data.end_time);
+                    const now = new Date();
+                    if (endTime && endTime > now) {
+                        startCountdown('siteMaintCountdown', data.site_data.end_time, 'siteCountdownSection');
+                    } else if (endTime && endTime <= now) {
+                        document.getElementById('siteCountdownSection').style.display = 'block';
+                        document.getElementById('siteMaintCountdown').textContent = '⏳ Arrêt automatique en cours...';
+                    }
+                } else {
+                    document.getElementById('siteCountdownSection').style.display = 'none';
+                }
+            } else {
+                dualMaint.style.display = 'none';
+                singleMaint.style.display = 'block';
+                
+                const activeData = botActive ? data.bot_data : data.site_data;
+                const type = botActive ? '🤖 Bot Discord' : '🌐 Site Web';
+                
+                document.getElementById('maintType').textContent = type;
+                document.getElementById('maintStart').textContent = formatDateFr(activeData.start_time) || 'Indéterminé';
+                
+                if (activeData.show_reason && activeData.message) {
+                    document.getElementById('reasonSection').style.display = 'flex';
+                    document.getElementById('maintReason').textContent = activeData.message;
+                } else {
+                    document.getElementById('reasonSection').style.display = 'none';
+                }
+                
+                if (activeData.end_time) {
+                    const endTime = parseEndTime(activeData.end_time);
+                    const now = new Date();
+                    
+                    // On affiche toujours la ligne de fin prévue si end_time existe
+                    document.getElementById('endTimeRow').style.display = 'flex';
+                    document.getElementById('maintEnd').textContent = formatDateFr(activeData.end_time);
+                    
+                    if (endTime && endTime > now) {
+                        startCountdown('maintCountdown', activeData.end_time, 'countdownSection');
+                    } else if (endTime && endTime <= now) {
+                        // Si le temps est écoulé mais toujours en maintenance active
+                        document.getElementById('countdownSection').style.display = 'block';
+                        document.getElementById('maintCountdown').textContent = '⏳ Arrêt automatique en cours...';
+                    }
+                } else {
+                    document.getElementById('endTimeRow').style.display = 'none';
+                    document.getElementById('countdownSection').style.display = 'none';
+                }
+            }
+        } else if (!botRunning) {
+            mainIcon.className = 'status-icon offline';
+            mainIcon.textContent = '🔴';
+            mainTitle.textContent = 'Interruption Partielle';
+            mainDesc.textContent = 'Le bot Discord semble hors ligne.';
+            maintenanceDetails.style.display = 'none';
+        } else {
+            mainIcon.className = 'status-icon online';
+            mainIcon.textContent = '✅';
+            mainTitle.textContent = 'Tous les services operationnels';
+            mainDesc.textContent = 'Tous nos services fonctionnent normalement.';
+            maintenanceDetails.style.display = 'none';
+        }
+
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString('fr-FR');
+    } catch (e) {
+        console.error("Error loading status:", e);
+    }
+}
+
+async function loadTimeline() {
+    try {
+        const res = await fetch('/api/maintenance-history');
+        const data = await res.json();
+        const list = document.getElementById('timelineList');
+        
+        if (!data.history || data.history.length === 0) {
+            list.innerHTML = '<div class="no-data">📭 Aucun historique disponible</div>';
+            return;
+        }
+        
+        const sortedHistory = data.history
+            .filter(item => item.timestamp || item.start_time)
+            .sort((a, b) => new Date(b.timestamp || b.start_time) - new Date(a.timestamp || a.start_time))
+            .slice(0, 15);
+        
+        const html = sortedHistory.map((item) => {
+            const isEnded = item.status === 'ended' || item.status === 'completed';
+            const isScheduled = item.status === 'scheduled';
+            const dotClass = isEnded ? 'end' : (isScheduled ? 'scheduled' : 'start');
+            const badgeClass = isEnded ? 'ended' : (isScheduled ? 'scheduled' : 'started');
+            const badgeText = isEnded ? 'Terminée' : (isScheduled ? 'Programmée' : 'Active');
+            
+            let typeIcon = '🔧';
+            let typeName = 'Maintenance';
+            if (item.type === 'bot') { typeIcon = '🤖'; typeName = 'Bot'; }
+            else if (item.type === 'site') { typeIcon = '🌐'; typeName = 'Site'; }
+            
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-dot ${dotClass}"></div>
+                    <div class="timeline-content">
+                        <h4>
+                            ${typeIcon} ${typeName}
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                        </h4>
+                        <p>${item.message || 'Maintenance technique'}</p>
+                        <div class="timeline-date">🕐 ${isScheduled ? 'Prévue: ' : (isEnded ? 'Fin: ' : 'Début: ')}${formatDateShort(item.timestamp || item.start_time)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        list.innerHTML = html;
+    } catch (e) {
+        console.error('Erreur loadTimeline:', e);
+    }
+}
+
+loadStatus();
+loadTimeline();
+setInterval(loadStatus, 5000);
+setInterval(loadTimeline, 30000);
+</script>
+</body>
+</html>

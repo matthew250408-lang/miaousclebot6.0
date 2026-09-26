@@ -1,0 +1,27 @@
+{
+  "active": false,
+  "label": "🏷️ Promotion en cours",
+  "end_time": "2027-04-25T10:00:00Z",
+  "items": [
+    {
+      "plan": "premium",
+      "billing": "monthly",
+      "promo_cents": 100
+    },
+    {
+      "plan": "premium",
+      "billing": "yearly",
+      "promo_cents": 100
+    },
+    {
+      "plan": "premium_plus",
+      "billing": "monthly",
+      "promo_cents": 100
+    },
+    {
+      "plan": "premium_plus",
+      "billing": "yearly",
+      "promo_cents": 100
+    }
+  ]
+}

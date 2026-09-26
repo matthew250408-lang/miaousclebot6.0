@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>🔧 Maintenance</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .maintenance-container { text-align: center; color: white; background: rgba(0,0,0,0.2); padding: 3rem; border-radius: 20px; backdrop-filter: blur(10px); max-width: 600px; }
+        .maintenance-container h1 { font-size: 3rem; margin-bottom: 1rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .maintenance-container p { font-size: 1.2rem; margin-bottom: 2rem; line-height: 1.6; opacity: 0.9; }
+        .countdown { font-size: 2.5rem; color: #ffd700; font-weight: bold; margin: 2rem 0; font-family: monospace; letter-spacing: 2px; }
+        .message { background: rgba(255,255,255,0.1); padding: 1.5rem; border-radius: 10px; margin: 1rem 0; border-left: 4px solid #ffd700; }
+        .links { margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .links a { background: rgba(255,255,255,0.2); color: white; padding: 0.8rem 1.5rem; border-radius: 6px; text-decoration: none; transition: all 0.3s; }
+        .links a:hover { background: rgba(255,255,255,0.3); }
+        .status-badge { display: inline-block; background: #ff6b6b; padding: 0.5rem 1rem; border-radius: 20px; margin: 1rem 0; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <h1>🔧</h1>
+        <h2>Maintenance en cours</h2>
+        <div class="status-badge">🔴 SITE EN MAINTENANCE</div>
+        
+        <p>{{ message }}</p>
+        
+        {% if is_maintenance and end_time %}
+        <div class="countdown" id="countdown">⏰ Calcul en cours...</div>
+        <p style="font-size: 0.9rem; opacity: 0.8;">Retour prévu: <strong id="end-time">{{ end_time }}</strong></p>
+        {% endif %}
+        
+        <div class="message">
+            <p>Merci de votre patience! 💪</p>
+            <p>Nous travaillons à l'amélioration de votre expérience.</p>
+        </div>
+        
+        {% if show_links %}
+        <div class="links">
+            <a href="/docs">📚 Documentation</a>
+            <a href="/support">🆘 Support</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        {% if is_maintenance and end_time %}
+        const endTime = new Date('{{ end_time }}');
+        
+        function updateCountdown() {
+            const now = new Date();
+            const diff = endTime - now;
+            
+            if (diff <= 0) {
+                window.location.reload(); // Auto-refresh à la fin
+                return;
+            }
+            
+            const hours = Math.floor(diff / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            
+            document.getElementById('countdown').textContent = 
+                `⏰ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+        {% endif %}
+    </script>
+</body>
+</html>

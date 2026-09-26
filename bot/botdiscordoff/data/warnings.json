@@ -1,0 +1,497 @@
+{
+  "1188506879052238988": {
+    "1404740241645895692": [
+      {
+        "id": 1,
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-09-08T05:13:19.197430"
+      },
+      {
+        "id": 2,
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-09-13T12:24:55.183761"
+      },
+      {
+        "id": 3,
+        "type": "warn",
+        "moderator_id": 1317540267506667605,
+        "reason": "test",
+        "timestamp": "2025-09-21T08:24:17.864327"
+      },
+      {
+        "id": 4,
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-10-28T10:32:40.629223"
+      },
+      {
+        "id": "BPIJN",
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-10-30T20:29:17.755300"
+      },
+      {
+        "id": "7XQS6",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-10-30T20:50:35.964353"
+      },
+      {
+        "id": "L24QR",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-10-30T21:03:56.298029"
+      },
+      {
+        "id": "JMUEW",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "NA",
+        "timestamp": "2025-11-01T17:49:24.550850"
+      }
+    ],
+    "1312924786451812413": [
+      {
+        "id": 1,
+        "type": "kick",
+        "moderator_id": 1140296215469240401,
+        "reason": "Test effectué",
+        "timestamp": "2025-09-17T16:01:02.423787"
+      }
+    ],
+    "1317540267506667605": [
+      {
+        "id": 1,
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "Inactif en tant que modérateur",
+        "timestamp": "2025-09-30T08:27:51.244840"
+      },
+      {
+        "id": "5VMT6",
+        "type": "kick",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-01T10:51:22.766421"
+      }
+    ],
+    "1140296215469240401": [
+      {
+        "id": "397J8",
+        "type": "auto_mod",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: 📝 Motivo",
+        "timestamp": "2025-11-26T20:00:34.159053"
+      },
+      {
+        "id": "A34ZT",
+        "type": "auto_mod",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: 📝 Raison",
+        "timestamp": "2025-11-26T21:50:01.150703"
+      },
+      {
+        "id": "0W4KX",
+        "type": "auto_mod",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2025-11-30T12:03:53.916129"
+      },
+      {
+        "id": "7UCPN",
+        "type": "auto_mod",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Motivo",
+        "timestamp": "2026-03-14T16:35:51.044177"
+      },
+      {
+        "id": "M-060626-NXH25",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-06-06T19:16:00.240553"
+      },
+      {
+        "id": "M-060626-AZUZK",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-06-06T19:16:24.676010"
+      },
+      {
+        "id": "M-060626-7XMZJ",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-06-06T19:17:16.586975"
+      }
+    ],
+    "1442164498709610506": [
+      {
+        "id": "E1T6NE",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-11-26T21:35:25.614722"
+      },
+      {
+        "id": "J7RSZL",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-11-26T21:41:08.729915"
+      },
+      {
+        "id": "9W839O",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-11-26T22:27:21.896681"
+      },
+      {
+        "id": "ZPDJG0",
+        "type": "mute",
+        "moderator_id": 1140296215469240401,
+        "reason": "test (1m)",
+        "timestamp": "2025-11-26T22:31:32.933369"
+      },
+      {
+        "id": "Z6RFZN",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:33:02.389660"
+      },
+      {
+        "id": "FQ37HT",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:48:04.158534"
+      },
+      {
+        "id": "K8VMX0",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:50:10.682552"
+      },
+      {
+        "id": "HQCH2L",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:53:39.183474"
+      },
+      {
+        "id": "P6R2RD",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T22:54:12.334460"
+      },
+      {
+        "id": "2RIA8F",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:56:10.825409"
+      },
+      {
+        "id": "2WX4S3",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T22:57:29.906464"
+      },
+      {
+        "id": "KPA37N",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T22:59:06.413012"
+      },
+      {
+        "id": "NUKYVC",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:01:46.039158"
+      },
+      {
+        "id": "9FSC32",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T23:05:29.763838"
+      },
+      {
+        "id": "GMGOUV",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:07:04.120376"
+      }
+    ],
+    "1241066735873036434": [
+      {
+        "id": "M-060626-PKOPI",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-06-06T19:15:01.843946"
+      },
+      {
+        "id": "UM-060626-Q50JY",
+        "type": "unmute",
+        "moderator_id": 1140296215469240401,
+        "reason": "❌ Non configuré",
+        "timestamp": "2026-06-06T19:15:23.494568"
+      }
+    ],
+    "1402615335449788498": [
+      {
+        "id": "W-120226-HFK44",
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2026-02-12T16:31:33.829002"
+      }
+    ],
+    "1463543541945995536": [
+      {
+        "id": "VSU7G",
+        "type": "auto_mod",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Motivo",
+        "timestamp": "2026-03-14T16:37:11.982396"
+      },
+      {
+        "id": "M-140326-4WNGV",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-14T16:45:12.423682"
+      },
+      {
+        "id": "M-140326-VW9Z7",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-14T18:24:57.953920"
+      },
+      {
+        "id": "M-140326-JAMI7",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-14T18:26:29.237375"
+      },
+      {
+        "id": "M-140326-IE8YX",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-14T18:29:44.953616"
+      },
+      {
+        "id": "M-150326-YNLLC",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-15T00:45:29.520494"
+      },
+      {
+        "id": "M-150326-EZYLQ",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-15T07:55:41.817110"
+      }
+    ],
+    "1512882241347387515": [
+      {
+        "id": "B-130626-OP9UJ",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2026-06-13T16:12:41.203724"
+      },
+      {
+        "id": "UB-130626-JDM2U",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2026-06-13T16:14:20.723625"
+      },
+      {
+        "id": "B-130626-GLF7L",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "x",
+        "timestamp": "2026-06-13T16:15:42.733866"
+      }
+    ],
+    "1512884212947226756": [
+      {
+        "id": "B-130626-HD93U",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2026-06-13T16:16:29.656113"
+      },
+      {
+        "id": "UB-130626-M7R68",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "x",
+        "timestamp": "2026-06-13T16:17:26.929552"
+      },
+      {
+        "id": "M-280626-ZW8O7",
+        "type": "mute",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Lien non autorisé : belgiantrain.be",
+        "timestamp": "2026-06-28T12:31:22.329003"
+      },
+      {
+        "id": "W-280626-6GW8N",
+        "type": "warn",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Lien non autorisé : youtube.com",
+        "timestamp": "2026-06-28T12:39:58.604716"
+      },
+      {
+        "id": "W-280626-VOVHZ",
+        "type": "warn",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Lien non autorisé : tenor.com",
+        "timestamp": "2026-06-28T12:40:22.337988"
+      }
+    ],
+    "1346797461104234576": [
+      {
+        "id": "UM-250626-OBXYR",
+        "type": "unmute",
+        "moderator_id": 1140296215469240401,
+        "reason": "❌ Non configuré",
+        "timestamp": "2026-06-25T23:32:40.136834"
+      },
+      {
+        "id": "W-250626-ZH34G",
+        "type": "warn",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2026-06-25T23:34:07.750766"
+      }
+    ],
+    "917464047018999838": [
+      {
+        "id": "B-140726-147U2",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "/",
+        "timestamp": "2026-07-14T16:19:16.236475"
+      }
+    ],
+    "1322335022581026898": [],
+    "318312854816161792": [
+      {
+        "id": "K-120926-UC1Y6",
+        "type": "kick",
+        "moderator_id": 1140296215469240401,
+        "reason": "ne me sert plus",
+        "timestamp": "2026-09-12T11:22:56.171658"
+      }
+    ]
+  },
+  "333949691962195969": {
+    "226955064638439424": [
+      {
+        "id": 1,
+        "type": "kick",
+        "moderator_id": 401058073231491082,
+        "reason": "Aucune raison spécifiée",
+        "timestamp": "2025-09-15T06:56:41.070300"
+      }
+    ]
+  },
+  "1429878491876167872": {
+    "1442164498709610506": [
+      {
+        "id": "NMBI7J",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T23:13:51.607597"
+      },
+      {
+        "id": "811UXA",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:16:16.606132"
+      },
+      {
+        "id": "N0950K",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T23:16:46.074693"
+      },
+      {
+        "id": "1KOLRA",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:20:30.412155"
+      },
+      {
+        "id": "9NOO5W",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "tesr",
+        "timestamp": "2025-11-26T23:20:58.511962"
+      },
+      {
+        "id": "KS1BLN",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:24:27.065659"
+      },
+      {
+        "id": "FR6CUH",
+        "type": "ban",
+        "moderator_id": 1140296215469240401,
+        "reason": "test",
+        "timestamp": "2025-11-26T23:27:09.414093"
+      },
+      {
+        "id": "NM37ZU",
+        "type": "unban",
+        "moderator_id": 1140296215469240401,
+        "reason": "En attente de configuration",
+        "timestamp": "2025-11-26T23:27:29.728644"
+      }
+    ]
+  },
+  "1482645302409298003": {
+    "1140296215469240401": [
+      {
+        "id": "W-150326-HPKIN",
+        "type": "warn",
+        "moderator_id": 1157699815833088001,
+        "reason": "Automod: Raison",
+        "timestamp": "2026-03-15T08:47:40.928131"
+      }
+    ]
+  }
+}

@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation — Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f111a 0%, #1a1a3e 50%, #0d1117 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        a { color: inherit; }
+
+        /* ── NAV ── */
+        nav {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.4rem; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .nav-links { display: flex; list-style: none; gap: 1.5rem; align-items: center; }
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #a5b4fc; }
+        .nav-links a.active { color: #a5b4fc; font-weight: 600; }
+
+        /* ── LAYOUT ── */
+        .page-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 0;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            align-items: start;
+        }
+
+        /* ── SIDEBAR ── */
+        .sidebar {
+            position: sticky;
+            top: 80px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-right: 2rem;
+        }
+        .sidebar-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 0.75rem;
+            padding: 0 0.5rem;
+        }
+        .sidebar-item {
+            display: block;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.88rem;
+            transition: all 0.2s;
+            margin-bottom: 2px;
+        }
+        .sidebar-item:hover { background: rgba(255,255,255,0.07); color: white; }
+        .sidebar-item.active { background: rgba(165,180,252,0.15); color: #a5b4fc; font-weight: 600; }
+
+        /* ── CONTENT ── */
+        .content { min-width: 0; }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center;
+            padding: 2rem 1rem 3rem;
+            background: linear-gradient(180deg, rgba(102,126,234,0.08) 0%, transparent 100%);
+            border-radius: 20px;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 60%, #667eea 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+        }
+        .hero p { color: rgba(255,255,255,0.55); font-size: 1rem; margin-bottom: 1.5rem; }
+        .hero-cta { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+        .btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            color: #a5b4fc;
+            border: 1px solid rgba(165,180,252,0.35);
+        }
+
+        /* ── SECTION CARDS ── */
+        .doc-section {
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+            backdrop-filter: blur(8px);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.09);
+            margin-bottom: 2rem;
+            scroll-margin-top: 90px;
+        }
+        .doc-section:hover { border-color: rgba(255,255,255,0.15); }
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        h3 { color: #fff; margin: 1.4rem 0 0.6rem; font-size: 1rem; }
+        p { color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 0.75rem; }
+        ul, ol { margin-left: 1.5rem; color: rgba(255,255,255,0.7); }
+        li { margin-bottom: 0.5rem; line-height: 1.7; }
+        code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            color: #c4b5fd;
+            font-size: 0.88em;
+        }
+
+        /* ── COMMAND BOX ── */
+        .cmd-list { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.75rem 0; }
+        .cmd-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: baseline;
+            background: rgba(255,255,255,0.04);
+            border-left: 3px solid #667eea;
+            padding: 0.6rem 0.9rem;
+            border-radius: 0 8px 8px 0;
+            flex-wrap: wrap;
+        }
+        .cmd-name { color: #a5b4fc; font-family: 'Courier New', monospace; font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+        .cmd-desc { color: rgba(255,255,255,0.6); font-size: 0.88rem; }
+        .cmd-badge {
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+        .badge-admin { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-premium { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .badge-plus { background: rgba(168,85,247,0.2); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+
+        /* ── FEATURE GRID ── */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.04);
+            padding: 1.2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+        }
+        .feature-item .icon { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .feature-item h4 { color: #fff; margin-bottom: 0.3rem; font-size: 0.9rem; }
+        .feature-item p { color: rgba(255,255,255,0.55); font-size: 0.82rem; margin-bottom: 0; }
+
+        /* ── TABS ── */
+        .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+        .tab-btn {
+            padding: 0.55rem 1.2rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .tab-btn.active { background: rgba(165,180,252,0.18); color: #a5b4fc; border-color: rgba(165,180,252,0.4); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ── SLA TABLE ── */
+        .sla-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .sla-card {
+            border-radius: 12px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .sla-card.free { background: rgba(107,114,128,0.12); border-color: rgba(107,114,128,0.3); }
+        .sla-card.premium { background: rgba(251,191,36,0.08); border-color: rgba(251,191,36,0.35); }
+        .sla-card.plus { background: rgba(168,85,247,0.08); border-color: rgba(168,85,247,0.35); }
+        .sla-emoji { font-size: 2rem; display: block; margin-bottom: 0.4rem; }
+        .sla-label { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.5rem; }
+        .sla-card.free .sla-label { color: #9ca3af; }
+        .sla-card.premium .sla-label { color: #fbbf24; }
+        .sla-card.plus .sla-label { color: #c084fc; }
+        .sla-detail { font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+        .sla-time { font-size: 1.4rem; font-weight: 800; display: block; margin: 0.3rem 0; }
+        .sla-card.free .sla-time { color: #9ca3af; }
+        .sla-card.premium .sla-time { color: #fbbf24; }
+        .sla-card.plus .sla-time { color: #c084fc; }
+
+        /* ── CALLOUT BOXES ── */
+        .callout {
+            padding: 1rem 1.2rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+        .callout-tip { background: rgba(16,185,129,0.08); border-left: 4px solid #10b981; color: rgba(255,255,255,0.8); }
+        .callout-warn { background: rgba(245,158,11,0.08); border-left: 4px solid #f59e0b; color: rgba(255,255,255,0.8); }
+        .callout-info { background: rgba(99,102,241,0.08); border-left: 4px solid #6366f1; color: rgba(255,255,255,0.8); }
+        .callout-premium { background: linear-gradient(135deg, rgba(251,191,36,0.06), rgba(124,58,237,0.06)); border-left: 4px solid #fbbf24; color: rgba(255,255,255,0.8); }
+
+        /* ── STEP BOXES ── */
+        .steps { display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0; }
+        .step {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 1rem;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .step-num {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .step-body h4 { color: #fff; font-size: 0.92rem; margin-bottom: 0.3rem; }
+        .step-body p { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-bottom: 0; }
+
+        /* ── FAQ ── */
+        .faq-item {
+            background: rgba(255,255,255,0.03);
+            border-left: 3px solid #667eea;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 0.6rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .faq-item:hover { background: rgba(255,255,255,0.05); }
+        .faq-q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 1rem;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+        .faq-toggle { font-size: 0.9rem; color: rgba(255,255,255,0.4); transition: transform 0.2s; }
+        .faq-item.open .faq-toggle { transform: rotate(180deg); }
+        .faq-a {
+            display: none;
+            padding: 0 1rem 0.9rem;
+            color: rgba(255,255,255,0.65);
+            font-size: 0.88rem;
+            line-height: 1.8;
+        }
+        .faq-item.open .faq-a { display: block; }
+
+        /* ── TABLE ── */
+        .tbl-wrap { overflow-x: auto; margin: 0.75rem 0; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: rgba(255,255,255,0.06); color: #fff; font-weight: 600; padding: 0.75rem 1rem; text-align: left; border-bottom: 2px solid rgba(165,180,252,0.3); font-size: 0.88rem; }
+        td { padding: 0.65rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font-size: 0.87rem; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255,255,255,0.35);
+            margin-top: 1rem;
+            font-size: 0.85rem;
+        }
+        .footer a { color: rgba(165,180,252,0.7); text-decoration: none; }
+        .footer a:hover { color: #a5b4fc; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 860px) {
+            .page-layout { grid-template-columns: 1fr; padding: 1rem; }
+            .sidebar { position: static; margin-right: 0; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+            .sidebar-title { display: none; }
+            .sidebar-item { margin-bottom: 0; padding: 0.4rem 0.8rem; font-size: 0.82rem; }
+            .sla-grid { grid-template-columns: 1fr; }
+            .nav-links { gap: 0.8rem; }
+            .hero h1 { font-size: 1.7rem; }
+        }
+        @media (max-width: 480px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">📚 Miaouscle Bot</a>
+        <ul class="nav-links">
+            <li><a href="/home">🏠 Accueil</a></li>
+            <li><a href="/docs" class="active">📚 Docs</a></li>
+            <li><a href="/dashboard">⚙️ Dashboard</a></li>
+            <li><a href="/premium">💎 Premium</a></li>
+            <li><a href="/support">🆘 Support</a></li>
+            <li><a href="/about">ℹ️ À propos</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-layout">
+
+        <!-- ── Sidebar ── -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Catégories</div>
+            <a href="#start" class="sidebar-item active">🚀 Démarrage rapide</a>
+            <a href="#config" class="sidebar-item">⚙️ Configuration</a>
+            <a href="#commands" class="sidebar-item">💬 Commandes</a>
+            <a href="#xp" class="sidebar-item">🎯 Niveaux (XP)</a>
+            <a href="#automod" class="sidebar-item">🛡️ Sécurité</a>
+            <a href="#tickets" class="sidebar-item">🎫 Tickets</a>
+            <a href="#premium-features" class="sidebar-item">💎 Premium</a>
+            <a href="#faq" class="sidebar-item">❓ FAQ</a>
+        </aside>
+
+        <!-- ── Content ── -->
+        <main class="content">
+
+            <!-- Hero -->
+            <div class="hero">
+                <h1>📚 Documentation Miaouscle Bot</h1>
+                <p>Guide complet — configuration, commandes, fonctionnalités et Premium</p>
+                <div class="hero-cta">
+                    <a href="https://discord.com/oauth2/authorize?client_id=1157699815833088001" target="_blank" class="btn btn-primary">➕ Ajouter le bot</a>
+                    <a href="/dashboard" class="btn btn-secondary">Accéder au Dashboard →</a>
+                </div>
+            </div>
+
+            <!-- ── 1. DÉMARRAGE RAPIDE ── -->
+            <div class="doc-section" id="start">
+                <div class="section-heading">🚀 Démarrage rapide</div>
+                <p>Mets Miaouscle Bot en place en 3 étapes :</p>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-body">
+                            <h4>Invite le bot sur ton serveur</h4>
+                            <p>Clique sur <a href="https://discord.com/oauth2/authorize?client_id=1157699815833088001" target="_blank" style="color:#a5b4fc;">ce lien d'invitation</a> et sélectionne ton serveur. Le bot demande les permissions nécessaires.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-body">
+                            <h4>Configure avec <code>/config</code> ou le Dashboard</h4>
+                            <p>La commande <code>/config</code> te redirige directement vers le Dashboard web pour une synchronisation en temps réel.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-body">
+                            <h4>Teste le bot</h4>
+                            <p>Utilise <code>/ping</code> pour vérifier que le bot répond, puis explore les commandes avec <code>/help</code>.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="callout callout-tip">
+                    💡 <strong>Conseil :</strong> Pour fonctionner pleinement, le bot doit avoir la permission <strong>Administrateur</strong> ou, au minimum, <em>Gérer le serveur, Envoyer des messages, Intégrer des liens, Lire l'historique</em>.
+                </div>
+            </div>
+
+            <!-- ── 2. CONFIGURATION ── -->
+            <div class="doc-section" id="config">
+                <div class="section-heading">⚙️ Configuration — Dashboard</div>
+                <p>Le Dashboard web centralise tous les paramètres. Accède-y sur <a href="/dashboard" style="color:#a5b4fc;">/dashboard</a> après connexion Discord.</p>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('cfg','t-general',this)">🌍 Général</button>
+                    <button class="tab-btn" onclick="switchTab('cfg','t-messages',this)">💬 Messages</button>
+                    <button class="tab-btn" onclick="switchTab('cfg','t-security',this)">🛡️ Sécurité</button>
+                    <button class="tab-btn" onclick="switchTab('cfg','t-logs',this)">📍 Logs</button>
+                </div>
+
+                <div class="tab-content active" id="cfg-t-general">
+                    <ul>
+                        <li><strong>Langue</strong> — Français, Anglais, Espagnol ou Allemand</li>
+                        <li><strong>Rôle Booster XP</strong> — Reçoit 2× l'XP (pour les boosters)</li>
+                        <li><strong>Canal XP</strong> — Où les montées de niveau sont annoncées</li>
+                        <li><strong>Réinitialiser</strong> — Remet tous les paramètres à zéro</li>
+                    </ul>
+                    <div class="callout callout-premium">
+                        💡 Un badge en haut du Dashboard indique le tier du serveur : 🆓 Free / 💎 Premium / 👑 Premium+. Le Premium s'active <strong>par serveur</strong> — tous ses membres et admins en profitent.
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cfg-t-messages">
+                    <ul>
+                        <li><strong>Canal Bienvenue / Au Revoir</strong> — Où envoyer les messages d'arrivée et de départ</li>
+                        <li><strong>Message personnalisé</strong> — Variables disponibles : <code>{user}</code> <code>{username}</code> <code>{guild}</code> <code>{count}</code></li>
+                        <li><strong>Demande Pseudo</strong> — Canal pour les demandes de pseudo</li>
+                    </ul>
+                    <div class="callout callout-premium">
+                        💎 <strong>Premium</strong> débloque la personnalisation embed (titre, couleur, image/GIF, footer, ping membre) pour la bienvenue ET le départ.<br>
+                        👑 <strong>Premium+</strong> ajoute le <strong>MP de bienvenue automatique</strong> personnalisé.
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cfg-t-security">
+                    <ul>
+                        <li><strong>AutoMod</strong> — Activer/désactiver, action (warn/mute/kick/ban), durée du mute</li>
+                        <li><strong>Détections</strong> — Spam, majuscules excessives, invitations non autorisées</li>
+                        <li>💎 <strong>Anti-Raid</strong> — Détecte les arrivées massives de comptes suspects <em>(Premium requis)</em></li>
+                        <li>💎 <strong>Seuil & Fenêtre</strong> — X arrivées en Y secondes → alerte</li>
+                        <li>💎 <strong>Âge minimum</strong> — Comptes plus jeunes que N jours = suspects</li>
+                        <li>💎 <strong>Action</strong> — Lockdown, Kick ou Ban automatique</li>
+                    </ul>
+                </div>
+
+                <div class="tab-content" id="cfg-t-logs">
+                    <ul>
+                        <li><strong>Canal Logs</strong> — Où envoyer les événements de modération</li>
+                        <li><strong>9 types configurables</strong> — Bannissements, expulsions, avertissements, modifications de rôles, etc.</li>
+                        <li><strong>Horodatage</strong> — Tous les logs incluent date et heure précises</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ── 3. COMMANDES ── -->
+            <div class="doc-section" id="commands">
+                <div class="section-heading">💬 Commandes</div>
+                <p>Toutes les commandes utilisent le format slash (<code>/commande</code>).</p>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('cmd','t-general',this)">⚙️ Général</button>
+                    <button class="tab-btn" onclick="switchTab('cmd','t-moderation',this)">🔨 Modération</button>
+                    <button class="tab-btn" onclick="switchTab('cmd','t-xp',this)">🎯 XP</button>
+                    <button class="tab-btn" onclick="switchTab('cmd','t-tickets',this)">🎫 Tickets</button>
+                    <button class="tab-btn" onclick="switchTab('cmd','t-premium',this)">💎 Premium</button>
+                </div>
+
+                <div class="tab-content active" id="cmd-t-general">
+                    <div class="cmd-list">
+                        <div class="cmd-row"><span class="cmd-name">/ping</span><span class="cmd-desc">Vérifie la latence du bot</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/help</span><span class="cmd-desc">Liste toutes les commandes disponibles</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/config</span><span class="cmd-desc">Ouvre le lien vers le Dashboard web <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/info</span><span class="cmd-desc">Informations sur le bot et le serveur</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/status</span><span class="cmd-desc">Statut des services Miaouscle</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/report</span><span class="cmd-desc">Signale un bug ou un problème</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/suggestion</span><span class="cmd-desc">Propose une amélioration</span></div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cmd-t-moderation">
+                    <div class="cmd-list">
+                        <div class="cmd-row"><span class="cmd-name">/warn</span><span class="cmd-desc">Avertit un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/mute</span><span class="cmd-desc">Réduit un membre au silence <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/unmute</span><span class="cmd-desc">Lève le mute d'un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/kick</span><span class="cmd-desc">Expulse un membre du serveur <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/ban</span><span class="cmd-desc">Bannit un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/unban</span><span class="cmd-desc">Lève le bannissement <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/clear</span><span class="cmd-desc">Supprime des messages en masse <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/warns</span><span class="cmd-desc">Liste les avertissements d'un membre</span></div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cmd-t-xp">
+                    <div class="cmd-list">
+                        <div class="cmd-row"><span class="cmd-name">/rank</span><span class="cmd-desc">Affiche ton niveau et ton XP actuel</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/leaderboard</span><span class="cmd-desc">Classement XP du serveur</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/xp-give</span><span class="cmd-desc">Donne de l'XP à un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/xp-remove</span><span class="cmd-desc">Retire de l'XP à un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/xp-reset</span><span class="cmd-desc">Remet à zéro l'XP d'un membre <span class="cmd-badge badge-admin">Admin</span></span></div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cmd-t-tickets">
+                    <div class="cmd-list">
+                        <div class="cmd-row"><span class="cmd-name">/ticket-setup</span><span class="cmd-desc">Configure le système de tickets (canal, rôle staff, catégorie) <span class="cmd-badge badge-admin">Admin bot</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/ticket-config</span><span class="cmd-desc">Affiche ou modifie la config (incl. horaires d'ouverture) <span class="cmd-badge badge-admin">Admin bot</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/ticket-close</span><span class="cmd-desc">Ferme le ticket courant <span class="cmd-badge badge-admin">Admin bot</span></span></div>
+                    </div>
+                    <div class="callout callout-info">
+                        ℹ️ Les membres ouvrent leurs tickets via le bouton 🎫 dans le canal de support — pas par commande. Les commandes <code>/ticket-*</code> sont réservées à l'équipe admin bot.
+                    </div>
+                </div>
+
+                <div class="tab-content" id="cmd-t-premium">
+                    <div class="cmd-list">
+                        <div class="cmd-row"><span class="cmd-name">/premium</span><span class="cmd-desc">Affiche ton statut Premium et les avantages</span></div>
+                        <div class="cmd-row"><span class="cmd-name">/premium-activate</span><span class="cmd-desc">Active un code Premium sur ce serveur <span class="cmd-badge badge-admin">Admin</span></span></div>
+                        <div class="cmd-row"><span class="cmd-name">/antilien</span><span class="cmd-desc">Gère la whitelist Anti-Lien <span class="cmd-badge badge-admin">Admin</span></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── 4. XP ── -->
+            <div class="doc-section" id="xp">
+                <div class="section-heading">🎯 Système de Niveaux (XP)</div>
+                <p>Miaouscle Bot dispose d'un système de niveaux automatique et flexible.</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item"><div class="icon">📈</div><h4>Auto</h4><p>XP gagné à chaque message envoyé</p></div>
+                    <div class="feature-item"><div class="icon">🎨</div><h4>Carte stylée</h4><p>Carte de niveau générée à la montée</p></div>
+                    <div class="feature-item"><div class="icon">📢</div><h4>Annonce</h4><p>Canal configurable pour les level-up</p></div>
+                    <div class="feature-item"><div class="icon">⚡</div><h4>2× Booster</h4><p>Rôle Booster reçoit 2× l'XP</p></div>
+                </div>
+
+                <h3>Formule de progression</h3>
+                <div class="callout callout-info" style="font-family:'Courier New',monospace;">
+                    XP nécessaire = 5 × (niveau³ + 15 × niveau² + 10 × niveau)
+                </div>
+
+                <h3>Exemples</h3>
+                <div class="tbl-wrap">
+                    <table>
+                        <tr><th>Niveau</th><th>XP requis (cumul)</th></tr>
+                        <tr><td>1 → 2</td><td>~100 XP</td></tr>
+                        <tr><td>5 → 6</td><td>~1 500 XP</td></tr>
+                        <tr><td>10 → 11</td><td>~8 500 XP</td></tr>
+                        <tr><td>20 → 21</td><td>~43 000 XP</td></tr>
+                    </table>
+                </div>
+
+                <div class="callout callout-tip">
+                    💡 Les bots n'accumulent pas d'XP. Les messages en spam (moins de 60 s entre deux) ne comptent pas non plus.
+                </div>
+            </div>
+
+            <!-- ── 5. SÉCURITÉ ── -->
+            <div class="doc-section" id="automod">
+                <div class="section-heading">🛡️ Sécurité — AutoMod & Anti-Raid</div>
+                <p>Protection automatique contre le spam, les invitations et les raids.</p>
+
+                <h3>Ce que détecte l'AutoMod (Free)</h3>
+                <div class="cmd-list">
+                    <div class="cmd-row"><span class="cmd-name">🔁 Spam</span><span class="cmd-desc">Messages répétés trop rapidement</span></div>
+                    <div class="cmd-row"><span class="cmd-name">🔤 Majuscules</span><span class="cmd-desc">Plus de 50 % en majuscules</span></div>
+                    <div class="cmd-row"><span class="cmd-name">🔗 Invitations</span><span class="cmd-desc">Liens d'invitation non autorisés</span></div>
+                    <div class="cmd-row"><span class="cmd-name">📝 Flood texte</span><span class="cmd-desc">Messages anormalement longs</span></div>
+                    <div class="cmd-row"><span class="cmd-name">🚫 Mentions</span><span class="cmd-desc">@everyone / @here abusifs</span></div>
+                </div>
+
+                <h3>Actions disponibles</h3>
+                <div class="tbl-wrap">
+                    <table>
+                        <tr><th>Action</th><th>Effet</th></tr>
+                        <tr><td><strong>Supprimer</strong></td><td>Message supprimé silencieusement</td></tr>
+                        <tr><td><strong>Avertir</strong></td><td>Message supprimé + avertissement envoyé</td></tr>
+                        <tr><td><strong>Mute</strong></td><td>Message supprimé + timeout automatique</td></tr>
+                        <tr><td><strong>Kick</strong></td><td>Membre expulsé</td></tr>
+                        <tr><td><strong>Ban</strong></td><td>Membre banni</td></tr>
+                    </table>
+                </div>
+
+                <h3>Anti-Raid <span class="cmd-badge badge-premium" style="vertical-align:middle;">Premium</span></h3>
+                <ul>
+                    <li>Détecte les arrivées massives de comptes suspects en temps réel</li>
+                    <li>Paramètres : seuil (X arrivées), fenêtre (Y secondes), âge minimum des comptes</li>
+                    <li>Actions : Lockdown du serveur, Kick ou Ban automatique</li>
+                    <li>Canal d'alerte configurable pour notifier les admins</li>
+                </ul>
+
+                <div class="callout callout-tip">
+                    💡 Crée des canaux/rôles en whitelist pour que l'AutoMod ne les affecte pas (configurable sur le Dashboard, onglet Sécurité).
+                </div>
+            </div>
+
+            <!-- ── 6. TICKETS ── -->
+            <div class="doc-section" id="tickets">
+                <div class="section-heading">🎫 Système de Tickets</div>
+                <p>Canal de support privé entre le membre et l'équipe — avec priorité selon le plan.</p>
+
+                <h3>⏱️ Temps de réponse garantis (SLA)</h3>
+                <div class="sla-grid">
+                    <div class="sla-card free">
+                        <span class="sla-emoji">📩</span>
+                        <div class="sla-label">Basic</div>
+                        <span class="sla-time">—</span>
+                        <div class="sla-detail">File d'attente standard<br>Aucun SLA garanti<br>Pas de ping staff</div>
+                    </div>
+                    <div class="sla-card premium">
+                        <span class="sla-emoji">⚡</span>
+                        <div class="sla-label">Premium</div>
+                        <span class="sla-time">24 h</span>
+                        <div class="sla-detail">Réponse garantie sous 24 h<br>Ping staff à l'ouverture<br>Suivi SLA automatique</div>
+                    </div>
+                    <div class="sla-card plus">
+                        <span class="sla-emoji">⭐</span>
+                        <div class="sla-label">Premium+</div>
+                        <span class="sla-time">6 h</span>
+                        <div class="sla-detail">Réponse garantie sous 6 h<br>Ping staff + priorité absolue<br>Alerte owner si dépassement</div>
+                    </div>
+                </div>
+
+                <h3>Comment ça marche ?</h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-body">
+                            <h4>Setup par l'admin bot</h4>
+                            <p><code>/ticket-setup channel:#support staff_role:@Staff</code> — pose le panneau dans le canal indiqué.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-body">
+                            <h4>Le membre clique "🎫 Ouvrir un ticket"</h4>
+                            <p>Un canal privé est créé automatiquement, visible uniquement par le membre, le rôle staff et le bot.</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-body">
+                            <h4>Le staff répond et clôture</h4>
+                            <p>Boutons persistants dans le ticket : <strong>👤 Prendre en charge</strong> et <strong>🔒 Fermer le ticket</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout callout-info">
+                    ℹ️ Le SLA est basé sur le plan du <strong>membre qui ouvre le ticket</strong> (admin d'un serveur Premium payant), pas sur le serveur de support. Un membre Premium+ d'un serveur tiers bénéficie du SLA 6 h.
+                </div>
+
+                <h3>Horaires d'ouverture</h3>
+                <p>Optionnel — configure via <code>/ticket-config</code> pour limiter les ouvertures à des plages horaires précises (ex. lun–ven 9h–18h Europe/Paris). En dehors des horaires, un embed informatif est affiché au membre.</p>
+            </div>
+
+            <!-- ── 7. PREMIUM ── -->
+            <div class="doc-section" id="premium-features" style="border-color:rgba(251,191,36,0.25);">
+                <div class="section-heading">💎 Premium & 👑 Premium+</div>
+                <p>Le Premium est lié à <strong>un serveur Discord</strong>. Une fois activé, tous les membres et admins de ce serveur en profitent. Un abonnement = un serveur.</p>
+
+                <div class="feature-grid" style="margin-top:1rem;">
+                    <div class="feature-item" style="background:rgba(251,191,36,0.06);border-color:rgba(251,191,36,0.25);">
+                        <div class="icon">💎</div>
+                        <h4 style="color:#fbbf24;">Premium</h4>
+                        <p>Embeds bienvenue/départ, Anti-Raid, tickets prioritaires 24 h</p>
+                    </div>
+                    <div class="feature-item" style="background:rgba(168,85,247,0.06);border-color:rgba(168,85,247,0.25);">
+                        <div class="icon">👑</div>
+                        <h4 style="color:#c084fc;">Premium+</h4>
+                        <p>Tout Premium + MP bienvenue auto + tickets prioritaires 6 h</p>
+                    </div>
+                </div>
+
+                <h3>Fonctionnalités détaillées</h3>
+                <div class="tbl-wrap">
+                    <table>
+                        <tr><th>Fonctionnalité</th><th>Free</th><th>💎 Premium</th><th>👑 Premium+</th></tr>
+                        <tr><td>AutoMod basique</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Système XP & Niveaux</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Logs modération</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Tickets (file standard)</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Embed bienvenue/départ custom</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Anti-Raid</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>Tickets prioritaires + SLA 24 h</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                        <tr><td>MP bienvenue automatique</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                        <tr><td>Tickets SLA 6 h (priorité absolue)</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                    </table>
+                </div>
+
+                <div class="callout callout-warn">
+                    🔒 Si tu tentes de modifier des champs Premium sans le tier requis via le HTML, le serveur API <strong>rejette silencieusement</strong> ces valeurs. Le statut Premium est l'autorité côté serveur.
+                </div>
+
+                <div style="text-align:center;margin-top:1.5rem;">
+                    <a href="/premium" class="btn btn-primary" style="background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f111a;">💎 Découvrir les offres Premium</a>
+                </div>
+            </div>
+
+            <!-- ── 8. FAQ ── -->
+            <div class="doc-section" id="faq">
+                <div class="section-heading">❓ Questions fréquentes</div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Comment ajouter le bot à mon serveur ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Utilise le <a href="https://discord.com/oauth2/authorize?client_id=1157699815833088001" style="color:#a5b4fc;" target="_blank">lien d'invitation</a>, sélectionne ton serveur et autorise les permissions demandées. Le bot doit avoir les permissions Administrateur ou les permissions minimales listées dans la section Démarrage rapide.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Le bot ne répond pas, que faire ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Vérifie que : 1) le bot est en ligne (<code>/ping</code>), 2) il a les permissions nécessaires dans le canal, 3) la commande est bien une commande slash (<code>/</code>). Si le problème persiste, contacte le support via <code>/report</code>.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Comment configurer les messages de bienvenue ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Dashboard → onglet <strong>Messages</strong>. Sélectionne le canal et rédige ton message avec les variables <code>{user}</code>, <code>{username}</code>, <code>{guild}</code>, <code>{count}</code>. La personnalisation embed (couleur, image, footer) nécessite Premium.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Puis-je réinitialiser la configuration ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Oui, Dashboard → onglet <strong>Général</strong> → bouton <strong>Réinitialiser Configuration</strong>. Tous les paramètres reviennent aux valeurs par défaut. L'action est irréversible.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>L'XP ne monte pas, pourquoi ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Vérifie que : 1) le système XP est activé dans le Dashboard, 2) l'utilisateur n'est pas muté, 3) les messages ne sont pas du spam (cooldown 60 s). Les bots ne reçoivent jamais d'XP.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Comment contacter le support ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Utilise <code>/report</code> dans Discord, visite la <a href="/support" style="color:#a5b4fc;">page support</a>, ou rejoint directement notre <a href="https://discord.com/channels/1188506879052238988/1188578727668486184" target="_blank" style="color:#a5b4fc;">serveur Discord</a>.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q"><span>Le Premium est-il par serveur ou par compte ?</span><span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Le Premium est lié à <strong>un serveur Discord</strong>. Une fois activé sur un serveur, tous les membres et admins de ce serveur en profitent. Pour l'appliquer à plusieurs serveurs, il faut un abonnement par serveur.</div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <div class="footer">
+        <p>Miaouscle Bot — Créé par <strong>matix</strong> © 2025 · <a href="/support">Support</a> · <a href="/premium">Premium</a> · <a href="/about">À propos</a></p>
+    </div>
+
+    <script>
+        function switchTab(group, tabId, btn) {
+            document.querySelectorAll(`[id^="${group}-"]`).forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                if (b.closest('.doc-section') === btn.closest('.doc-section')) b.classList.remove('active');
+            });
+            document.getElementById(`${group}-${tabId}`).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Sidebar active on scroll
+        const sections = document.querySelectorAll('.doc-section[id]');
+        const sidebarLinks = document.querySelectorAll('.sidebar-item');
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    const active = document.querySelector(`.sidebar-item[href="#${entry.target.id}"]`);
+                    if (active) active.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+        sections.forEach(s => observer.observe(s));
+    </script>
+</body>
+</html>

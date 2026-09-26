@@ -1,0 +1,11 @@
+{
+  "providers": {
+    "stripe": true,
+    "paypal": false
+  },
+  "plans": {
+    "premium": true,
+    "premium_plus": false
+  },
+  "updated_at": "2026-09-17T09:59:57Z"
+}

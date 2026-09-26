@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium - Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%); min-height: 100vh; color: #e0e0e0; }
+
+        nav { background: rgba(20, 20, 40, 0.95); backdrop-filter: blur(10px); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.3rem; font-weight: 700; color: #a5b4fc; text-decoration: none; cursor: pointer; }
+        .nav-right { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .nav-link { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .nav-link:hover { color: #a5b4fc; }
+        .nav-link.active { color: #fbbf24; }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 3rem 2rem; }
+
+        .hero { text-align: center; margin-bottom: 3rem; }
+        .hero .badge { display: inline-block; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1a1a3e; padding: 0.4rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; letter-spacing: 0.5px; }
+        .hero h1 { font-size: 2.8rem; margin-bottom: 0.8rem; font-weight: 800; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero p { font-size: 1.15rem; opacity: 0.85; max-width: 700px; margin: 0 auto; }
+
+        .soon-banner { background: linear-gradient(135deg, rgba(251,191,36,0.15) 0%, rgba(245,158,11,0.1) 100%); border: 1px solid rgba(251,191,36,0.4); border-radius: 12px; padding: 1.2rem 1.5rem; margin: 0 auto 3rem; max-width: 800px; text-align: center; color: #fde68a; font-weight: 500; }
+        .soon-banner strong { color: #fbbf24; }
+
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.8rem; margin-bottom: 4rem; }
+
+        .plan { background: linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%); backdrop-filter: blur(10px); border-radius: 16px; padding: 2.2rem 1.8rem; border: 1px solid rgba(255,255,255,0.08); position: relative; transition: transform 0.3s, box-shadow 0.3s; display: flex; flex-direction: column; }
+        .plan:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+
+        .plan.featured { border: 2px solid #fbbf24; background: linear-gradient(145deg, rgba(251,191,36,0.08) 0%, rgba(124,58,237,0.05) 100%); transform: scale(1.03); }
+        .plan.featured:hover { transform: scale(1.03) translateY(-5px); }
+        .plan.featured .plan-popular { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1a1a3e; padding: 0.3rem 1rem; border-radius: 20px; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.5px; }
+
+        .plan-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+        .plan-name { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.4rem; }
+        .plan-tagline { font-size: 0.9rem; opacity: 0.7; margin-bottom: 1.5rem; min-height: 2.6em; }
+
+        .plan-price { font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 0.3rem; }
+        .plan-price .currency { font-size: 1.3rem; vertical-align: top; opacity: 0.8; }
+        .plan-price .period { font-size: 0.9rem; font-weight: 500; opacity: 0.6; }
+        .plan-price-yearly { font-size: 0.85rem; opacity: 0.7; margin-bottom: 1.5rem; }
+        .plan-price-yearly strong { color: #34d399; }
+
+        .plan-features { list-style: none; margin: 1.5rem 0; flex-grow: 1; }
+        .plan-features li { padding: 0.55rem 0; font-size: 0.92rem; opacity: 0.9; display: flex; gap: 0.6rem; align-items: flex-start; }
+        .plan-features li .check { color: #34d399; font-weight: 700; flex-shrink: 0; }
+        .plan-features li .cross { color: #6b7280; flex-shrink: 0; }
+        .plan-features li.disabled { opacity: 0.4; text-decoration: line-through; }
+
+        .plan-btn { display: block; width: 100%; padding: 0.9rem; border-radius: 10px; text-align: center; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; font-size: 0.95rem; }
+        .plan-btn.free { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
+        .plan-btn.free:hover { background: rgba(255,255,255,0.15); }
+        .plan-btn.premium { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1a1a3e; }
+        .plan-btn.premium:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(251,191,36,0.4); }
+        .plan-btn.premium-plus { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; }
+        .plan-btn.premium-plus:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(168,85,247,0.4); }
+        .plan-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .features-section { margin-top: 4rem; }
+        .features-section h2 { text-align: center; font-size: 1.8rem; color: #fff; margin-bottom: 2rem; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; }
+        .feature-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.06); }
+        .feature-card .feature-icon { font-size: 2rem; margin-bottom: 0.6rem; }
+        .feature-card h3 { color: #a5b4fc; font-size: 1.1rem; margin-bottom: 0.5rem; }
+        .feature-card p { font-size: 0.9rem; opacity: 0.8; line-height: 1.5; }
+
+        .faq-section { margin-top: 4rem; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .faq-section h2 { text-align: center; font-size: 1.8rem; color: #fff; margin-bottom: 2rem; }
+        .faq-item { background: rgba(255,255,255,0.04); border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 0.8rem; border: 1px solid rgba(255,255,255,0.06); }
+        .faq-item summary { cursor: pointer; font-weight: 600; color: #fff; padding: 0.3rem 0; }
+        .faq-item summary:hover { color: #a5b4fc; }
+        .faq-item p { margin-top: 0.8rem; opacity: 0.85; line-height: 1.6; font-size: 0.95rem; }
+
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; }
+            .hero h1 { font-size: 2rem; }
+            .container { padding: 2rem 1rem; }
+            .plan.featured { transform: none; }
+            .plan.featured:hover { transform: translateY(-5px); }
+        }
+
+        /* Modale de checkout */
+        .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 1000; align-items: center; justify-content: center; padding: 1rem; }
+        .modal-backdrop.open { display: flex; }
+        .modal { background: linear-gradient(145deg, #1a1a3e 0%, #24243e 100%); border-radius: 16px; padding: 2rem; max-width: 480px; width: 100%; border: 1px solid rgba(251,191,36,0.3); box-shadow: 0 20px 60px rgba(0,0,0,0.6); position: relative; max-height: 90vh; overflow-y: auto; }
+        .modal h2 { color: #fbbf24; font-size: 1.4rem; margin-bottom: 0.3rem; }
+        .modal .modal-sub { font-size: 0.9rem; opacity: 0.7; margin-bottom: 1.5rem; }
+        .modal .close-btn { position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.1); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
+        .modal .close-btn:hover { background: rgba(255,255,255,0.2); }
+        .modal label { display: block; margin: 1rem 0 0.4rem; font-size: 0.9rem; font-weight: 600; color: #e0e0e0; }
+        .modal select { width: 100%; min-height: 50px; padding: 0.8rem 2.8rem 0.8rem 1rem; background-color: #171a35 !important; background-image: linear-gradient(45deg, transparent 50%, #fbbf24 50%), linear-gradient(135deg, #fbbf24 50%, transparent 50%); background-position: calc(100% - 20px) 22px, calc(100% - 14px) 22px; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; border: 1px solid rgba(251,191,36,0.45); color: #fff !important; -webkit-text-fill-color: #fff; border-radius: 10px; font-size: 0.95rem; font-weight: 600; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color-scheme: dark; appearance: none; cursor: pointer; }
+        .modal select option { background-color: #171a35; color: #fff; font-weight: 600; padding: 0.75rem; }
+        .modal select:focus { outline: none; border-color: #fbbf24; box-shadow: 0 0 0 3px rgba(251,191,36,0.16); }
+        .billing-toggle { display: flex; gap: 0.5rem; margin-top: 0.4rem; }
+        .billing-toggle button { flex: 1; padding: 0.7rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e0e0e0; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; }
+        .billing-toggle button.active { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1a1a3e; border-color: #fbbf24; }
+        .billing-toggle button .bt-price { display: block; font-size: 0.8rem; opacity: 0.8; margin-top: 0.2rem; font-weight: 500; }
+        .pay-buttons { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
+        .pay-btn { padding: 0.85rem; border: none; border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .pay-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pay-btn.card { background: linear-gradient(135deg, #635bff 0%, #4f46e5 100%); color: #fff; }
+        .pay-btn.card:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,91,255,0.4); }
+        .pay-btn.paypal { background: #ffc439; color: #003087; }
+        .pay-btn.paypal:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,196,57,0.4); }
+        .modal .info-line { font-size: 0.8rem; opacity: 0.7; margin-top: 1rem; text-align: center; }
+        .modal .modal-error { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; padding: 0.7rem 1rem; border-radius: 8px; font-size: 0.88rem; margin-top: 1rem; }
+        .modal .login-required { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); color: #fde68a; padding: 1rem; border-radius: 8px; text-align: center; margin: 1rem 0; }
+        .modal .login-required a { color: #fbbf24; font-weight: 700; text-decoration: none; }
+
+        .toast { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); padding: 1rem 1.5rem; border-radius: 10px; font-weight: 600; z-index: 2000; box-shadow: 0 8px 25px rgba(0,0,0,0.4); animation: toastIn 0.3s ease; max-width: 90%; }
+        .toast.success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+        .toast.info { background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; }
+        .toast.error { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+        @keyframes toastIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle Bot</a>
+        <div class="nav-right">
+            <a href="/home" class="nav-link">🏠 Accueil</a>
+            <a href="/status" class="nav-link">📊 Status</a>
+            <a href="/docs" class="nav-link">📚 Docs</a>
+            <a href="/premium" class="nav-link active">💎 Premium</a>
+            <a href="/support" class="nav-link">🆘 Support</a>
+        </div>
+    </nav>
+
+    <!-- Bannière lancement Premium (compte à rebours) -->
+    <div id="launch-banner" style="display:none; background: linear-gradient(135deg, rgba(102,126,234,0.22) 0%, rgba(167,139,250,0.18) 50%, rgba(251,191,36,0.16) 100%); border-bottom: 2px solid rgba(167,139,250,0.35); padding: 1rem 2rem;">
+        <div style="max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; text-align: center;">
+            <div>
+                <div id="lb-title" style="font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 0.15rem;">🎉 Le Premium ouvre bientôt</div>
+                <div id="lb-subtitle" style="font-size: 0.82rem; color: rgba(255,255,255,0.65);">Abonnements à partir de 2,99€/mois</div>
+            </div>
+            <div id="lb-countdown" style="display: flex; align-items: center; gap: 0.4rem;">
+                <div style="display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,0.3);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:0.4rem 0.7rem;min-width:50px;"><span id="lb-days" style="font-size:1.4rem;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums;">--</span><small style="font-size:0.58rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Jours</small></div>
+                <span style="font-size:1.3rem;font-weight:800;color:rgba(251,191,36,0.6);margin-bottom:0.8rem;">:</span>
+                <div style="display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,0.3);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:0.4rem 0.7rem;min-width:50px;"><span id="lb-hours" style="font-size:1.4rem;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums;">--</span><small style="font-size:0.58rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Heures</small></div>
+                <span style="font-size:1.3rem;font-weight:800;color:rgba(251,191,36,0.6);margin-bottom:0.8rem;">:</span>
+                <div style="display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,0.3);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:0.4rem 0.7rem;min-width:50px;"><span id="lb-minutes" style="font-size:1.4rem;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums;">--</span><small style="font-size:0.58rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Min</small></div>
+                <span style="font-size:1.3rem;font-weight:800;color:rgba(251,191,36,0.6);margin-bottom:0.8rem;">:</span>
+                <div style="display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,0.3);border:1px solid rgba(167,139,250,0.3);border-radius:8px;padding:0.4rem 0.7rem;min-width:50px;"><span id="lb-seconds" style="font-size:1.4rem;font-weight:800;color:#fbbf24;font-variant-numeric:tabular-nums;">--</span><small style="font-size:0.58rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Sec</small></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero">
+            <span class="badge">✨ NOUVEAU</span>
+            <h1>Passez à Miaouscle Premium</h1>
+            <p>Débloquez tout le potentiel du bot avec des fonctionnalités exclusives, un support prioritaire et plus encore.</p>
+        </div>
+
+        <div id="status-banner" class="soon-banner" style="display:none;"></div>
+
+        <div style="text-align:center; margin: 0.5rem 0 1.5rem; font-size: 0.95rem; color: #ccc;">
+            🔒 Paiements sécurisés via&nbsp;:
+            <strong>💳 Carte bancaire</strong> · <strong>Stripe</strong> · <strong>PayPal</strong>
+            <br><span style="font-size: 0.85rem; opacity: 0.8;">Tes données bancaires ne transitent jamais par notre serveur — elles sont gérées directement par Stripe ou PayPal.</span>
+        </div>
+
+        <div class="pricing-grid">
+            <div class="plan">
+                <div class="plan-icon">🆓</div>
+                <div class="plan-name">Gratuit</div>
+                <div class="plan-tagline">Toutes les fonctionnalités essentielles pour bien démarrer.</div>
+                <div class="plan-price">0<span class="currency">€</span><span class="period">/mois</span></div>
+                <div class="plan-price-yearly">&nbsp;</div>
+                <ul class="plan-features">
+                    <li><span class="check">✓</span> Système XP & niveaux</li>
+                    <li><span class="check">✓</span> Modération de base</li>
+                    <li><span class="check">✓</span> Commandes utilitaires</li>
+                    <li><span class="check">✓</span> Dashboard web</li>
+                    <li><span class="check">✓</span> Support communautaire</li>
+                    <li class="disabled"><span class="cross">✗</span> Cartes de niveau personnalisées</li>
+                    <li class="disabled"><span class="cross">✗</span> Support prioritaire</li>
+                </ul>
+                <a href="/home" class="plan-btn free">Plan actuel</a>
+            </div>
+
+            <div class="plan featured">
+                <div class="plan-popular">⭐ POPULAIRE</div>
+                <div class="plan-icon">💎</div>
+                <div class="plan-name">Premium</div>
+                <div class="plan-tagline">Pour les serveurs qui veulent se démarquer avec des features avancées.</div>
+                <div class="plan-price" id="price-premium-monthly">2,99<span class="currency">€</span><span class="period">/mois</span></div>
+                <div class="plan-price-yearly" id="price-premium-yearly">ou <strong>29,99€/an</strong> (2 mois offerts)</div>
+                <ul class="plan-features">
+                    <li><span class="check">✓</span> Avantages du forfait Gratuit inclus</li>
+                    <li><span class="check">✓</span> 🖥️ <strong>1 serveur Discord</strong> couvert</li>
+                    <li><span class="check">✓</span> Cartes de niveau personnalisées</li>
+                    <li><span class="check">✓</span> Messages bienvenue/départ avec image</li>
+                    <li><span class="check">✓</span> Embeds personnalisés (couleur, logo)</li>
+                    <li><span class="check">✓</span> Auto-modération avancée</li>
+                    <li><span class="check">✓</span> Logs détaillés avec recherche</li>
+                    <li><span class="check">✓</span> 🆘 <strong>Support prioritaire</strong> (réponse &lt; 24h)</li>
+                </ul>
+                <button class="plan-btn premium" data-plan="premium">Choisir Premium</button>
+            </div>
+
+            <div class="plan">
+                <div class="plan-icon">👑</div>
+                <div class="plan-name">Premium+</div>
+                <div class="plan-tagline">L'expérience ultime pour les grandes communautés et les multi-serveurs.</div>
+                <div class="plan-price" id="price-pp-monthly">5,99<span class="currency">€</span><span class="period">/mois</span></div>
+                <div class="plan-price-yearly" id="price-pp-yearly">ou <strong>59,99€/an</strong> (2 mois offerts)</div>
+                <ul class="plan-features">
+                    <li><span class="check">✓</span> Avantages du forfait Premium inclus</li>
+                    <li><span class="check">✓</span> 🖥️ <strong>Jusqu'à 3 serveurs Discord</strong> couverts par un seul abonnement</li>
+                    <li><span class="check">✓</span> Système de tickets avancé</li>
+                    <li><span class="check">✓</span> Sondages multi-options</li>
+                    <li><span class="check">✓</span> Rappels & événements programmés</li>
+                    <li><span class="check">✓</span> Export des données (CSV)</li>
+                    <li><span class="check">✓</span> Stats avancées sur le dashboard</li>
+                    <li><span class="check">✓</span> 🚀 <strong>Support prioritaire VIP</strong> (réponse &lt; 6h)</li>
+                </ul>
+                <button class="plan-btn premium-plus" data-plan="premium_plus">Choisir Premium+</button>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <h2>🎯 Pourquoi passer Premium ?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎨</div>
+                    <h3>Personnalisation</h3>
+                    <p>Cartes de niveau, messages de bienvenue, embeds — adaptez l'expérience à votre serveur.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Modération renforcée</h3>
+                    <p>Filtres intelligents, anti-raid, sanctions automatiques selon vos règles.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Stats avancées</h3>
+                    <p>Suivez l'évolution de votre serveur avec des graphiques et des exports détaillés.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Support prioritaire</h3>
+                    <p>Vos demandes traitées en priorité par l'équipe Miaouscle, avec des réponses garanties.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="trial-banner" style="margin: 2rem 0; padding: 1.5rem 2rem; background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1)); border: 2px solid #ffd700; border-radius: 12px; text-align: center;">
+            <h2 style="margin: 0 0 0.5rem 0; color: #ffd700;">🎁 Essai gratuit de 7 jours</h2>
+            <p style="margin: 0.5rem 0; font-size: 1.05rem;">Tu veux tester le Premium avant de t'engager ? On t'offre <strong>7 jours d'essai gratuit</strong> sur ton serveur.</p>
+            <p style="margin: 0.5rem 0 1rem 0; font-size: 0.95rem; color: #ccc;">Contacte simplement notre équipe support pour activer ton essai. Aucune carte bancaire requise, aucun engagement.</p>
+            <a href="/support" class="btn btn-primary" style="display: inline-block; margin-top: 0.5rem;">💬 Contacter le support</a>
+        </div>
+
+        <div class="faq-section">
+            <h2>❓ Questions fréquentes</h2>
+            <details class="faq-item">
+                <summary>🎁 Comment obtenir un essai gratuit de 7 jours ?</summary>
+                <p>Contacte notre équipe sur le serveur <a href="/support">support Discord</a> en précisant l'ID de ton serveur. Nous activons ton essai Premium ou Premium+ <strong>gratuitement pendant 7 jours</strong>, sans carte bancaire ni engagement. À la fin, tu peux choisir de souscrire ou laisser ton serveur revenir au plan Gratuit — tes paramètres sont conservés.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Quand le Premium sera-t-il disponible ?</summary>
+                <p>Le premium est disponible depuis le 06/06/2026. </p>
+            </details>
+            <details class="faq-item">
+                <summary>Puis-je annuler mon abonnement ?</summary>
+                <p>Oui, tu peux annuler à tout moment et sans frais. Pour annuler ton abonnement, <strong>contacte le support via un ticket</strong> sur notre serveur Discord — l'équipe traitera ta demande rapidement. Aucun engagement de durée, aucune pénalité. <a href="/support" style="color:#a5b4fc;font-weight:600;">👉 Ouvrir un ticket de support</a></p>
+            </details>
+            <details class="faq-item">
+                <summary>Le Premium s'applique à combien de serveurs ?</summary>
+                <p>Le forfait <strong>Premium</strong> couvre <strong>1 serveur Discord</strong>. Le forfait <strong>Premium+</strong> couvre <strong>jusqu'à 3 serveurs</strong> avec un seul abonnement — idéal si tu gères plusieurs communautés. Tu choisis depuis ton dashboard quels serveurs activer ; tu peux les changer à tout moment dans la limite du forfait.</p>
+            </details>
+            <details class="faq-item">
+                <summary>En quoi consiste le support prioritaire ?</summary>
+                <p>Les utilisateurs Premium ont un canal dédié sur le Discord support. Premium = réponse en moins de 24h, Premium+ = réponse en moins de 6h, en jours ouvrés.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Les features actuelles vont-elles devenir payantes ?</summary>
+                <p>Non. Toutes les fonctionnalités actuellement gratuites le resteront. Le Premium ajoute uniquement de nouvelles features bonus.</p>
+            </details>
+        </div>
+    </div>
+
+    <!-- Modale de checkout -->
+    <div id="checkoutModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal">
+            <button type="button" class="close-btn" onclick="closeCheckout()" aria-label="Fermer">✕</button>
+            <h2 id="modalTitle">Finaliser ton abonnement</h2>
+            <div class="modal-sub" id="modalPlanSub">—</div>
+
+            <div id="modalLoginRequired" class="login-required" style="display:none;">
+                Connecte-toi avec Discord pour souscrire à un abonnement.<br>
+                <a href="/login">🔗 Se connecter avec Discord</a>
+            </div>
+
+            <div id="modalCheckoutBody" style="display:none;">
+                <label for="modalServerSelect">🖥️ Serveur Discord à activer</label>
+                <select id="modalServerSelect" aria-label="Choisir le serveur Discord à activer" title="Choisir le serveur Discord à activer">
+                    <option value="">Chargement de tes serveurs…</option>
+                </select>
+                <div id="modalTierNotice" style="display:none; margin: 0.5rem 0 0.75rem; padding: 0.6rem 0.9rem; border-radius: 8px; font-size: 0.88rem; font-weight: 600;"></div>
+
+                <label>📅 Période de facturation</label>
+                <div class="billing-toggle">
+                    <button type="button" data-billing="monthly" class="active">
+                        Mensuel
+                        <span class="bt-price" id="btPriceMonthly">—</span>
+                    </button>
+                    <button type="button" data-billing="yearly">
+                        Annuel
+                        <span class="bt-price" id="btPriceYearly">—</span>
+                    </button>
+                </div>
+
+                <div class="pay-buttons">
+                    <button type="button" class="pay-btn card" id="payCardBtn" onclick="startCheckout('stripe')">
+                        💳 Payer par carte (Stripe)
+                    </button>
+                    <button type="button" class="pay-btn paypal" id="payPaypalBtn" onclick="startCheckout('paypal')">
+                        <span style="font-weight:800;">Pay</span><span style="font-style:italic;">Pal</span>
+                    </button>
+                </div>
+
+                <div id="modalError" class="modal-error" style="display:none;"></div>
+
+                <div class="info-line">
+                    🔒 Paiement sécurisé · Pour annuler, ouvre un ticket sur le <a href="/support" style="color:#a5b4fc;">serveur support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // ----- État global -----
+        const PLAN_LABELS = {
+            'premium': '💎 Premium',
+            'premium_plus': '👑 Premium+',
+        };
+        const PRICES = {
+            'premium':      { monthly: 2.99, yearly: 29.99 },
+            'premium_plus': { monthly: 5.99, yearly: 59.99 },
+        };
+        // Sera surchargé si promo active
+        const PROMO_PRICES = { premium: {}, premium_plus: {} };
+
+        let state = {
+            plan: null,
+            billing: 'monthly',
+            servers: [],
+            isLoggedIn: false,
+            paymentStatus: null,
+            currentGuildTier: 'free',
+        };
+
+        // ----- Promo loader -----
+        async function loadPromo() {
+            try {
+                const r = await fetch('/api/promo');
+                const promo = await r.json();
+                if (!promo.active || !promo.items || promo.items.length === 0) return;
+
+                // Applique les prix promo sur les cartes
+                promo.items.forEach(item => {
+                    const euros = (item.promo_cents / 100).toFixed(2).replace('.', ',');
+                    if (item.plan === 'premium' && item.billing === 'monthly') {
+                        const el = document.getElementById('price-premium-monthly');
+                        if (el) el.innerHTML = `<del style="opacity:.5;font-size:1.4rem">2,99</del> <span style="color:#fbbf24">${euros}</span><span class="currency">€</span><span class="period">/mois</span>`;
+                        PROMO_PRICES.premium.monthly = item.promo_cents / 100;
+                        PRICES.premium.monthly = item.promo_cents / 100;
+                    }
+                    if (item.plan === 'premium' && item.billing === 'yearly') {
+                        const el = document.getElementById('price-premium-yearly');
+                        if (el) el.innerHTML = `ou <del style="opacity:.5">29,99€/an</del> → <strong style="color:#fbbf24">${euros}€/an</strong> 🏷️`;
+                        PROMO_PRICES.premium.yearly = item.promo_cents / 100;
+                        PRICES.premium.yearly = item.promo_cents / 100;
+                    }
+                    if (item.plan === 'premium_plus' && item.billing === 'monthly') {
+                        const el = document.getElementById('price-pp-monthly');
+                        if (el) el.innerHTML = `<del style="opacity:.5;font-size:1.4rem">5,99</del> <span style="color:#fbbf24">${euros}</span><span class="currency">€</span><span class="period">/mois</span>`;
+                        PROMO_PRICES.premium_plus.monthly = item.promo_cents / 100;
+                        PRICES.premium_plus.monthly = item.promo_cents / 100;
+                    }
+                    if (item.plan === 'premium_plus' && item.billing === 'yearly') {
+                        const el = document.getElementById('price-pp-yearly');
+                        if (el) el.innerHTML = `ou <del style="opacity:.5">59,99€/an</del> → <strong style="color:#fbbf24">${euros}€/an</strong> 🏷️`;
+                        PROMO_PRICES.premium_plus.yearly = item.promo_cents / 100;
+                        PRICES.premium_plus.yearly = item.promo_cents / 100;
+                    }
+                });
+
+                // Construit le texte du popup
+                const label = promo.label || '🏷️ Promotion en cours';
+                let endText = '';
+                if (promo.end_time) {
+                    const endDt = new Date(promo.end_time);
+                    if (!isNaN(endDt)) {
+                        const diff = endDt - Date.now();
+                        if (diff > 0) {
+                            const h = Math.floor(diff / 3600000);
+                            const m = Math.floor((diff % 3600000) / 60000);
+                            endText = h > 0 ? ` — se termine dans ${h}h${String(m).padStart(2,'0')}` : ` — se termine dans ${m} min`;
+                        }
+                    }
+                }
+                showPromoPopup(label, promo.end_time);
+            } catch (_) {}
+        }
+
+        let promoCountdownInterval = null;
+
+        function showPromoPopup(label, endTimeIso) {
+            const popup = document.getElementById('promo-popup');
+            const bar   = document.getElementById('promo-popup-bar');
+            const countdown = popup && popup.querySelector('#promo-popup-countdown');
+            if (!popup || !bar || !countdown) return;
+            if (promoCountdownInterval) clearInterval(promoCountdownInterval);
+            popup.querySelector('#promo-popup-text').textContent = label;
+            popup.style.display = 'flex';
+            bar.style.transition = 'none';
+            bar.style.width = '100%';
+
+            const endMs = endTimeIso ? new Date(endTimeIso).getTime() : NaN;
+            const tick = () => {
+                if (!Number.isFinite(endMs)) {
+                    countdown.textContent = '';
+                    return;
+                }
+                const left = Math.max(0, endMs - Date.now());
+                if (left <= 0) {
+                    countdown.textContent = '⏰ Promotion terminée';
+                    clearInterval(promoCountdownInterval);
+                    setTimeout(() => { popup.style.display = 'none'; }, 1200);
+                    return;
+                }
+                const totalSeconds = Math.floor(left / 1000);
+                const days = Math.floor(totalSeconds / 86400);
+                const hours = Math.floor((totalSeconds % 86400) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                countdown.textContent = days > 0
+                    ? `⏳ ${days}j ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m`
+                    : `⏳ ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            };
+            tick();
+            promoCountdownInterval = setInterval(tick, 1000);
+        }
+
+        // ----- Toast -----
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = 'toast ' + (type || 'info');
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; }, 3500);
+            setTimeout(() => t.remove(), 4000);
+        }
+
+        // ----- Banner après retour de paiement -----
+        function handleReturnFlags() {
+            const params = new URLSearchParams(window.location.search);
+            const banner = document.getElementById('status-banner');
+            if (params.get('success') === '1') {
+                banner.innerHTML = '✅ <strong>Paiement reçu !</strong> Le Premium est en cours d\'activation sur ton serveur. Si rien n\'apparaît dans 1-2 minutes, recharge la page ou contacte le support.';
+                banner.style.display = 'block';
+                banner.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(5,150,105,0.1) 100%)';
+                banner.style.borderColor = 'rgba(16,185,129,0.4)';
+                banner.style.color = '#a7f3d0';
+                showToast('🎉 Paiement reçu, activation en cours', 'success');
+                // Nettoie l'URL pour que F5 ne rebanne pas
+                history.replaceState({}, '', '/premium');
+            } else if (params.get('canceled') === '1') {
+                banner.innerHTML = '↩️ Paiement annulé. Tu peux réessayer quand tu veux, aucun débit n\'a été effectué.';
+                banner.style.display = 'block';
+                banner.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(79,70,229,0.08) 100%)';
+                banner.style.borderColor = 'rgba(99,102,241,0.4)';
+                banner.style.color = '#c7d2fe';
+                history.replaceState({}, '', '/premium');
+            }
+        }
+
+        // ----- Récupération du statut de paiement & connexion -----
+        async function loadPaymentStatus() {
+            try {
+                const r = await fetch('/api/payment/status', { credentials: 'same-origin' });
+                state.paymentStatus = await r.json();
+                // Désactive les boutons selon les réglages admin effectifs.
+                document.getElementById('payCardBtn').disabled = !state.paymentStatus.providers?.stripe;
+                document.getElementById('payPaypalBtn').disabled = !state.paymentStatus.providers?.paypal;
+                if (!state.paymentStatus.providers?.stripe) {
+                    document.getElementById('payCardBtn').textContent = '💳 Carte (indisponible)';
+                }
+                if (!state.paymentStatus.providers?.paypal) {
+                    document.getElementById('payPaypalBtn').textContent = 'PayPal (indisponible)';
+                }
+                document.querySelectorAll('.plan-btn[data-plan]').forEach(btn => {
+                    const enabled = state.paymentStatus.plans?.[btn.dataset.plan] !== false;
+                    btn.disabled = !enabled;
+                    btn.style.opacity = enabled ? '' : '0.45';
+                    btn.style.cursor = enabled ? '' : 'not-allowed';
+                    if (!enabled) btn.title = 'Plan temporairement indisponible';
+                });
+            } catch (e) {
+                console.error('payment status error', e);
+            }
+        }
+
+        async function loadServers() {
+            const sel = document.getElementById('modalServerSelect');
+            try {
+                // redirect: 'manual' empêche fetch de suivre la redirection
+                // vers Discord OAuth quand on n'est pas connecté (qui causerait
+                // une erreur CORS). On détecte l'opaqueredirect pour signaler
+                // que l'utilisateur doit se connecter.
+                const r = await fetch('/api/servers', {
+                    credentials: 'same-origin',
+                    redirect: 'manual',
+                });
+                if (r.type === 'opaqueredirect' || r.status === 401 || r.status === 0) {
+                    state.isLoggedIn = false;
+                    return;
+                }
+                state.isLoggedIn = true;
+                const data = await r.json();
+                if (!Array.isArray(data)) return;
+                // Filtre : admin (perm 0x8) ou owner
+                const eligible = data.filter(g => {
+                    const perms = parseInt(g.permissions || '0', 10);
+                    return g.owner || (perms & 0x8) !== 0;
+                });
+                state.servers = eligible;
+                if (eligible.length === 0) {
+                    sel.innerHTML = '<option value="">Aucun serveur où tu es admin</option>';
+                    sel.disabled = true;
+                    return;
+                }
+                sel.innerHTML = eligible.map(g => {
+                    const guildId = escapeHtml(g.id);
+                    const guildName = String(g.name || '').trim() || 'Serveur Discord sans nom';
+                    const displayName = `${g.owner ? '👑 ' : ''}${guildName}`;
+                    return `<option value="${guildId}" title="${escapeHtml(displayName)}">${escapeHtml(displayName)}</option>`;
+                }).join('');
+                sel.disabled = false;
+            } catch (e) {
+                // Une erreur de fetch (typiquement CORS suite à redirect Discord)
+                // signale aussi qu'on n'est pas connecté.
+                state.isLoggedIn = false;
+            }
+        }
+
+        function escapeHtml(s) {
+            return String(s || '').replace(/[&<>"']/g, c => ({
+                '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+            }[c]));
+        }
+
+        // ----- Tier notice dans la modal -----
+        function updateTierNotice(plan) {
+            const notice = document.getElementById('modalTierNotice');
+            const cardBtn = document.getElementById('payCardBtn');
+            const ppBtn = document.getElementById('payPaypalBtn');
+            const tier = state.currentGuildTier;
+            const restorePaymentButtons = () => {
+                cardBtn.disabled = state.paymentStatus?.providers?.stripe === false;
+                ppBtn.disabled = state.paymentStatus?.providers?.paypal === false;
+            };
+
+            if (tier === 'free' || !tier) {
+                notice.style.display = 'none';
+                restorePaymentButtons();
+                return;
+            }
+
+            if (tier === plan) {
+                notice.textContent = '✅ Ce serveur possède déjà cet abonnement.';
+                notice.style.display = 'block';
+                notice.style.background = 'rgba(52,211,153,0.15)';
+                notice.style.color = '#34d399';
+                notice.style.border = '1px solid rgba(52,211,153,0.3)';
+                cardBtn.disabled = true;
+                ppBtn.disabled = true;
+                return;
+            }
+
+            if (tier === 'premium_plus') {
+                notice.textContent = '👑 Ce serveur est déjà au niveau Premium+, le tier le plus élevé.';
+                notice.style.display = 'block';
+                notice.style.background = 'rgba(251,191,36,0.15)';
+                notice.style.color = '#fbbf24';
+                notice.style.border = '1px solid rgba(251,191,36,0.3)';
+                cardBtn.disabled = true;
+                ppBtn.disabled = true;
+                return;
+            }
+
+            if (tier === 'premium' && plan === 'premium_plus') {
+                notice.textContent = '⬆️ Ce serveur est en Premium — tu vas passer à Premium+ !';
+                notice.style.display = 'block';
+                notice.style.background = 'rgba(139,92,246,0.15)';
+                notice.style.color = '#a78bfa';
+                notice.style.border = '1px solid rgba(139,92,246,0.3)';
+                restorePaymentButtons();
+                return;
+            }
+
+            notice.style.display = 'none';
+            restorePaymentButtons();
+        }
+
+        async function fetchGuildTier(guildId) {
+            if (!guildId) {
+                state.currentGuildTier = 'free';
+                updateTierNotice(state.plan);
+                return;
+            }
+            try {
+                const r = await fetch('/api/server/' + guildId + '/premium-tier', { credentials: 'same-origin' });
+                if (r.ok) {
+                    const d = await r.json();
+                    state.currentGuildTier = d.tier || 'free';
+                } else {
+                    state.currentGuildTier = 'free';
+                }
+            } catch (e) {
+                state.currentGuildTier = 'free';
+            }
+            updateTierNotice(state.plan);
+        }
+
+        // ----- Modal -----
+        window.openCheckout = function(plan) {
+            if (state.paymentStatus?.plans && state.paymentStatus.plans[plan] === false) {
+                showToast('⛔ Ce plan est temporairement indisponible.', 'error');
+                return;
+            }
+            state.plan = plan;
+            const modal = document.getElementById('checkoutModal');
+            document.getElementById('modalTitle').textContent = 'Finaliser ton abonnement ' + (PLAN_LABELS[plan] || plan);
+            document.getElementById('modalPlanSub').textContent = plan === 'premium_plus'
+                ? "Tu pourras activer jusqu'à 3 serveurs avec ce forfait."
+                : "Couvre 1 serveur Discord.";
+            document.getElementById('btPriceMonthly').textContent = PRICES[plan].monthly.toFixed(2).replace('.', ',') + '€/mois';
+            document.getElementById('btPriceYearly').textContent = PRICES[plan].yearly.toFixed(2).replace('.', ',') + '€/an';
+            document.getElementById('modalError').style.display = 'none';
+            document.getElementById('modalTierNotice').style.display = 'none';
+
+            if (state.isLoggedIn) {
+                document.getElementById('modalLoginRequired').style.display = 'none';
+                document.getElementById('modalCheckoutBody').style.display = 'block';
+                // Vérifier le tier du serveur actuellement sélectionné
+                const guildId = document.getElementById('modalServerSelect').value;
+                if (guildId) fetchGuildTier(guildId);
+            } else {
+                document.getElementById('modalLoginRequired').style.display = 'block';
+                document.getElementById('modalCheckoutBody').style.display = 'none';
+            }
+
+            modal.classList.add('open');
+        };
+
+        window.closeCheckout = function() {
+            document.getElementById('checkoutModal').classList.remove('open');
+        };
+
+        // Click outside to close
+        document.getElementById('checkoutModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCheckout();
+        });
+
+        // Billing toggle
+        document.querySelectorAll('.billing-toggle button').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.billing-toggle button').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                state.billing = this.dataset.billing;
+            });
+        });
+
+        // Changement de serveur dans la modal → vérifier le tier
+        document.getElementById('modalServerSelect').addEventListener('change', function() {
+            const guildId = this.value;
+            state.currentGuildTier = 'free';
+            document.getElementById('modalTierNotice').style.display = 'none';
+            if (guildId && state.plan) fetchGuildTier(guildId);
+        });
+
+        // ----- Lancement du checkout -----
+        window.startCheckout = async function(provider) {
+            const errBox = document.getElementById('modalError');
+            errBox.style.display = 'none';
+
+            const guildId = document.getElementById('modalServerSelect').value;
+            if (!guildId) {
+                errBox.textContent = 'Sélectionne d\'abord un serveur Discord.';
+                errBox.style.display = 'block';
+                return;
+            }
+            if (!state.plan) {
+                errBox.textContent = 'Plan non sélectionné.';
+                errBox.style.display = 'block';
+                return;
+            }
+
+            const btn = provider === 'stripe' ? document.getElementById('payCardBtn') : document.getElementById('payPaypalBtn');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '⏳ Préparation…';
+
+            try {
+                const r = await fetch('/api/checkout/' + provider, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        plan: state.plan,
+                        billing: state.billing,
+                        guild_id: guildId,
+                    }),
+                });
+                const data = await r.json();
+                if (!r.ok) {
+                    throw new Error(data.error || ('HTTP ' + r.status));
+                }
+                if (data.checkout_url) {
+                    // Petit délai pour que l'utilisateur voie qu'on l'envoie ailleurs
+                    btn.textContent = '➡️ Redirection…';
+                    window.location.href = data.checkout_url;
+                    return;
+                }
+                throw new Error('Réponse inattendue du serveur.');
+            } catch (e) {
+                console.error('checkout error', e);
+                errBox.textContent = '❌ ' + (e.message || 'Erreur inconnue');
+                errBox.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+        // ----- Init -----
+        document.addEventListener('DOMContentLoaded', () => {
+            handleReturnFlags();
+            loadPromo();
+            // Lance les fetch en parallèle
+            Promise.all([loadPaymentStatus(), loadServers()]).catch(() => {});
+
+            document.querySelectorAll('.plan-btn[data-plan]').forEach(btn => {
+                btn.addEventListener('click', () => openCheckout(btn.dataset.plan));
+            });
+        });
+
+        // ESC ferme la modale
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeCheckout();
+        });
+    })();
+
+    // ===== Compte à rebours lancement Premium =====
+    (async function initLaunchBanner() {
+        try {
+            const r = await fetch('/api/premium-launch');
+            if (!r.ok) return;
+            const cfg = await r.json();
+            if (!cfg.active) return;
+
+            const banner  = document.getElementById('launch-banner');
+            const titleEl = document.getElementById('lb-title');
+            const subEl   = document.getElementById('lb-subtitle');
+            const cdEl    = document.getElementById('lb-countdown');
+            const dEl     = document.getElementById('lb-days');
+            const hEl     = document.getElementById('lb-hours');
+            const mEl     = document.getElementById('lb-minutes');
+            const sEl     = document.getElementById('lb-seconds');
+
+            const launchDate = cfg.launch_at_iso ? new Date(cfg.launch_at_iso) : null;
+
+            // Sauvegarde les textes originaux des boutons pour les restaurer à l'ouverture
+            const planBtns = document.querySelectorAll('.plan-btn[data-plan]');
+            const originalTexts = {};
+            planBtns.forEach(btn => { originalTexts[btn.dataset.plan] = btn.textContent; });
+
+            const setButtonsLocked = (locked) => {
+                planBtns.forEach(btn => {
+                    btn.disabled = locked;
+                    if (locked) {
+                        // Formate la date d'ouverture lisiblement
+                        const opts = { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' };
+                        const dateStr = launchDate ? launchDate.toLocaleString('fr-FR', opts) : '';
+                        btn.textContent = dateStr ? `🔒 Disponible le ${dateStr}` : '🔒 Bientôt disponible';
+                        btn.style.opacity = '0.55';
+                        btn.style.cursor = 'not-allowed';
+                    } else {
+                        btn.textContent = originalTexts[btn.dataset.plan] || btn.textContent;
+                        btn.style.opacity = '';
+                        btn.style.cursor = '';
+                    }
+                });
+            };
+
+            let wasLive = null;
+            const tick = () => {
+                const now  = new Date();
+                const live = !launchDate || now >= launchDate;
+
+                // Met à jour les boutons uniquement au changement d'état
+                if (wasLive !== live) {
+                    setButtonsLocked(!live);
+                    wasLive = live;
+                }
+
+                if (live) {
+                    titleEl.textContent = cfg.title_live    || '🚀 Le Premium est ouvert !';
+                    subEl.textContent   = cfg.subtitle_live || 'Souscris maintenant !';
+                    banner.style.background = 'linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(5,150,105,0.18) 100%)';
+                    banner.style.borderBottomColor = 'rgba(16,185,129,0.4)';
+                    if (cdEl) cdEl.style.display = 'none';
+                    document.querySelectorAll('#launch-banner span[id^="lb-"]').forEach(el => { el.style.color = '#34d399'; });
+                } else {
+                    titleEl.textContent = cfg.title_pre_launch    || '🎉 Ouverture bientôt';
+                    subEl.textContent   = cfg.subtitle_pre_launch || '';
+                    const diff = launchDate - now;
+                    const pad  = n => String(Math.max(0, n)).padStart(2, '0');
+                    dEl.textContent = pad(Math.floor(diff / 86400000));
+                    hEl.textContent = pad(Math.floor((diff % 86400000) / 3600000));
+                    mEl.textContent = pad(Math.floor((diff % 3600000)  / 60000));
+                    sEl.textContent = pad(Math.floor((diff % 60000)    / 1000));
+                }
+            };
+
+            banner.style.display = 'block';
+            tick();
+            setInterval(tick, 1000);
+        } catch (_) { /* bannière cachée si erreur réseau */ }
+    })();
+    </script>
+<!-- Popup promo -->
+<style>
+@keyframes promo-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.4),0 16px 48px rgba(0,0,0,0.7)} 50%{box-shadow:0 0 0 8px rgba(251,191,36,0),0 16px 48px rgba(0,0,0,0.7)} }
+#promo-popup { animation: promo-pulse 2.4s ease-in-out infinite; }
+</style>
+<div id="promo-popup" style="display:none;position:fixed;bottom:2rem;right:2rem;z-index:9999;width:420px;max-width:calc(100vw - 2rem);background:linear-gradient(135deg,#1a1040,#1a1d27,#23273a);border:2px solid rgba(251,191,36,0.8);border-radius:18px;box-shadow:0 16px 48px rgba(0,0,0,0.7);overflow:hidden;flex-direction:column;">
+  <div style="background:linear-gradient(90deg,rgba(251,191,36,0.18),rgba(245,158,11,0.08));padding:1.2rem 1.4rem 1rem;display:flex;align-items:flex-start;gap:1rem;">
+    <span style="font-size:2.4rem;flex-shrink:0;line-height:1;">🏷️</span>
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:#fbbf24;margin-bottom:0.35rem;">Offre promotionnelle</div>
+      <span id="promo-popup-text" style="font-size:1.05rem;color:#fff;font-weight:700;line-height:1.45;display:block;"></span>
+      <span id="promo-popup-countdown" style="font-size:0.86rem;color:#fbbf24;font-weight:800;display:block;margin-top:0.4rem;"></span>
+    </div>
+    <button onclick="document.getElementById('promo-popup').style.display='none'" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);font-size:1rem;cursor:pointer;flex-shrink:0;padding:0.3rem 0.5rem;border-radius:6px;line-height:1;margin-top:0.1rem;">✕</button>
+  </div>
+  <div style="height:5px;background:rgba(255,255,255,0.06);">
+    <div id="promo-popup-bar" style="height:100%;background:linear-gradient(90deg,#fbbf24,#f59e0b,#d97706);width:100%;transition:none;"></div>
+  </div>
+</div>
+</body>
+</html>

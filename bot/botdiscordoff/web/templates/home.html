@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miaouscle Bot - Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico?v=1">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/favicon.ico?v=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b0e14; min-height: 100vh; color: #e0e0e0; }
+        
+        nav { background: #11141b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #a5b4fc; text-decoration: none; cursor: pointer; }
+        .nav-right { display: flex; gap: 1rem; align-items: center; }
+        .nav-link { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .nav-link:hover { color: #a5b4fc; }
+        .discord-btn { background: #5865F2; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        .discord-btn:hover { background: #4752C4; }
+        
+        .status-indicator { cursor: pointer; padding: 0.6rem 1.2rem; border-radius: 6px; background: rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.5rem; font-weight: 600; font-size: 0.9rem; transition: all 0.3s; border: 2px solid transparent; }
+        .status-indicator:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .status-indicator.online { color: #34d399; border-color: rgba(52,211,153,0.3); background: rgba(16,185,129,0.15); }
+        .status-indicator.maintenance { color: #fbbf24; border-color: rgba(251,191,36,0.3); background: rgba(245,158,11,0.15); }
+        .status-indicator.offline { color: #f87171; border-color: rgba(248,113,113,0.3); background: rgba(239,68,68,0.15); }
+        
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: linear-gradient(145deg, rgba(30,30,60,0.98) 0%, rgba(20,20,45,0.98) 100%); backdrop-filter: blur(20px); padding: 2rem; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); max-width: 500px; width: 90%; border: 1px solid rgba(255,255,255,0.1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .modal-header h2 { color: #a5b4fc; font-size: 1.8rem; }
+        .modal-close { cursor: pointer; font-size: 2rem; color: rgba(255,255,255,0.5); background: none; border: none; }
+        .modal-close:hover { color: #fff; }
+        .status-detail { margin-bottom: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border-left: 4px solid #667eea; }
+        .status-detail-label { font-weight: 600; color: #fff; margin-bottom: 0.3rem; }
+        .status-detail-value { color: rgba(255,255,255,0.7); }
+        .status-detail.online { border-left-color: #10b981; background: rgba(16,185,129,0.1); }
+        .status-detail.offline { border-left-color: #ef4444; background: rgba(239,68,68,0.1); }
+        .status-detail.maintenance { border-left-color: #f59e0b; background: rgba(245,158,11,0.1); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .hero { text-align: center; color: white; margin-bottom: 3rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; }
+        
+        /* ===== Portal Cards ===== */
+        .sections-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 3rem; max-width: 860px; margin-left: auto; margin-right: auto; }
+        .section-card { position: relative; overflow: hidden; border-radius: 20px; height: 220px; text-decoration: none; color: #e0e0e0; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 12px 40px rgba(0,0,0,0.4); transition: box-shadow 0.4s, border-color 0.4s; }
+        .section-card.primary { background: linear-gradient(135deg, #1a1f3a 0%, #0d1020 100%); }
+        .section-card.secondary { background: linear-gradient(135deg, #2a1520 0%, #150a10 100%); }
+        .section-card.primary:hover { box-shadow: 0 20px 60px rgba(165,180,252,0.25); border-color: rgba(165,180,252,0.4); }
+        .section-card.secondary:hover { box-shadow: 0 20px 60px rgba(248,113,113,0.25); border-color: rgba(248,113,113,0.4); }
+        /* Glow bar top */
+        .section-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 20px 20px 0 0; }
+        .section-card.primary::before { background: linear-gradient(90deg, #a5b4fc, #818cf8); }
+        .section-card.secondary::before { background: linear-gradient(90deg, #f87171, #fb923c); }
+        /* Face (icon + title) */
+        .card-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem; transition: transform 0.45s cubic-bezier(.77,0,.18,1), opacity 0.35s; }
+        .card-icon { font-size: 3.5rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+        .card-title { font-size: 1.35rem; font-weight: 800; letter-spacing: 0.01em; }
+        .section-card.primary .card-title { color: #a5b4fc; }
+        .section-card.secondary .card-title { color: #f87171; }
+        /* Reveal panel */
+        .card-reveal { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 2rem 2.2rem; gap: 0.8rem; transition: transform 0.45s cubic-bezier(.77,0,.18,1), opacity 0.35s; opacity: 0; }
+        .section-card.primary .card-reveal { background: linear-gradient(135deg, rgba(99,102,241,0.18) 0%, rgba(165,180,252,0.08) 100%); }
+        .section-card.secondary .card-reveal { background: linear-gradient(135deg, rgba(239,68,68,0.18) 0%, rgba(251,146,60,0.08) 100%); }
+        /* Slide direction: user card → reveal slides from right; admin card → reveal slides from left */
+        .section-card.primary .card-face { transform: translateX(0); }
+        .section-card.primary .card-reveal { transform: translateX(100%); }
+        .section-card.primary:hover .card-face { transform: translateX(-100%); opacity: 0; }
+        .section-card.primary:hover .card-reveal { transform: translateX(0); opacity: 1; }
+        .section-card.secondary .card-face { transform: translateX(0); }
+        .section-card.secondary .card-reveal { transform: translateX(-100%); }
+        .section-card.secondary:hover .card-face { transform: translateX(100%); opacity: 0; }
+        .section-card.secondary:hover .card-reveal { transform: translateX(0); opacity: 1; }
+        /* Reveal content */
+        .reveal-label { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.6; }
+        .reveal-title { font-size: 1.25rem; font-weight: 800; line-height: 1.2; }
+        .section-card.primary .reveal-title { color: #a5b4fc; }
+        .section-card.secondary .reveal-title { color: #f87171; }
+        .reveal-desc { font-size: 0.9rem; color: rgba(255,255,255,0.72); line-height: 1.6; }
+        .reveal-cta { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; margin-top: 0.2rem; }
+        .section-card.primary .reveal-cta { color: #a5b4fc; }
+        .section-card.secondary .reveal-cta { color: #f87171; }
+        /* Disabled state */
+        .section-card.disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none !important; }
+        .card-desc { display: none; }
+        .status-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+        .status-online { background: rgba(16,185,129,0.2); color: #34d399; }
+        .status-maintenance { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .status-offline { background: rgba(239,68,68,0.2); color: #f87171; }
+        
+        .updates-section { position: relative; overflow: hidden; background: linear-gradient(145deg, rgba(31,35,55,0.92), rgba(16,19,30,0.96)); backdrop-filter: blur(14px); border-radius: 20px; padding: 2rem; margin-top: 2rem; box-shadow: 0 18px 45px rgba(0,0,0,0.28); border: 1px solid rgba(165,180,252,0.14); }
+        .updates-section::before { content: ''; position: absolute; width: 220px; height: 220px; top: -130px; right: -70px; border-radius: 50%; background: rgba(129,140,248,0.14); filter: blur(8px); pointer-events: none; }
+        .updates-heading { position: relative; z-index: 1; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; }
+        .updates-eyebrow { margin-bottom: 0.35rem; color: #818cf8; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+        .updates-section h2 { margin: 0; color: #f8fafc; font-size: 1.65rem; letter-spacing: -0.025em; }
+        .updates-subtitle { margin-top: 0.45rem; color: rgba(226,232,240,0.62); font-size: 0.88rem; line-height: 1.5; }
+        .updates-count { flex-shrink: 0; padding: 0.45rem 0.7rem; border: 1px solid rgba(165,180,252,0.22); border-radius: 999px; background: rgba(129,140,248,0.12); color: #c7d2fe; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
+        #updates-container { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        .update-card { position: relative; min-height: 172px; background: linear-gradient(160deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)); padding: 1.2rem; border-radius: 15px; border: 1px solid rgba(255,255,255,0.09); border-left: 3px solid var(--update-accent, #818cf8); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+        .update-card:hover { transform: translateY(-4px); box-shadow: 0 14px 26px rgba(0,0,0,0.22); border-color: rgba(165,180,252,0.28); }
+        .update-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.9rem; }
+        .update-category { display: inline-flex; align-items: center; gap: 0.4rem; max-width: 65%; padding: 0.28rem 0.6rem; border-radius: 999px; background: color-mix(in srgb, var(--update-accent, #818cf8) 22%, transparent); color: #f8fafc; font-size: 0.67rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; }
+        .update-category-icon { font-size: 0.84rem; line-height: 1; }
+        .update-date { overflow: hidden; color: rgba(226,232,240,0.5); font-size: 0.68rem; text-overflow: ellipsis; white-space: nowrap; }
+        .update-title-text { color: #fff; font-size: 1rem; font-weight: 800; line-height: 1.35; }
+        .update-summary { display: -webkit-box; margin-top: 0.55rem; overflow: hidden; color: rgba(226,232,240,0.68); font-size: 0.82rem; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+        .update-more { align-self: flex-start; margin-top: 0.75rem; padding: 0; border: 0; background: transparent; color: var(--update-accent, #a5b4fc); font-size: 0.77rem; font-weight: 800; cursor: pointer; }
+        .update-more:hover { color: #fff; }
+        #pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-top: 1.75rem !important;
+        }
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 42px;
+            padding: 0.65rem 1rem;
+            border: 1px solid rgba(165,180,252,0.24);
+            border-radius: 12px;
+            background: rgba(99,102,241,0.12);
+            color: #e0e7ff;
+            font: inherit;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.16);
+            transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .pagination-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, rgba(129,140,248,0.38), rgba(124,58,237,0.32));
+            border-color: rgba(196,181,253,0.58);
+            box-shadow: 0 10px 22px rgba(99,102,241,0.24);
+        }
+        .pagination-btn:active { transform: translateY(0); }
+        .pagination-btn:focus-visible {
+            outline: 3px solid rgba(196,181,253,0.45);
+            outline-offset: 3px;
+        }
+        .pagination-arrow { font-size: 1.15rem; line-height: 1; }
+        .pagination-page {
+            min-width: 94px;
+            padding: 0.65rem 0.9rem;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.86);
+            font-size: 0.84rem;
+            font-weight: 800;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+        @media (max-width: 520px) {
+            #pagination { gap: 0.5rem; }
+            .pagination-btn { min-height: 40px; padding: 0.6rem 0.75rem; }
+            .pagination-btn .pagination-label { display: none; }
+            .pagination-page { min-width: 82px; }
+        }
+        
+        /* ===== Bannière bienvenue (auto-dismiss 5 s) ===== */
+        #launch-banner { display: none; position: relative; overflow: hidden; background: linear-gradient(135deg, #059669 0%, #10b981 60%, #34d399 100%); border-bottom: 2px solid rgba(52,211,153,0.4); padding: 1rem 2rem; box-shadow: 0 4px 20px rgba(16,185,129,0.4); transition: transform 0.55s cubic-bezier(.77,0,.18,1), opacity 0.4s; }
+        #launch-banner.hiding { transform: translateY(-110%); opacity: 0; }
+        #lb-progress { position: absolute; bottom: 0; left: 0; height: 4px; background: rgba(255,255,255,0.6); width: 100%; pointer-events: none; }
+        .lb-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; }
+        .lb-text { flex: 1; min-width: 200px; }
+        #lb-title { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+        #lb-subtitle { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+        .lb-countdown { display: flex; align-items: center; gap: 0.4rem; }
+        .lb-unit { display: flex; flex-direction: column; align-items: center; background: rgba(0,0,0,0.3); border: 1px solid rgba(167,139,250,0.3); border-radius: 8px; padding: 0.45rem 0.75rem; min-width: 56px; }
+        .lb-unit span { font-size: 1.5rem; font-weight: 800; color: #fbbf24; line-height: 1; font-variant-numeric: tabular-nums; }
+        .lb-unit small { font-size: 0.6rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.15rem; }
+        .lb-sep { font-size: 1.4rem; font-weight: 800; color: rgba(251,191,36,0.6); margin-bottom: 0.8rem; }
+        .lb-btn { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #1a1a3e; font-weight: 700; font-size: 0.9rem; padding: 0.55rem 1.3rem; border-radius: 8px; text-decoration: none; white-space: nowrap; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0; }
+        .lb-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        #launch-banner.is-live { background: linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(5,150,105,0.18) 100%); border-bottom-color: rgba(16,185,129,0.4); }
+        #launch-banner.is-live .lb-unit span { color: #34d399; }
+        #launch-banner.is-live .lb-unit { border-color: rgba(52,211,153,0.3); }
+        #launch-banner.is-live .lb-btn { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+        @media (max-width: 700px) { .lb-inner { justify-content: center; text-align: center; } .lb-text { min-width: unset; } .lb-unit { min-width: 46px; padding: 0.35rem 0.55rem; } .lb-unit span { font-size: 1.2rem; } }
+
+        .alert-banner { display: none; background: linear-gradient(135deg, rgba(245,158,11,0.2) 0%, rgba(251,191,36,0.15) 100%); border-bottom: 2px solid rgba(245,158,11,0.5); padding: 1.5rem 2rem; text-align: center; color: #fbbf24; font-size: 1.1rem; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,0.3); position: relative; }
+        .alert-banner.active { display: flex; align-items: center; justify-content: center; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .alert-icon { font-size: 1.5rem; margin-right: 0.5rem; }
+        .alert-close { position: absolute; right: 2rem; cursor: pointer; font-size: 1.8rem; font-weight: 700; color: #fbbf24; background: none; border: none; padding: 0.5rem 1rem; transition: all 0.2s; }
+        .alert-close:hover { transform: scale(1.2); color: #fff; }
+        
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; flex-wrap: wrap; gap: 0.5rem; }
+            .logo { font-size: 1.2rem; }
+            .nav-right { gap: 0.5rem; flex-wrap: wrap; justify-content: center; width: 100%; }
+            .nav-link { font-size: 0.85rem; }
+            .status-indicator { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+            .discord-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+            
+            .hero h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+            .hero p { font-size: 1rem; }
+            .container { padding: 1rem; }
+            .sections-grid { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 2rem; }
+            .section-card { height: 180px; }
+            .card-icon { font-size: 2.5rem; }
+            .card-title { font-size: 1.1rem; }
+            .reveal-title { font-size: 1.05rem; }
+            .reveal-desc { font-size: 0.8rem; }
+            .card-reveal { padding: 1.4rem 1.6rem; }
+            
+            .updates-section { padding: 1.5rem; margin-top: 1rem; }
+            .updates-heading { margin-bottom: 1.15rem; }
+            .updates-section h2 { font-size: 1.4rem; }
+            .updates-subtitle { font-size: 0.8rem; }
+            #updates-container { grid-template-columns: 1fr; gap: 1rem; }
+            .update-card { padding: 1rem; }
+            .update-title-text { font-size: 0.95rem; }
+            .update-summary { font-size: 0.8rem; }
+            
+            .modal-content { width: 95%; padding: 1.5rem; }
+            .modal-header h2 { font-size: 1.4rem; }
+            .alert-banner { padding: 1rem; font-size: 0.95rem; }
+            .alert-icon { font-size: 1.2rem; margin-right: 0.3rem; }
+            .alert-close { right: 1rem; font-size: 1.5rem; }
+        }
+        
+        @media (max-width: 480px) {
+            nav { padding: 0.6rem 0.8rem; }
+            .logo { font-size: 1rem; }
+            .nav-right { gap: 0.3rem; }
+            .nav-link { display: none; }
+            
+            .hero h1 { font-size: 1.4rem; }
+            .hero p { font-size: 0.9rem; }
+            .container { padding: 0.8rem; }
+            
+            .section-card { padding: 1.2rem; }
+            .card-icon { font-size: 2rem; }
+            .card-title { font-size: 1rem; }
+            .card-desc { font-size: 0.8rem; }
+            
+            .updates-heading { align-items: flex-start; }
+            .updates-count { padding: 0.35rem 0.55rem; font-size: 0.64rem; }
+            #updates-container { gap: 0.8rem; }
+            .update-card { padding: 0.8rem; }
+            .update-card-top { align-items: flex-start; }
+            .update-category { max-width: 58%; }
+            .update-title-text { font-size: 0.9rem; }
+            .update-summary { font-size: 0.75rem; }
+            .update-meta { font-size: 0.7rem; gap: 0.5rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle Bot</a>
+        <div class="nav-right">
+            <a href="/home" class="nav-link">🏠 Accueil</a>
+            <a href="/status" class="nav-link">📊 Status</a>
+            <a href="/docs" class="nav-link">📚 Docs</a>
+            <a href="/premium" class="nav-link">💎 Premium</a>
+            <a href="/support" class="nav-link">🆘 Support</a>
+            <a href="/about" class="nav-link">ℹ️ À propos</a>
+            <div class="status-indicator online" id="status-btn" onclick="openStatusModal()">
+                <span id="status-icon-nav">✅</span>
+                <span id="status-text-nav">Online</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Bannière lancement Premium -->
+    <div id="launch-banner">
+        <div class="lb-inner">
+            <div class="lb-text">
+                <div id="lb-title">🎉 Le Premium Miaouscle ouvre bientôt</div>
+                <div id="lb-subtitle">Carte bancaire et PayPal — abonnements à partir de 2,99€/mois</div>
+            </div>
+            <div class="lb-countdown" id="lb-countdown">
+                <div class="lb-unit"><span id="lb-days">--</span><small>Jours</small></div>
+                <div class="lb-sep">:</div>
+                <div class="lb-unit"><span id="lb-hours">--</span><small>Heures</small></div>
+                <div class="lb-sep">:</div>
+                <div class="lb-unit"><span id="lb-minutes">--</span><small>Min</small></div>
+                <div class="lb-sep">:</div>
+                <div class="lb-unit"><span id="lb-seconds">--</span><small>Sec</small></div>
+            </div>
+            <a id="lb-cta" href="/premium" class="lb-btn">Découvrir les offres →</a>
+            <button onclick="dismissLaunchBanner()" style="background:none;border:none;color:rgba(255,255,255,0.7);font-size:1.3rem;cursor:pointer;padding:0.2rem 0.5rem;line-height:1;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.7)'" aria-label="Fermer">✕</button>
+        </div>
+        <div id="lb-progress"></div>
+    </div>
+
+    <!-- Alert Banner Maintenance -->
+    <div class="alert-banner" id="alert-banner">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1;">
+            <span class="alert-icon">⚠️</span>
+            <span id="alert-message">Une maintenance est en cours</span>
+        </div>
+        <button class="alert-close" onclick="closeAlertBanner()">✕</button>
+    </div>
+
+    <!-- Modal Status -->
+    <div id="statusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Statut du Service</h2>
+                <button class="modal-close" onclick="closeStatusModal()">✕</button>
+            </div>
+            <div id="modal-status-details"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hero">
+            <h1>🎯 Miaouscle Bot Dashboard</h1>
+            <p>Gérez votre serveur Discord de manière simple et efficace</p>
+        </div>
+
+        <div class="sections-grid">
+            <!-- Dashboard Utilisateur — reveal from right -->
+            <a id="dashboard-card" href="/dashboard" class="section-card primary" style="opacity: 1; cursor: pointer; pointer-events: auto;">
+                <div class="card-face">
+                    <div class="card-icon">👤</div>
+                    <div class="card-title">Dashboard Utilisateur</div>
+                </div>
+                <div class="card-reveal">
+                    <div class="reveal-label">Portail utilisateur</div>
+                    <div class="reveal-title">Gérez vos serveurs Discord</div>
+                    <div class="reveal-desc">Connectez-vous avec Discord pour accéder à la configuration complète de vos serveurs — XP, modération, tickets, logs et bien plus.</div>
+                    <div class="reveal-cta">Accéder au dashboard →</div>
+                </div>
+            </a>
+
+            <!-- Panel Admin — reveal from left -->
+            <a id="admin-card" href="/admin-dashboard" onclick="handleAdminClick(event)" class="section-card secondary">
+                <div class="card-face">
+                    <div class="card-icon">👑</div>
+                    <div class="card-title">Panel Administrateur</div>
+                </div>
+                <div class="card-reveal">
+                    <div class="reveal-label">Accès restreint</div>
+                    <div class="reveal-title">Contrôle total du bot</div>
+                    <div class="reveal-desc">Gestion du bot, monitoring en temps réel, maintenance, statistiques globales et configuration avancée. Accès sécurisé.</div>
+                    <div class="reveal-cta">Accéder au panel →</div>
+                </div>
+            </a>
+        </div>
+
+        <div class="updates-section">
+            <h2>🔧 Maintenances Programmées</h2>
+            <div id="maintenance-scheduled-home" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                <div style="text-align: center; color: #999; grid-column: 1/-1; padding: 1rem;">Aucune maintenance programmée</div>
+            </div>
+        </div>
+
+        <div class="updates-section">
+            <div class="updates-heading">
+                <div>
+                    <div class="updates-eyebrow">Journal de bord</div>
+                    <h2>📰 Dernières mises à jour</h2>
+                    <p class="updates-subtitle">Les dernières améliorations et nouveautés de Miaouscle Bot.</p>
+                </div>
+                <span id="updates-count" class="updates-count">Actualités</span>
+            </div>
+            <div id="updates-container">
+                <div class="update-card" style="text-align: center; color: #999; grid-column: 1/-1;">Chargement des mises à jour...</div>
+            </div>
+            <div id="pagination">
+                <button id="prev-page" onclick="previousPage()" class="pagination-btn" aria-label="Page précédente">
+                    <span class="pagination-arrow" aria-hidden="true">‹</span>
+                    <span class="pagination-label">Précédent</span>
+                </button>
+                <span id="page-info" class="pagination-page">Page 1</span>
+                <button id="next-page" onclick="nextPage()" class="pagination-btn" aria-label="Page suivante">
+                    <span class="pagination-label">Suivant</span>
+                    <span class="pagination-arrow" aria-hidden="true">›</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUpdates = [];
+        let currentPage = 1;
+        const UPDATES_PER_PAGE = 3;
+
+        function loadUpdates() {
+            fetch('/api/latest-updates')
+                .then(res => res.json())
+                .then(data => {
+                    allUpdates = (data.updates && data.updates.length > 0) ? data.updates : [];
+                    currentPage = 1;
+                    renderUpdatesPage();
+                })
+                .catch(err => {
+                    const container = document.getElementById('updates-container');
+                    container.innerHTML = '<div style="text-align: center; color: #999; grid-column: 1/-1;">Erreur de chargement</div>';
+                });
+        }
+
+        function renderUpdatesPage() {
+            const container = document.getElementById('updates-container');
+            if (allUpdates.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: #999; grid-column: 1/-1;">Aucune mise à jour</div>';
+                document.getElementById('updates-count').textContent = 'Aucune actualité';
+                document.getElementById('prev-page').style.display = 'none';
+                document.getElementById('next-page').style.display = 'none';
+                document.getElementById('page-info').style.display = 'none';
+                return;
+            }
+            
+            const totalPages = Math.ceil(allUpdates.length / UPDATES_PER_PAGE);
+            const start = (currentPage - 1) * UPDATES_PER_PAGE;
+            const end = start + UPDATES_PER_PAGE;
+            const pageUpdates = allUpdates.slice(start, end);
+            
+            const escapeHtml = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+            const itemsHTML = pageUpdates.map((update, idx) => {
+                const accent = update.category_color || '#667eea';
+                const title = escapeHtml(update.title || '');
+                const desc  = escapeHtml(update.description || '');
+                const full  = escapeHtml(update.full_text || update.description || update.title || '');
+                const cat   = escapeHtml(update.category || update.type || 'Maj');
+                const ver   = escapeHtml(update.source || '');
+                const date  = escapeHtml(update.date || '');
+                const icon  = update.icon || '📝';
+                const cardId = `update-card-${start + idx}`;
+                return `
+                <div class="update-card" id="${cardId}" data-full="${full}" data-expanded="false"
+                     style="--update-accent: ${accent};">
+                    <div class="update-card-top">
+                        <span class="update-category">
+                            <span class="update-category-icon">${icon}</span>${cat}
+                        </span>
+                        <span class="update-date">${ver ? `${ver} · ` : ''}${date}</span>
+                    </div>
+                    <div class="update-title-text">${title}</div>
+                    ${desc ? `<div class="update-summary" title="${full}">${desc}</div>` : ''}
+                    ${full && full !== title && full.length > desc.length ? `<button type="button" class="update-more" onclick="toggleUpdateCard('${cardId}', this)">Lire la suite <span aria-hidden="true">↓</span></button>` : ''}
+                </div>`;
+            }).join('');
+            container.innerHTML = itemsHTML;
+            container.style.display = 'grid';
+            container.style.gridTemplateColumns = 'repeat(auto-fill, minmax(300px, 1fr))';
+            container.style.gap = '1rem';
+            
+            document.getElementById('updates-count').textContent = `${allUpdates.length} actualité${allUpdates.length > 1 ? 's' : ''}`;
+            document.getElementById('page-info').textContent = `Page ${currentPage} / ${totalPages}`;
+            document.getElementById('prev-page').style.display = currentPage === 1 ? 'none' : 'inline-flex';
+            document.getElementById('next-page').style.display = currentPage === totalPages ? 'none' : 'inline-flex';
+            document.getElementById('page-info').style.display = totalPages <= 1 ? 'none' : 'inline-block';
+        }
+
+        function nextPage() {
+            const totalPages = Math.ceil(allUpdates.length / UPDATES_PER_PAGE);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderUpdatesPage();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderUpdatesPage();
+            }
+        }
+
+        function toggleUpdateCard(cardId, btn) {
+            const card = document.getElementById(cardId);
+            if (!card) return;
+            const desc = card.querySelector('.update-summary, .update-desc');
+            if (!desc) return;
+            const expanded = card.dataset.expanded === 'true';
+            if (expanded) {
+                // Repli : remettre le clamp 3 lignes + texte court d'origine
+                desc.style.webkitLineClamp = '3';
+                desc.style.overflow = 'hidden';
+                if (desc.dataset.shortHtml) desc.innerHTML = desc.dataset.shortHtml;
+                card.dataset.expanded = 'false';
+                btn.innerHTML = 'Lire la suite <span aria-hidden="true">↓</span>';
+            } else {
+                // Déploie : on retire le clamp et on affiche le texte complet
+                if (!desc.dataset.shortHtml) desc.dataset.shortHtml = desc.innerHTML;
+                desc.style.webkitLineClamp = 'unset';
+                desc.style.overflow = 'visible';
+                desc.textContent = card.dataset.full || desc.textContent;
+                card.dataset.expanded = 'true';
+                btn.innerHTML = 'Réduire <span aria-hidden="true">↑</span>';
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUpdates();
+            loadStatus();
+            setInterval(loadStatus, 5000);
+        });
+
+        function loadStatus() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    const btn = document.getElementById('status-btn');
+                    const iconNav = document.getElementById('status-icon-nav');
+                    const textNav = document.getElementById('status-text-nav');
+                    const alertBanner = document.getElementById('alert-banner');
+                    const alertMessage = document.getElementById('alert-message');
+                    let statusClass = 'online';
+                    let navIcon = '✅';
+                    let navText = 'Online';
+                    let detailsHTML = '';
+                    
+                    // Afficher l'alerte si maintenance - DYNAMIQUE selon le type
+                    if (data.maintenance_active) {
+                        alertBanner.classList.add('active');
+                        let alertText = '🔧 Maintenance en cours - Nous travaillons à l\'amélioration du service';
+                        if (data.maintenance_type === 'bot') {
+                            alertText = '🤖 Bot en Maintenance - Nous travaillons à l\'amélioration du service';
+                        } else if (data.maintenance_type === 'site') {
+                            alertText = '🌐 Site en Maintenance - Nous travaillons à l\'amélioration du service';
+                        } else if (data.maintenance_type === 'both') {
+                            alertText = '🔧 Maintenance - Bot et Site en Maintenance!';
+                        }
+                        alertMessage.textContent = alertText;
+                        // DÉSACTIVER la carte du dashboard utilisateur
+                        disableDashboardCard();
+                        console.log('Dashboard card disabled for maintenance type:', data.maintenance_type);
+                    } else {
+                        alertBanner.classList.remove('active');
+                        // ACTIVER la carte du dashboard utilisateur
+                        enableDashboardCard();
+                    }
+
+                    if (data.maintenance_active && data.site_online && !data.bot_online) {
+                        // SEULEMENT le bot en maintenance
+                        statusClass = 'maintenance';
+                        navIcon = '⚠️';
+                        navText = 'Bot en Maintenance';
+                        detailsHTML = `
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                        `;
+                    } else if (data.maintenance_active && !data.site_online && data.bot_online) {
+                        // SEULEMENT le site en maintenance
+                        statusClass = 'maintenance';
+                        navIcon = '⚠️';
+                        navText = 'Site en Maintenance';
+                        detailsHTML = `
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                        `;
+                    } else if (data.maintenance_active && !data.site_online && !data.bot_online) {
+                        // Bot ET site en maintenance
+                        statusClass = 'offline';
+                        navIcon = '❌';
+                        navText = 'Offline';
+                        detailsHTML = `
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                        `;
+                    } else if (data.bot_online && data.site_online) {
+                        statusClass = 'online';
+                        navIcon = '✅';
+                        navText = 'Online';
+                        detailsHTML = `
+                            <div class="status-detail online">
+                                <div class="status-detail-label">✅ Tous Opérationnels</div>
+                                <div class="status-detail-value">Système fonctionnant normalement</div>
+                            </div>
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                            <div class="status-detail">
+                                <div class="status-detail-label">🔧 Maintenance</div>
+                                <div class="status-detail-value">❌ Aucune maintenance programmée</div>
+                            </div>
+                        `;
+                    } else if (data.bot_online || data.site_online) {
+                        statusClass = 'maintenance';
+                        navIcon = '⚠️';
+                        navText = 'Forte perturbation ';
+                        detailsHTML = `
+                            <div class="status-detail maintenance">
+                                <div class="status-detail-label">⚠️ Dégradation de Service</div>
+                                <div class="status-detail-value">Un ou plusieurs services indisponibles</div>
+                            </div>
+                            <div class="status-detail ${data.bot_online ? 'online' : 'offline'}">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">${data.bot_online ? '✅ Opérationnel' : '❌ Hors ligne'}</div>
+                            </div>
+                            <div class="status-detail ${data.site_online ? 'online' : 'offline'}">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">${data.site_online ? '✅ Opérationnel' : '❌ Hors ligne'}</div>
+                            </div>
+                        `;
+                    } else {
+                        statusClass = 'offline';
+                        navIcon = '❌';
+                        navText = 'Offline';
+                        detailsHTML = `
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">❌ Hors Ligne</div>
+                                <div class="status-detail-value">Services actuellement indisponibles</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">❌ Hors ligne</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">❌ Hors ligne</div>
+                            </div>
+                        `;
+                    }
+
+                    // Mettre à jour le bouton de statut
+                    btn.className = 'status-indicator ' + statusClass;
+                    iconNav.textContent = navIcon;
+                    textNav.textContent = navText;
+                    
+                    // Gérer les cartes disabled
+                    const dashboardCard = document.getElementById('dashboard-card');
+                    const adminCard = document.getElementById('admin-card');
+                    
+                    // Dashboard: bloquer si site en maintenance
+                    if (data.maintenance_active && !data.site_online) {
+                        dashboardCard.classList.add('disabled');
+                        dashboardCard.dataset.disabled_reason = 'Le site est en maintenance';
+                    } else {
+                        dashboardCard.classList.remove('disabled');
+                    }
+                    
+                    // Admin: afficher alerte si bot en maintenance
+                    if (data.maintenance_active && !data.bot_online) {
+                        adminCard.dataset.disabled_reason = 'Le bot est en maintenance';
+                    } else {
+                        adminCard.dataset.disabled_reason = '';
+                    }
+                    
+                    // Mettre à jour le modal
+                    document.getElementById('modal-status-details').innerHTML = detailsHTML;
+                })
+                .catch(err => {
+                    const btn = document.getElementById('status-btn');
+                    btn.className = 'status-indicator offline';
+                    document.getElementById('status-icon-nav').textContent = '❓';
+                    document.getElementById('status-text-nav').textContent = 'Erreur';
+                });
+        }
+
+        let modalRefreshInterval = null;
+
+        function openStatusModal() {
+            document.getElementById('statusModal').classList.add('active');
+            loadStatusModalContent();
+            // Rafraîchir le contenu du modal toutes les 5 secondes
+            if (modalRefreshInterval) clearInterval(modalRefreshInterval);
+            modalRefreshInterval = setInterval(loadStatusModalContent, 5000);
+        }
+
+        function loadStatusModalContent() {
+            fetch('/api/status')
+                .then(res => res.json())
+                .then(data => {
+                    let detailsHTML = '';
+                    // Générer le HTML avec la même logique que loadStatus()
+                    if (data.maintenance_active && data.maintenance_type === 'bot') {
+                        detailsHTML = `
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                        `;
+                    } else if (data.maintenance_active && data.maintenance_type === 'site') {
+                        detailsHTML = `
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                        `;
+                    } else if (data.maintenance_active && data.maintenance_type === 'both') {
+                        detailsHTML = `
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                            <div class="status-detail offline">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">🔧 En Maintenance</div>
+                            </div>
+                        `;
+                    } else if (data.bot_online && data.site_online) {
+                        detailsHTML = `
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                            <div class="status-detail online">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">✅ Opérationnel</div>
+                            </div>
+                        `;
+                    } else {
+                        detailsHTML = `
+                            <div class="status-detail ${data.bot_online ? 'online' : 'offline'}">
+                                <div class="status-detail-label">🤖 Bot Discord</div>
+                                <div class="status-detail-value">${data.bot_online ? '✅ Opérationnel' : '❌ Offline'}</div>
+                            </div>
+                            <div class="status-detail ${data.site_online ? 'online' : 'offline'}">
+                                <div class="status-detail-label">🌐 Site Web</div>
+                                <div class="status-detail-value">${data.site_online ? '✅ Opérationnel' : '❌ Offline'}</div>
+                            </div>
+                        `;
+                    }
+                    document.getElementById('modal-status-details').innerHTML = detailsHTML;
+                })
+                .catch(err => console.error('Erreur refresh modal:', err));
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').classList.remove('active');
+            if (modalRefreshInterval) clearInterval(modalRefreshInterval);
+        }
+
+        function closeAlertBanner() {
+            document.getElementById('alert-banner').classList.remove('active');
+        }
+
+        function disableDashboardCard() {
+            const card = document.getElementById('dashboard-card');
+            if (card) {
+                card.classList.add('disabled');
+                card.style.opacity = '0.5';
+                card.style.cursor = 'not-allowed';
+                card.style.pointerEvents = 'none';
+            }
+        }
+
+        function enableDashboardCard() {
+            const card = document.getElementById('dashboard-card');
+            if (card) {
+                card.classList.remove('disabled');
+                card.style.opacity = '1';
+                card.style.cursor = 'pointer';
+                card.style.pointerEvents = 'auto';
+                card.removeAttribute('onclick'); // Ensure no JS click blocking
+            }
+        }
+
+        function handleDashboardClick(event) {
+            const card = document.getElementById('dashboard-card');
+            if (card.classList.contains('disabled')) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            }
+            // If not disabled, let the default <a> behavior handle the link
+            return true;
+        }
+
+        function handleAdminClick(event) {
+            // Admin peut toujours cliquer
+            const card = document.getElementById('admin-card');
+            if (card.classList.contains('disabled')) {
+                event.preventDefault();
+                alert(card.dataset.disabled_reason || 'Accès restreint.');
+                return false;
+            }
+            return true;
+        }
+
+        // Fermer le modal en cliquant dehors
+        window.onclick = function(event) {
+            const modal = document.getElementById('statusModal');
+            if (event.target === modal) {
+                modal.classList.remove('active');
+            }
+        }
+
+        
+function linkify(text) {
+    if (!text) return '';
+    return String(text).replace(
+        /(https?:\/\/[^\s<>"']+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;word-break:break-all;">$1</a>'
+    );
+}
+async function loadScheduledMaintenance() {
+            try {
+                const res = await fetch('/api/scheduled-maintenance');
+                if (!res.ok) throw new Error('Failed to fetch');
+                const data = await res.json();
+                const scheduled = data.scheduled || [];
+                const container = document.getElementById('maintenance-scheduled-home');
+                
+                if (scheduled.length === 0) {
+                    container.innerHTML = '<div style="text-align: center; color: #999; grid-column: 1/-1; padding: 1rem;">Aucune maintenance programmée</div>';
+                    return;
+                }
+                
+                function formatMaintenanceDate(value) {
+                    if (!value) return 'Date non définie';
+                    const date = new Date(value);
+                    if (Number.isNaN(date.getTime())) return 'Date non définie';
+                    return date.toLocaleString('fr-FR', {
+                        timeZone: 'Europe/Brussels',
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+
+                const html = scheduled.map(m => `
+                    <div style="background: #fef3c7; padding: 1.5rem; border-radius: 10px; border-left: 5px solid #f39c12; position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                            <h3 style="color: #f39c12; margin: 0; font-size: 1.1rem;">📅 ${linkify(m.message)}</h3>
+                            <span style="background: #f39c12; color: white; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">En attente</span>
+                        </div>
+                        <p style="color: #666; margin: 0.5rem 0; font-size: 0.95rem;">
+                            <strong>🕐 Début:</strong> ${formatMaintenanceDate(m.start_time || m.scheduled_time)}
+                        </p>
+                        ${m.end_time ? `<p style="color: #666; margin: 0.5rem 0; font-size: 0.95rem;"><strong>🏁 Fin:</strong> ${formatMaintenanceDate(m.end_time)}</p>` : ''}
+                        <p style="color: #999; margin: 1rem 0 0 0; font-size: 0.85rem; font-style: italic;">${m.scheduled_time ? '⏳ Se lancera automatiquement à l\'heure prévue' : ''}</p>
+                    </div>
+                `).join('');
+                
+                container.innerHTML = html;
+            } catch (e) {
+                console.log('Erreur chargement maintenances programmées:', e);
+            }
+        }
+
+        loadUpdates();
+        loadStatus();
+        loadScheduledMaintenance();
+
+        // Actualiser toutes les 15 secondes
+        setInterval(loadStatus, 15000);
+        setInterval(loadScheduledMaintenance, 15000);
+
+        // ===== Compte à rebours lancement Premium =====
+        (async function initLaunchBanner() {
+            try {
+                const r = await fetch('/api/premium-launch');
+                if (!r.ok) return;
+                const cfg = await r.json();
+                if (!cfg.active) return;
+
+                const banner   = document.getElementById('launch-banner');
+                const titleEl  = document.getElementById('lb-title');
+                const subEl    = document.getElementById('lb-subtitle');
+                const ctaEl    = document.getElementById('lb-cta');
+                const cdEl     = document.getElementById('lb-countdown');
+                const dEl      = document.getElementById('lb-days');
+                const hEl      = document.getElementById('lb-hours');
+                const mEl      = document.getElementById('lb-minutes');
+                const sEl      = document.getElementById('lb-seconds');
+
+                // Bannière de bienvenue — texte fixe, pas de compte à rebours
+                titleEl.textContent = '👋 Bienvenue sur Miaouscle Bot !';
+                subEl.textContent   = 'Gérez vos serveurs Discord — XP, tickets, modération et bien plus.';
+                ctaEl.textContent   = 'Commencer →';
+                ctaEl.href          = '/dashboard';
+                if (cdEl) cdEl.style.display = 'none';
+                banner.classList.remove('is-live');
+                banner.style.display = 'block';
+
+                // Auto-dismiss après 5 s avec barre de progression
+                const bar = document.getElementById('lb-progress');
+                if (bar) {
+                    bar.style.transition = 'width 10000ms linear';
+                    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = '0%'; }));
+                }
+                banner._dismissTimer = setTimeout(dismissLaunchBanner, 10000);
+            } catch (_) { /* bannière cachée si erreur réseau */ }
+        })();
+
+        function dismissLaunchBanner() {
+            const b = document.getElementById('launch-banner');
+            if (!b || b.classList.contains('hiding')) return;
+            if (b._dismissTimer) clearTimeout(b._dismissTimer);
+            b.classList.add('hiding');
+            setTimeout(() => { b.style.display = 'none'; }, 600);
+        }
+    </script>
+</body>
+</html>

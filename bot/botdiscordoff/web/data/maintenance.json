@@ -1,0 +1,16 @@
+{
+  "bot": {
+    "active": false,
+    "message": "",
+    "start_time": null,
+    "end_time": null,
+    "show_reason": true
+  },
+  "site": {
+    "active": false,
+    "message": "",
+    "start_time": null,
+    "end_time": null,
+    "show_reason": true
+  }
+}

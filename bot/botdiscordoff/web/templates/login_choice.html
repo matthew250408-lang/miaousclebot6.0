@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Miaouscle Bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .login-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg);
+        }
+
+        .login-header {
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .login-header h1 {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .login-choices {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            padding: 4rem 2rem;
+            align-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .choice-card {
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .choice-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .choice-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .choice-card h2 {
+            margin: 1rem 0;
+            font-size: 1.8rem;
+        }
+
+        .choice-card p {
+            color: #cbd5e0;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .choice-features {
+            text-align: left;
+            margin: 2rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .choice-features li {
+            padding: 0.5rem 0;
+            color: #cbd5e0;
+            list-style: none;
+        }
+
+        .choice-features li:before {
+            content: "✓ ";
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .btn-choice {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-discord {
+            background: #5865F2;
+            color: white;
+        }
+
+        .btn-discord:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(88, 101, 242, 0.3);
+        }
+
+        .btn-owner {
+            background: linear-gradient(135deg, #f56565, #fc8181);
+            color: white;
+        }
+
+        .btn-owner:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(245, 101, 101, 0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge-new {
+            background: #48bb78;
+        }
+
+        @media (max-width: 768px) {
+            .login-choices {
+                gap: 2rem;
+                padding: 2rem 1rem;
+            }
+
+            .choice-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .choice-icon {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-page">
+        <div class="login-header">
+            <h1>🐱 Miaouscle Bot Dashboard</h1>
+        </div>
+
+        <div class="login-choices">
+            <!-- UTILISATEUR NORMAL -->
+            <div class="choice-card">
+                <div class="choice-icon">🎮</div>
+                <span class="badge badge-new">✨ NOUVEAU</span>
+                <h2>Utilisateur Discord</h2>
+                <p>Connectez-vous avec Discord pour gérer vos serveurs</p>
+                <ul class="choice-features">
+                    <li>Accès automatique à vos serveurs admin</li>
+                    <li>Configuration en temps réel</li>
+                    <li>Sauvegarde sécurisée</li>
+                </ul>
+                <a href="/login-discord" class="btn-choice btn-discord">
+                    🔗 Se Connecter avec Discord
+                </a>
+            </div>
+
+            <!-- PROPRIÉTAIRE -->
+            <div class="choice-card">
+                <div class="choice-icon">👑</div>
+                <span class="badge" style="background: var(--danger);">ADMINISTRATEUR</span>
+                <h2>Propriétaire du Bot</h2>
+                <p>Accès complet au contrôle du bot</p>
+                <ul class="choice-features">
+                    <li>Gestion de tous les serveurs</li>
+                    <li>Statistiques complètes</li>
+                    <li>Maintenance du bot</li>
+                    <li>Broadcast à tous les serveurs</li>
+                </ul>
+                <a href="/login-owner" class="btn-choice btn-owner">
+                    🔐 Connexion Propriétaire
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

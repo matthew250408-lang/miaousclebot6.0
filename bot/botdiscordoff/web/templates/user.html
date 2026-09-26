@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Miaouscle Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0f111a;
+            --bg-secondary: #161922;
+            --bg-card: #1f232d;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent: #7c3aed;
+            --accent-hover: #6d28d9;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: rgba(255, 255, 255, 0.08);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        nav {
+            background: rgba(22, 25, 34, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 0.75rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.4rem; font-weight: 800; color: white; display: flex; align-items: center; gap: 0.6rem; text-decoration: none; letter-spacing: -0.02em; }
+        .logo span { color: var(--accent); }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; margin-right: auto; margin-left: 2rem; }
+        .nav-links a { 
+            color: var(--text-secondary); 
+            text-decoration: none; 
+            font-weight: 500; 
+            transition: all 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        .nav-links a:hover { 
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+        .nav-links a.active {
+            color: white;
+            background: rgba(124, 58, 237, 0.2);
+        }
+        .logout-btn { background: rgba(239, 68, 68, 0.1); color: var(--danger); padding: 0.6rem 1.2rem; border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; cursor: pointer; text-decoration: none; font-weight: 600; font-size: 0.85rem; transition: all 0.2s; }
+        .logout-btn:hover { background: var(--danger); color: white; }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            flex: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .sidebar {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 1.5rem;
+            height: calc(100vh - 120px);
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .sidebar h3 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-secondary); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+
+        .server-list { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 0.6rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .server-list::-webkit-scrollbar { width: 4px; }
+        .server-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+        .server-item {
+            padding: 0.85rem 1rem;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .server-item i {
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .server-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
+
+        .server-item.active {
+            background: rgba(124, 58, 237, 0.1);
+            color: var(--accent);
+            border-color: rgba(124, 58, 237, 0.2);
+        }
+
+        .server-item.active i {
+            background: var(--accent);
+            color: white;
+        }
+
+        .content {
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            min-height: calc(100vh - 120px);
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.4rem;
+            border-radius: 14px;
+            margin-bottom: 2.5rem;
+            width: fit-content;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 0.7rem 1.2rem;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover { color: var(--text-primary); }
+
+        .tab-btn.active { 
+            background: var(--bg-card); 
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            padding: 2rem; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+        
+        .card:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .card h4 { 
+            color: white; 
+            font-size: 1.1rem; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.8rem; 
+            font-weight: 700;
+        }
+
+        .card h4 i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 0.9rem 1.1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+        
+        .switch-group { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 1rem;
+            background: rgba(255,255,255,0.02);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #333; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .btn-save-floating {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--accent);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            transition: all 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-save-floating:hover { 
+            transform: translateY(-2px); 
+            background: var(--accent-hover);
+            box-shadow: 0 20px 25px -5px rgba(124, 58, 237, 0.4);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--bg-secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 2000;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .toast i { color: var(--success); }
+        .toast.active { transform: translateX(-50%) translateY(0); }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .welcome { text-align: center; color: var(--text-secondary); padding: 5rem 2rem; }
+        .welcome i { font-size: 4rem; color: var(--accent); margin-bottom: 1.5rem; opacity: 0.5; }
+        .welcome h2 { color: white; font-size: 2rem; margin-bottom: 1rem; }
+
+        .premium-section {
+            margin-top: 1.25rem;
+            padding: 1rem;
+            border: 1px solid rgba(251,191,36,0.35);
+            border-radius: 12px;
+            background: linear-gradient(135deg, rgba(251,191,36,0.07), rgba(251,191,36,0.02));
+        }
+        .premium-section h5 {
+            color: #fbbf24;
+            font-size: 0.85rem;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .premium-section .pf-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .premium-section input[type="text"],
+        .premium-section input[type="url"],
+        .premium-section input[type="color"],
+        .premium-section textarea {
+            width: 100%;
+            padding: 0.5rem 0.7rem;
+            background: rgba(0,0,0,0.25);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: white;
+            font-size: 0.85rem;
+        }
+        .premium-section input[type="color"] { padding: 0; height: 38px; }
+        .premium-section label {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        .premium-section .switch-group { margin-top: 0.5rem; }
+        .premium-locked {
+            position: relative;
+            opacity: 0.55;
+            pointer-events: none;
+        }
+        .premium-locked::after {
+            content: "🔒 Premium requis";
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            color: #fbbf24;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            pointer-events: auto;
+            z-index: 5;
+        }
+        .premium-locked-plus::after { content: "👑 Premium+ requis"; }
+        .premium-section a.upgrade-link {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: #fbbf24;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+        .premium-section a.upgrade-link:hover { text-decoration: underline; }
+
+        @media (max-width: 1024px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar { position: static; top: 0; }
+            .server-list { flex-direction: row; overflow-x: auto; padding-bottom: 0.5rem; }
+            .server-item { white-space: nowrap; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle<span> Bot</span></a>
+        <div class="nav-links">
+            <a href="/home">🏠 Accueil</a>
+            <a href="/status">📊 Status</a>
+            <a href="/docs">📚 Docs</a>
+            <a href="/support">🆘 Support</a>
+        </div>
+        <div class="nav-right">
+            <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Quitter</a>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3><i class="fas fa-server"></i> Mes Serveurs</h3>
+            <div id="server-list" class="server-list">
+                <div class="server-item"><i class="fas fa-spinner fa-spin"></i> Chargement...</div>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div id="content" class="welcome">
+                <i class="fas fa-home" style="cursor: pointer; font-size: 3rem; margin-bottom: 1rem;" onclick="window.location.href='/home'"></i>
+                <h2 style="cursor: pointer;" onclick="window.location.href='/home'">Dashboard Miaouscle</h2>
+                <p>Sélectionnez un serveur à gauche pour synchroniser avec <code>/config</code> ou retournez à l'<a href="/home" style="color: var(--accent); font-weight: 600; text-decoration: none;">accueil</a>.</p>
+            </div>
+        </main>
+    </div>
+
+    <button id="save-btn" class="btn-save-floating" style="display: none;" onclick="saveAll()">
+        <i class="fas fa-save"></i> Enregistrer les changements
+    </button>
+
+    <div id="toast" class="toast"><i class="fas fa-check-circle"></i> Configuration synchronisée avec succès !</div>
+
+    <script>
+        let selectedServer = null;
+        let currentConfig = {};
+        let unsavedChanges = false;
+        let channels = [];
+        let roles = [];
+
+        async function loadServers() {
+            try {
+                const res = await fetch('/api/servers');
+                const list = document.getElementById('server-list');
+
+                if (res.status === 401) {
+                    list.innerHTML = `
+                        <div style="text-align:center;padding:1.5rem;color:#e57373;">
+                            <p style="margin-bottom:0.75rem;">⚠️ Ta session Discord a expiré (les jetons OAuth durent 7 jours).</p>
+                            <a href="/login" style="display:inline-block;padding:0.5rem 1rem;background:#5865f2;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">🔄 Me reconnecter avec Discord</a>
+                        </div>`;
+                    return;
+                }
+                if (!res.ok) {
+                    list.innerHTML = `<p style="text-align:center;padding:1rem;color:#e57373;">⚠️ Impossible de charger la liste (${res.status}). Réessaie dans quelques secondes.</p>`;
+                    return;
+                }
+
+                const servers = await res.json();
+                if (!Array.isArray(servers) || !servers.length) {
+                    list.innerHTML = '<p style="text-align:center; padding: 1rem;">Aucun serveur trouvé</p>';
+                    return;
+                }
+
+                list.innerHTML = servers.map(s => `
+                    <div class="server-item" data-id="${s.id}" onclick="selectServer('${s.id}', '${s.name.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-hashtag"></i>
+                        <span>${s.name}</span>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function selectServer(id, name) {
+            if (unsavedChanges && !confirm("Changements non enregistrés ! Continuer ?")) return;
+
+            selectedServer = { id, name };
+            document.querySelectorAll('.server-item').forEach(el => {
+                el.classList.remove('active');
+                if (el.dataset.id === id) el.classList.add('active');
+            });
+            
+            try {
+                const [configRes, channelsRes, rolesRes] = await Promise.all([
+                    fetch(`/api/server/${id}/config`),
+                    fetch(`/api/server/${id}/channels`),
+                    fetch(`/api/server/${id}/roles`)
+                ]);
+                
+                currentConfig = configRes.ok ? await configRes.json() : {};
+                channels = channelsRes.ok ? (await channelsRes.json()).channels : [];
+                roles = rolesRes.ok ? (await rolesRes.json()).roles : [];
+                
+                renderConfigUI();
+                unsavedChanges = false;
+                document.getElementById('save-btn').style.display = 'none';
+            } catch (e) { console.error(e); }
+        }
+
+        function escapeAttr(v) {
+            if (v === undefined || v === null) return '';
+            return String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function renderConfigUI() {
+            const content = document.getElementById('content');
+            const channelOptions = channels.filter(c => c.type === 0).map(c => `<option value="${c.id}" ${currentConfig.log_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('');
+            const roleOptions = roles.map(r => `<option value="${r.id}" ${currentConfig.booster_role == r.id ? 'selected' : ''}>@ ${r.name}</option>`).join('');
+
+            // Statut Premium du serveur (renvoyé par l'API config)
+            const premiumMeta = currentConfig._premium || {};
+            const isPremium = !!premiumMeta.is_premium;
+            const isPremiumPlus = !!premiumMeta.is_premium_plus;
+            const disabledAttr = isPremium ? '' : 'disabled';
+            const disabledAttrPlus = isPremiumPlus ? '' : 'disabled';
+
+            content.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 2rem;">
+                    <h2 style="font-size: 1.8rem;">${selectedServer.name}</h2>
+                    <span style="font-size: 0.8rem; background: var(--accent); color: white; padding: 0.3rem 0.8rem; border-radius: 20px;">SYNC ACTIVE</span>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab(0)"><i class="fas fa-cog"></i> Général</button>
+                    <button class="tab-btn" onclick="switchTab(1)"><i class="fas fa-comment-dots"></i> Messages</button>
+                    <button class="tab-btn" onclick="switchTab(2)"><i class="fas fa-shield-halved"></i> Automod</button>
+                    <button class="tab-btn" onclick="switchTab(3)"><i class="fas fa-list-ul"></i> Logs</button>
+                </div>
+
+                <div class="tab-content active" id="tab-0">
+                    <div class="config-grid">
+                        <div class="card">
+                            <h4><i class="fas fa-language"></i> Langue</h4>
+                            <select onchange="updateValue('language', this.value)">
+                                <option value="fr" ${currentConfig.language === 'fr' ? 'selected' : ''}>Français</option>
+                                <option value="en" ${currentConfig.language === 'en' ? 'selected' : ''}>English</option>
+                                <option value="es" ${currentConfig.language === 'es' ? 'selected' : ''}>Español</option>
+                                <option value="de" ${currentConfig.language === 'de' ? 'selected' : ''}>Deutsch</option>
+                            </select>
+                        </div>
+                        <div class="card">
+                            <h4><i class="fas fa-rocket"></i> Rôle Booster</h4>
+                            <select onchange="updateValue('booster_role', this.value)">
+                                <option value="">Aucun rôle</option>
+                                ${roleOptions}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-1">
+                    <div class="config-grid">
+                        <div class="card">
+                            <h4><i class="fas fa-door-open"></i> Bienvenue</h4>
+                            <select onchange="updateValue('welcome_channel', this.value)">
+                                <option value="">Désactivé</option>
+                                ${channels.filter(c => c.type === 0).map(c => `<option value="${c.id}" ${currentConfig.welcome_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                            </select>
+                            <textarea placeholder="Message de bienvenue... ({user}, {username}, {guild}, {count})" onchange="updateValue('welcome_message', this.value)">${currentConfig.welcome_message || ''}</textarea>
+
+                            <div class="premium-section ${isPremium ? '' : 'premium-locked'}">
+                                <h5>💎 Personnalisation Premium</h5>
+                                ${isPremium ? '' : '<a class="upgrade-link" href="/premium">Passe Premium pour débloquer →</a>'}
+                                <label>Titre de l'embed</label>
+                                <input type="text" maxlength="256" placeholder="🎉 Welcome!" value="${escapeAttr(currentConfig.welcome_title)}" ${disabledAttr} onchange="updateValue('welcome_title', this.value)">
+                                <div class="pf-row">
+                                    <div>
+                                        <label>Couleur</label>
+                                        <input type="color" value="${currentConfig.welcome_color || '#00ff00'}" ${disabledAttr} onchange="updateValue('welcome_color', this.value)">
+                                    </div>
+                                    <div>
+                                        <label>Pinger le membre</label>
+                                        <select ${disabledAttr} onchange="updateValue('welcome_ping', this.value === 'true')">
+                                            <option value="true" ${currentConfig.welcome_ping !== false ? 'selected' : ''}>Oui</option>
+                                            <option value="false" ${currentConfig.welcome_ping === false ? 'selected' : ''}>Non</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label style="margin-top:0.5rem">Image bannière (URL)</label>
+                                <input type="url" placeholder="https://exemple.com/image.png" value="${escapeAttr(currentConfig.welcome_image)}" ${disabledAttr} onchange="updateValue('welcome_image', this.value)">
+                                <label style="margin-top:0.5rem">Footer personnalisé</label>
+                                <input type="text" maxlength="2048" placeholder="Membre #{count} • {guild}" value="${escapeAttr(currentConfig.welcome_footer)}" ${disabledAttr} onchange="updateValue('welcome_footer', this.value)">
+                            </div>
+
+                            <div class="premium-section ${isPremiumPlus ? '' : 'premium-locked premium-locked-plus'}">
+                                <h5>👑 MP de bienvenue (Premium+)</h5>
+                                ${isPremiumPlus ? '' : '<a class="upgrade-link" href="/premium">Passe Premium+ pour débloquer →</a>'}
+                                <div class="switch-group" style="margin:0.5rem 0">
+                                    <span style="font-size:0.85rem">Envoyer un MP au nouveau membre</span>
+                                    <label class="switch">
+                                        <input type="checkbox" ${currentConfig.welcome_dm_enabled ? 'checked' : ''} ${disabledAttrPlus} onchange="updateValue('welcome_dm_enabled', this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                <textarea placeholder="Texte du MP (laisse vide pour réutiliser le message ci-dessus)" ${disabledAttrPlus} onchange="updateValue('welcome_dm_message', this.value)">${currentConfig.welcome_dm_message || ''}</textarea>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4><i class="fas fa-door-closed"></i> Départs</h4>
+                            <select onchange="updateValue('goodbye_channel', this.value)">
+                                <option value="">Désactivé</option>
+                                ${channels.filter(c => c.type === 0).map(c => `<option value="${c.id}" ${currentConfig.goodbye_channel == c.id ? 'selected' : ''}># ${c.name}</option>`).join('')}
+                            </select>
+                            <textarea placeholder="Message d'au revoir... ({user}, {username}, {guild}, {count})" onchange="updateValue('goodbye_message', this.value)">${currentConfig.goodbye_message || ''}</textarea>
+
+                            <div class="premium-section ${isPremium ? '' : 'premium-locked'}">
+                                <h5>💎 Personnalisation Premium</h5>
+                                ${isPremium ? '' : '<a class="upgrade-link" href="/premium">Passe Premium pour débloquer →</a>'}
+                                <label>Titre de l'embed</label>
+                                <input type="text" maxlength="256" placeholder="👋 Goodbye!" value="${escapeAttr(currentConfig.goodbye_title)}" ${disabledAttr} onchange="updateValue('goodbye_title', this.value)">
+                                <div class="pf-row">
+                                    <div>
+                                        <label>Couleur</label>
+                                        <input type="color" value="${currentConfig.goodbye_color || '#ff9900'}" ${disabledAttr} onchange="updateValue('goodbye_color', this.value)">
+                                    </div>
+                                    <div>
+                                        <label>Mentionner le partant</label>
+                                        <select ${disabledAttr} onchange="updateValue('goodbye_ping', this.value === 'true')">
+                                            <option value="false" ${!currentConfig.goodbye_ping ? 'selected' : ''}>Non</option>
+                                            <option value="true" ${currentConfig.goodbye_ping ? 'selected' : ''}>Oui</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <label style="margin-top:0.5rem">Image bannière (URL)</label>
+                                <input type="url" placeholder="https://exemple.com/image.png" value="${escapeAttr(currentConfig.goodbye_image)}" ${disabledAttr} onchange="updateValue('goodbye_image', this.value)">
+                                <label style="margin-top:0.5rem">Footer personnalisé</label>
+                                <input type="text" maxlength="2048" placeholder="{count} membres restants" value="${escapeAttr(currentConfig.goodbye_footer)}" ${disabledAttr} onchange="updateValue('goodbye_footer', this.value)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-2">
+                    <div class="card">
+                        <h4><i class="fas fa-robot"></i> Automod</h4>
+                        <div class="switch-group">
+                            <span>Activer Automod</span>
+                            <label class="switch">
+                                <input type="checkbox" ${currentConfig.automod_enabled ? 'checked' : ''} onchange="updateValue('automod_enabled', this.checked)">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <label style="margin-top:1rem">Action</label>
+                        <select onchange="updateValue('automod_action', this.value)">
+                            <option value="warn" ${currentConfig.automod_action === 'warn' ? 'selected' : ''}>Avertir (Warn)</option>
+                            <option value="mute" ${currentConfig.automod_action === 'mute' ? 'selected' : ''}>Mute</option>
+                            <option value="delete" ${currentConfig.automod_action === 'delete' ? 'selected' : ''}>Supprimer</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="tab-3">
+                    <div class="card">
+                        <h4><i class="fas fa-history"></i> Logs</h4>
+                        <select onchange="updateValue('log_channel', this.value)">
+                            <option value="">Désactivé</option>
+                            ${channelOptions}
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
+        function switchTab(idx) {
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+            document.querySelectorAll('.tab-content').forEach((c, i) => c.classList.toggle('active', i === idx));
+        }
+
+        function updateValue(key, value) {
+            currentConfig[key] = value;
+            unsavedChanges = true;
+            document.getElementById('save-btn').style.display = 'flex';
+        }
+
+        async function saveAll() {
+            const btn = document.getElementById('save-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Synchronisation...';
+            btn.disabled = true;
+
+            try {
+                // On retire la clé miroir _premium (lecture seule, recalculée côté serveur)
+                const payload = { ...currentConfig };
+                delete payload._premium;
+
+                const res = await fetch(`/api/server/${selectedServer.id}/config`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json().catch(() => ({}));
+                    const toast = document.getElementById('toast');
+                    toast.classList.add('active');
+                    setTimeout(() => toast.classList.remove('active'), 3000);
+                    unsavedChanges = false;
+                    btn.style.display = 'none';
+
+                    if (Array.isArray(data.rejected_premium_keys) && data.rejected_premium_keys.length) {
+                        console.warn('Champs Premium ignorés (serveur non Premium) :', data.rejected_premium_keys);
+                    }
+                }
+            } catch (e) { alert("Erreur lors de la synchronisation"); }
+            finally {
+                btn.innerHTML = '<i class="fas fa-save"></i> Enregistrer les changements';
+                btn.disabled = false;
+            }
+        }
+
+        loadServers();
+    </script>
+</body>
+</html>

@@ -1,0 +1,1862 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0b0e14; min-height: 100vh; color: #e0e0e0; }
+        /* Custom confirm/alert modal */
+        #custom-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
+        #custom-modal-overlay.active { display:flex; }
+        #custom-modal-box { background:#1a1d27; border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:2rem; max-width:420px; width:90%; box-shadow:0 20px 60px rgba(0,0,0,0.5); }
+        #custom-modal-msg { font-size:1rem; color:#e0e0e0; margin-bottom:1.5rem; line-height:1.5; }
+        #custom-modal-btns { display:flex; gap:0.75rem; justify-content:flex-end; }
+        #custom-modal-btns button { padding:0.55rem 1.2rem; border:none; border-radius:7px; cursor:pointer; font-weight:600; font-size:0.9rem; }
+        #custom-modal-ok { background:#5865f2; color:#fff; }
+        #custom-modal-cancel { background:rgba(255,255,255,0.1); color:#ccc; }
+        nav { background: #11141b; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 15px rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo { font-size: 1.3rem; font-weight: 700; color: #f87171; }
+        .logout-btn { background: #e74c3c; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: 600; }
+        
+        .layout { display: grid; grid-template-columns: 200px 1fr; gap: 2rem; padding: 2rem; max-width: 1400px; margin: 0 auto; }
+        .menu { background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); backdrop-filter: blur(10px); border-radius: 8px; padding: 1rem; height: fit-content; box-shadow: 0 2px 15px rgba(0,0,0,0.3); position: sticky; top: 1rem; border: 1px solid rgba(255,255,255,0.1); }
+        .menu a { display: block; padding: 0.8rem; margin: 0.5rem 0; background: rgba(255,255,255,0.05); border-radius: 6px; cursor: pointer; text-decoration: none; color: #e0e0e0; transition: all 0.3s; font-weight: 600; }
+        .menu a:hover, .menu a.active { background: #d63031; color: white; }
+        
+        .content { background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%); backdrop-filter: blur(10px); border-radius: 8px; padding: 2rem; box-shadow: 0 2px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+        .content h2 { color: #fff; }
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        #loading-overlay { display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; align-items: center; justify-content: center; flex-direction: column; visibility: hidden; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        .stat-card h3 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        
+        .server-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+        .server-card { background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 8px; border: 2px solid rgba(102,126,234,0.5); transition: all 0.3s; }
+        .server-card:hover { box-shadow: 0 5px 15px rgba(102,126,234,0.3); border-color: #667eea; }
+        .server-card h3 { color: #a5b4fc; margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .server-info { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 1rem; }
+        .server-invite { margin-top: 1rem; }
+        .server-invite a { background: #667eea; color: white; padding: 0.6rem 1rem; border-radius: 4px; text-decoration: none; font-size: 0.9rem; display: inline-block; transition: all 0.3s; }
+        .server-invite a:hover { background: #5568d3; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.4rem; font-weight: 600; color: #fff; }
+        input, select, textarea { width: 100%; padding: 0.8rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-family: inherit; font-size: 0.95rem; background: rgba(255,255,255,0.05); color: #fff; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 5px rgba(102,126,234,0.3); }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.4); }
+        select option { background: #1a1a3e; color: #fff; }
+        textarea { min-height: 100px; resize: vertical; }
+        
+        .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #10b981; color: white; }
+        .btn-primary:hover { background: #059669; }
+        
+        @media (max-width: 768px) {
+            nav { padding: 0.8rem 1rem; }
+            .logo { font-size: 1.1rem; }
+            .logout-btn { padding: 0.5rem 1rem; font-size: 0.85rem; }
+            
+            .layout { grid-template-columns: 1fr; gap: 1rem; padding: 1rem; max-width: 100%; }
+            .menu { padding: 0.8rem; position: relative; top: 0; }
+            .menu a { padding: 0.6rem; font-size: 0.9rem; margin: 0.3rem 0; }
+            
+            .content { padding: 1.5rem; }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; margin-bottom: 1rem; }
+            .stat-card { padding: 1rem; }
+            .stat-card h3 { font-size: 1.4rem; }
+            .stat-card p { font-size: 0.8rem; }
+            
+            .server-grid { grid-template-columns: 1fr; gap: 0.8rem; }
+            .server-card { padding: 1rem; }
+            .server-card h3 { font-size: 1rem; }
+            .server-info { font-size: 0.8rem; }
+            
+            .form-group { margin-bottom: 0.8rem; }
+            label { font-size: 0.9rem; margin-bottom: 0.3rem; }
+            input, select, textarea { padding: 0.6rem; font-size: 0.9rem; }
+            .btn { padding: 0.6rem 1rem; font-size: 0.9rem; }
+            
+            .modal-content { width: 95%; max-height: 85vh; }
+        }
+        
+        @media (max-width: 480px) {
+            nav { padding: 0.6rem 0.8rem; }
+            .logo { font-size: 0.95rem; }
+            .logout-btn { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+            
+            .layout { gap: 0.5rem; padding: 0.5rem; }
+            .menu { padding: 0.5rem; }
+            .menu a { padding: 0.4rem 0.5rem; font-size: 0.8rem; }
+            
+            .content { padding: 1rem; }
+            .stat-grid { grid-template-columns: 1fr; gap: 0.5rem; }
+            .stat-card { padding: 0.8rem; }
+            .stat-card h3 { font-size: 1.2rem; }
+            .stat-card p { font-size: 0.7rem; }
+            
+            .server-grid { gap: 0.5rem; }
+            .server-card { padding: 0.8rem; }
+            
+            input, select, textarea { padding: 0.5rem; font-size: 0.85rem; }
+            .btn { padding: 0.5rem 0.8rem; font-size: 0.8rem; }
+            
+            .form-group { margin-bottom: 0.6rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">👑 ADMIN PANEL</div>
+        <div style="display: flex; gap: 1rem;">
+            <a href="/dashboard" class="logout-btn" style="background: #667eea;">👤 Panel User</a>
+            <a href="/home" class="logout-btn">← Accueil</a>
+            <a href="/logout" class="logout-btn">Logout</a>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <aside class="menu">
+            <a class="active" onclick="show('dashboard')">📊 Dashboard</a>
+            <a onclick="show('stats')">📈 Stats</a>
+            <a onclick="show('servers')">🖥️ Serveurs</a>
+            <a onclick="show('premium-subs')">💎 Abonnements</a>
+            <a onclick="show('payments')">💳 Paiements & promos</a>
+            <a onclick="show('timeline')">📅 Timeline</a>
+            <a onclick="show('maintenance')">🔧 Maintenance</a>
+            <a onclick="show('broadcast')">📢 Broadcast</a>
+            <a onclick="show('sessions')">🔑 Sessions Temp</a>
+            <a onclick="show('changelog')">📝 Changelog</a>
+            <a onclick="show('announce')">📢 Annonce</a>
+        </aside>
+
+        <main class="content">
+            <div id="dashboard" class="section active">
+                <div style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); padding: 2rem; border-radius: 12px; margin-bottom: 2rem; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);">
+                    <h2 style="color: white; margin: 0 0 0.5rem 0;">👑 Bienvenue, Super Admin!</h2>
+                    <p style="font-size: 1.1rem; margin: 0; opacity: 0.95;">Vous avez accès à TOUS les serveurs et toutes les statistiques du bot. Gérez votre bot avec les outils ci-dessous! 🚀</p>
+                </div>
+                
+                <h2>📊 Tableau de Bord</h2>
+                <div class="stat-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="total-servers">-</h3><p>Serveurs</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="total-members">-</h3><p>Membres Total</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3>27</h3><p>Commandes</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3>🟢</h3><p>Bot Status</p></div>
+                </div>
+                
+                <div style="background: rgba(30, 27, 75, 0.4); padding: 1.5rem; border-radius: 8px; border-left: 4px solid #6366f1; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <h3 style="margin-top: 0; color: #fff;">📋 Guide Rapide des Sections</h3>
+                    <ul style="margin: 0; padding-left: 1.5rem; line-height: 1.8; color: #cbd5e1;">
+                        <li><strong>📈 Stats:</strong> Voir vos TOP serveurs, utilisateurs et commandes les plus utilisées</li>
+                        <li><strong>🖥️ Serveurs:</strong> Gérer tous vos serveurs - quitter un serveur, voir les détails</li>
+                        <li><strong>🔧 Maintenance:</strong> Activer/désactiver le mode maintenance avec message personnalisé</li>
+                        <li><strong>📢 Broadcast:</strong> Envoyer un message à TOUS les serveurs en une seule action</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="servers" class="section">
+                <h2>🖥️ Gérer les Serveurs</h2>
+                <p style="color: #999; margin-bottom: 1.5rem;">Cliquez sur une carte pour voir les détails complets</p>
+                <div id="server-list" class="server-grid"><p>Chargement...</p></div>
+            </div>
+            
+            <style>
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            </style>
+
+            <div id="loading-overlay">
+                <div style="text-align: center; color: white;">
+                    <div style="font-size: 4rem; margin-bottom: 1.5rem; animation: spin 1s linear infinite;">⚙️</div>
+                    <h2 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Chargement des données...</h2>
+                    <p style="margin: 1rem 0 0 0; opacity: 0.9; font-size: 1.1rem;">Veuillez patienter</p>
+                </div>
+            </div>
+
+            <div id="server-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                <div style="background: #11141b; color: #e0e0e0; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 id="modal-title">Détails du Serveur</h2>
+                        <button onclick="closeServerModal()" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600;">✕</button>
+                    </div>
+                    <div id="modal-content" style="line-height: 1.8;">Chargement...</div>
+                </div>
+            </div>
+
+            <div id="maintenance-edit-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                <div style="background: #11141b; color: #e0e0e0; padding: 2rem; border-radius: 8px; max-width: 500px; width: 90%; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2>✏️ Modifier Maintenance</h2>
+                        <button onclick="closeEditModal()" style="background: #e74c3c; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600;">✕</button>
+                    </div>
+                    <div class="form-group">
+                        <label>📅 Nouvelle date/heure de fin</label>
+                        <input type="datetime-local" id="edit-maint-datetime" required style="background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                    <div class="form-group">
+                        <label>📝 Message (optionnel)</label>
+                        <textarea id="edit-maint-message" placeholder="Mettre à jour le message..." style="background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.2);"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="saveMaintenance()" class="btn btn-primary" style="flex: 1; background: #10b981;">💾 Sauvegarder</button>
+                        <button onclick="closeEditModal()" style="flex: 1; background: #4a5568; color: white; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">❌ Annuler</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="timeline" class="section">
+                <h2>📅 Timeline des Maintenances</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="timeline-active">0</h3><p>🔴 En cours</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="timeline-scheduled">0</h3><p>🟡 Programmées</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="timeline-completed">0</h3><p>🟢 Terminées</p></div>
+                </div>
+                
+                <h3>🔴 Maintenances en Cours</h3>
+                <div id="timeline-active-list" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);"><p>Aucune maintenance active</p></div>
+                
+                <h3>🟡 Maintenances Programmées</h3>
+                <div id="timeline-scheduled-list" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);"><p>Aucune maintenance programmée</p></div>
+                
+                <h3>🟢 Maintenances Terminées</h3>
+                <div id="timeline-completed-list" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);"><p>Aucune maintenance terminée</p></div>
+            </div>
+
+            <div id="maintenance" class="section">
+                <h2>🔧 Maintenance du Site</h2>
+                
+                <div id="maint-status-alert" style="padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid; font-weight: 600; font-size: 1.1rem; background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <!-- Dynamic status will be inserted here -->
+                </div>
+                
+                <div style="background: rgba(254, 243, 199, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #ffc107; color: #fbbf24; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <p style="margin: 0;"><strong>⚠️ ATTENTION:</strong> Si maintenance ACTIVE, le site sera BLOQUÉ pour tous les utilisateurs!</p>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <!-- Maintenance Immédiate -->
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h3>🔴 Maintenance Immédiate</h3>
+                        <div class="form-group">
+                            <label><input type="radio" name="maint-type" value="immediate" checked> Activer maintenant</label>
+                        </div>
+                        <div class="form-group">
+                            <label>Message affiché aux utilisateurs</label>
+                            <textarea id="maint-message" placeholder="🔧 Le site est en maintenance. Nous revenons bientôt!">🔧 Le site est en maintenance. Nous revenons bientôt!</textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="activateMaintenance('immediate')" style="width: 100%; background: #ef4444;">⛔ ACTIVER MAINTENANCE</button>
+                    </div>
+                    
+                    <!-- Maintenance Programmée -->
+                    <div style="background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <h3>📅 Programmer une Maintenance</h3>
+                        <div class="form-group">
+                            <label><input type="radio" name="maint-type" value="scheduled"> Programmer pour plus tard</label>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>📅 Date de début</label>
+                            <select id="maint-start-date" style="padding: 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; width: 100%; font-size: 0.9rem; background: rgba(0,0,0,0.2); color: white;"></select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>🕐 Heure de début</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <select id="maint-start-hour" style="padding: 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 0.9rem; background: rgba(0,0,0,0.2); color: white;"></select>
+                                <select id="maint-start-min" style="padding: 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 0.9rem; background: rgba(0,0,0,0.2); color: white;"></select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>🕐 Heure de fin (optionnel)</label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                <select id="maint-end-hour" style="padding: 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 0.9rem; background: rgba(0,0,0,0.2); color: white;"><option value="">-- Pas de fin --</option></select>
+                                <select id="maint-end-min" style="padding: 0.7rem; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; font-size: 0.9rem; background: rgba(0,0,0,0.2); color: white;"><option value="">-- Pas de fin --</option></select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="activateMaintenance('scheduled')" style="width: 100%; background: #f39c12;">📅 PROGRAMMER</button>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; padding: 1rem; background: rgba(39, 174, 96, 0.1); border-radius: 8px; border-left: 4px solid #27ae60; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <h3 style="margin-top: 0; color: #2ecc71;">✅ Désactiver la Maintenance</h3>
+                    <p style="color: #cbd5e1;">Quand vous avez terminé, cliquez ici pour remettre le site en ligne:</p>
+                    <button class="btn btn-primary" onclick="deactivateMaintenance()" style="background: #27ae60; width: 100%;">🟢 REMETTRE EN LIGNE</button>
+                </div>
+
+                <div style="margin-top: 3rem; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3>🟡 Maintenances Programmées</h3>
+                    <div id="maint-section-scheduled" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.05);"><p>Chargement...</p></div>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 2rem; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    <h3>📜 Historique des Maintenances</h3>
+                    <div id="maint-section-history" style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid rgba(255,255,255,0.05);"><p>Chargement...</p></div>
+                </div>
+            </div>
+
+            <div id="stats" class="section">
+                <h2>📊 Statistiques de Visites du Site</h2>
+                <div class="stat-grid">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="total-visits">-</h3><p>📈 Visites Totales</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="mobile-visits">-</h3><p>📱 Mobile</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="desktop-visits">-</h3><p>💻 Desktop</p></div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%); border: 1px solid rgba(255,255,255,0.1);"><h3 id="mobile-pct">-</h3><p>📱 % Mobile</p></div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>🌍 Pages Visitées (Top 5)</h3>
+                    <div id="stats-pages" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);"><p>Chargement...</p></div>
+                </div>
+                <div style="margin-top: 2rem;">
+                    <h3>🌐 Pays/IPs (Top 5)</h3>
+                    <div id="stats-countries" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);"><p>Chargement...</p></div>
+                </div>
+            </div>
+
+            <div id="broadcast" class="section">
+                <h2>📢 Broadcast (Tous les Serveurs)</h2>
+                <div style="background: rgba(254, 243, 199, 0.1); padding: 1rem; border-radius: 8px; margin-bottom: 2rem; border-left: 4px solid #ffc107; color: #fbbf24; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <p style="margin: 0;"><strong>⚠️ ATTENTION:</strong> Ce message sera envoyé à TOUS les serveurs Discord gérés par le bot!</p>
+                </div>
+                <div class="form-group">
+                    <label>📌 Titre</label>
+                    <input type="text" id="bc-title" placeholder="Titre du message...">
+                </div>
+                <div class="form-group">
+                    <label>💬 Message</label>
+                    <textarea id="bc-message" placeholder="Votre message pour tous les serveurs..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="sendBC()" style="background: #6366f1;">📤 Envoyer à Tous les Serveurs</button>
+            </div>
+
+            <div id="sessions" class="section">
+                <h2>🔑 Sessions Temporaires</h2>
+                <div style="background: rgba(30, 58, 138, 0.2); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #3b82f6; color: #93c5fd; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <p style="margin: 0;"><strong>ℹ️ INFO:</strong> Génère un ID + Mot de passe temporaire actif après 2 minutes d'attente. Choisis le niveau d'accès avant de générer.</p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 1.2rem; margin-bottom: 1.5rem;">
+                    <p style="margin: 0 0 0.8rem; font-weight: 600; color: #e2e8f0;">🛡️ Niveau d'accès :</p>
+                    <div style="display: flex; gap: 0.8rem; flex-wrap: wrap;">
+                        <label style="flex: 1; min-width: 180px; cursor: pointer;">
+                            <input type="radio" name="perm_level" value="read_only" checked style="accent-color: #3b82f6; margin-right: 0.4rem;">
+                            <span style="color: #93c5fd; font-weight: 600;">👁️ Lecture seule</span>
+                            <div style="color: #64748b; font-size: 0.78rem; margin-left: 1.2rem;">Voit les configs, ne peut rien modifier ni expulser le bot</div>
+                        </label>
+                        <label style="flex: 1; min-width: 180px; cursor: pointer;">
+                            <input type="radio" name="perm_level" value="admin" style="accent-color: #f59e0b; margin-right: 0.4rem;">
+                            <span style="color: #fbbf24; font-weight: 600;">👑 Accès Admin</span>
+                            <div style="color: #64748b; font-size: 0.78rem; margin-left: 1.2rem;">Accès complet identique au propriétaire du bot</div>
+                        </label>
+                    </div>
+                    <button class="btn btn-primary" onclick="generateTempSession()" style="background: linear-gradient(135deg, #3b82f6, #6366f1); width: 100%; margin-top: 1rem;">🔐 Générer une Session</button>
+                </div>
+
+                <div style="margin-bottom: 0.5rem; color: #94a3b8; font-size: 0.85rem;">Sessions actives :</div>
+                <div id="temp-sessions-list" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <p style="color: #64748b; font-style: italic;">Aucune session active</p>
+                </div>
+            </div>
+
+            <!-- ===== SECTION ANNONCE MAINTENANCE ===== -->
+            <div id="announce" class="section">
+                <h2>📢 Annonce de Maintenance</h2>
+
+                <!-- Lien + toggle -->
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.8rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem;">
+                    <div style="display:flex;align-items:center;gap:0.8rem;">
+                        <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-weight:600;color:#e2e8f0;">
+                            <input type="checkbox" id="ann-active" style="width:1.1rem;height:1.1rem;accent-color:#10b981;">
+                            Page visible publiquement
+                        </label>
+                    </div>
+                    <a href="/maintenance-annonce" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(99,102,241,0.15);border:1px solid rgba(99,102,241,0.35);color:#a5b4fc;text-decoration:none;padding:0.4rem 0.9rem;border-radius:7px;font-size:0.85rem;font-weight:600;">🔗 Voir la page</a>
+                </div>
+
+                <!-- Titre + Date -->
+                <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1rem;">
+                    <div style="flex:2;min-width:200px;">
+                        <label style="color:#94a3b8;font-size:0.8rem;display:block;margin-bottom:0.3rem;">Titre de la page</label>
+                        <input type="text" id="ann-title" placeholder="📢 Maintenance à venir – Miaoucle Bot" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.9rem;color:#e2e8f0;font-size:0.92rem;">
+                    </div>
+                    <div style="flex:1;min-width:160px;">
+                        <label style="color:#94a3b8;font-size:0.8rem;display:block;margin-bottom:0.3rem;">📅 Date de début prévue</label>
+                        <input type="text" id="ann-start-date" placeholder="ex: 1er juillet 2025 à 22h" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.9rem;color:#e2e8f0;font-size:0.92rem;">
+                    </div>
+                </div>
+
+                <!-- Intro -->
+                <div style="margin-bottom:1rem;">
+                    <label style="color:#94a3b8;font-size:0.8rem;display:block;margin-bottom:0.3rem;">Introduction</label>
+                    <textarea id="ann-intro" rows="2" placeholder="Une maintenance importante est prévue prochainement..." style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.9rem;color:#e2e8f0;font-size:0.92rem;resize:vertical;"></textarea>
+                </div>
+
+                <!-- Sections éditables -->
+                <div style="margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-weight:700;color:#a5b4fc;font-size:0.95rem;">📋 Sections</span>
+                    <button onclick="addAnnounceSection()" style="background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:0.35rem 0.9rem;border-radius:7px;cursor:pointer;font-size:0.82rem;font-weight:700;">➕ Ajouter une section</button>
+                </div>
+                <div id="ann-sections-container" style="display:flex;flex-direction:column;gap:0.8rem;margin-bottom:1rem;"></div>
+
+                <!-- Warning + footer -->
+                <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+                    <div style="flex:2;min-width:200px;">
+                        <label style="color:#94a3b8;font-size:0.8rem;display:block;margin-bottom:0.3rem;">⚠️ Message d'avertissement</label>
+                        <textarea id="ann-warning" rows="2" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.9rem;color:#e2e8f0;font-size:0.88rem;resize:vertical;"></textarea>
+                    </div>
+                    <div style="flex:1;min-width:160px;">
+                        <label style="color:#94a3b8;font-size:0.8rem;display:block;margin-bottom:0.3rem;">Pied de page</label>
+                        <input type="text" id="ann-footer" placeholder="— L'équipe de Miaoucle Bot 🐾" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem 0.9rem;color:#e2e8f0;font-size:0.88rem;">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveAnnounce()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);width:100%;font-size:1rem;padding:0.75rem;">💾 Enregistrer l'annonce</button>
+            </div>
+
+            <!-- ===== SECTION ABONNEMENTS PREMIUM ===== -->
+            <div id="premium-subs" class="section">
+                <h2>💎 Abonnements Premium</h2>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                    <div class="stat-card" style="background:linear-gradient(135deg,#78350f,#92400e);border:1px solid rgba(255,255,255,0.1);"><h3 id="ps-count-active">—</h3><p>🟢 Actifs</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#1e1b4b,#312e81);border:1px solid rgba(255,255,255,0.1);"><h3 id="ps-count-total">—</h3><p>📋 Total</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#7f1d1d,#991b1b);border:1px solid rgba(255,255,255,0.1);"><h3 id="ps-count-expired">—</h3><p>🔴 Expirés</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#713f12,#92400e);border:1px solid rgba(255,255,255,0.1);"><h3 id="ps-count-late">—</h3><p>⚠️ En retard</p></div>
+                    <div class="stat-card" style="background:linear-gradient(135deg,#134e4a,#065f46);border:1px solid rgba(255,255,255,0.1);"><h3 id="ps-count-cancelled">—</h3><p>❌ Annulés</p></div>
+                </div>
+
+                <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center;">
+                    <input type="text" id="ps-search" placeholder="🔍 Rechercher (ID serveur, ID user…)" oninput="filterPremiumSubs()" style="flex:1;min-width:200px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                    <select id="ps-filter-status" onchange="filterPremiumSubs()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                        <option value="">Tous les statuts</option>
+                        <option value="active">🟢 Actif</option>
+                        <option value="expired">🔴 Expiré</option>
+                        <option value="late">⚠️ En retard</option>
+                        <option value="cancelled">❌ Annulé</option>
+                        <option value="free_gift">🎁 Offert</option>
+                    </select>
+                    <select id="ps-filter-tier" onchange="filterPremiumSubs()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                        <option value="">Tous les plans</option>
+                        <option value="premium">💎 Premium</option>
+                        <option value="premium_plus">👑 Premium+</option>
+                    </select>
+                    <button onclick="loadPremiumSubs()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:8px;padding:0.55rem 1rem;cursor:pointer;font-weight:600;font-size:0.9rem;">🔄 Rafraîchir</button>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table id="ps-table" style="width:100%;border-collapse:collapse;font-size:0.87rem;">
+                        <thead>
+                            <tr style="background:rgba(255,255,255,0.07);text-align:left;">
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Statut</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">ID Serveur</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">ID Utilisateur</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Formule</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Paiement</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Période</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Depuis</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Expire</th>
+                                <th style="padding:0.7rem 0.9rem;color:#94a3b8;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ps-table-body">
+                            <tr><td colspan="9" style="padding:2rem;text-align:center;color:#64748b;font-style:italic;">Chargement…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="ps-empty" style="display:none;text-align:center;padding:3rem;color:#64748b;font-style:italic;">Aucun abonnement trouvé.</div>
+            </div>
+
+            <!-- ===== SECTION PAIEMENTS & PROMOTIONS ===== -->
+            <div id="payments" class="section">
+                <h2>💳 Paiements & promotions</h2>
+                <p style="color:#94a3b8;margin:0.4rem 0 1.5rem;">
+                    Bloque un moyen de paiement ou désactive un plan sans modifier les clés Stripe/PayPal.
+                    Les contrôles sont aussi appliqués côté serveur.
+                </p>
+
+                <div style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:12px;padding:1.3rem 1.4rem;margin-bottom:1.4rem;">
+                    <h3 style="margin:0 0 1rem;color:#93c5fd;">⚙️ Disponibilité des ventes</h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0.8rem;">
+                        <label style="display:flex;align-items:center;gap:0.7rem;background:rgba(255,255,255,0.05);border-radius:9px;padding:0.9rem;cursor:pointer;">
+                            <input type="checkbox" id="pay-setting-stripe" style="width:1.1rem;height:1.1rem;accent-color:#6366f1;">
+                            <span>💳 Paiement par carte (Stripe)</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.7rem;background:rgba(255,255,255,0.05);border-radius:9px;padding:0.9rem;cursor:pointer;">
+                            <input type="checkbox" id="pay-setting-paypal" style="width:1.1rem;height:1.1rem;accent-color:#fbbf24;">
+                            <span>🅿️ Paiement PayPal</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.7rem;background:rgba(255,255,255,0.05);border-radius:9px;padding:0.9rem;cursor:pointer;">
+                            <input type="checkbox" id="pay-setting-premium" style="width:1.1rem;height:1.1rem;accent-color:#fbbf24;">
+                            <span>💎 Plan Premium</span>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:0.7rem;background:rgba(255,255,255,0.05);border-radius:9px;padding:0.9rem;cursor:pointer;">
+                            <input type="checkbox" id="pay-setting-premium-plus" style="width:1.1rem;height:1.1rem;accent-color:#c4b5fd;">
+                            <span>👑 Plan Premium+</span>
+                        </label>
+                    </div>
+                    <p id="payment-settings-status" style="min-height:1.2rem;color:#94a3b8;font-size:0.85rem;margin:0.9rem 0 0;"></p>
+                    <button onclick="savePaymentSettings()" style="margin-top:0.9rem;background:linear-gradient(135deg,#2563eb,#4f46e5);color:#fff;border:none;border-radius:8px;padding:0.65rem 1.1rem;cursor:pointer;font-weight:700;">💾 Enregistrer les réglages</button>
+                </div>
+
+                <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.28);border-radius:12px;padding:1.3rem 1.4rem;">
+                    <h3 style="margin:0 0 0.35rem;color:#fbbf24;">🏷️ Promotion et compte à rebours</h3>
+                    <p style="color:#cbd5e1;font-size:0.86rem;margin:0 0 1rem;">La date de fin est saisie en UTC. Le prix est appliqué aux combinaisons plan/période sélectionnées.</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.8rem;">
+                        <label>Plan
+                            <select id="promo-admin-plan" style="width:100%;margin-top:0.35rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem;color:#e2e8f0;">
+                                <option value="all">💎👑 Les deux</option>
+                                <option value="premium">💎 Premium</option>
+                                <option value="premium_plus">👑 Premium+</option>
+                            </select>
+                        </label>
+                        <label>Période
+                            <select id="promo-admin-billing" style="width:100%;margin-top:0.35rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem;color:#e2e8f0;">
+                                <option value="all">Mensuel + annuel</option>
+                                <option value="monthly">Mensuel</option>
+                                <option value="yearly">Annuel</option>
+                            </select>
+                        </label>
+                        <label>Prix promo (€)
+                            <input id="promo-admin-price" type="number" min="0.01" step="0.01" placeholder="1.99" style="width:100%;margin-top:0.35rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem;color:#e2e8f0;">
+                        </label>
+                        <label>Fin (UTC)
+                            <input id="promo-admin-end" type="datetime-local" style="width:100%;margin-top:0.35rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem;color:#e2e8f0;">
+                        </label>
+                    </div>
+                    <label style="display:block;margin-top:0.8rem;">Libellé
+                        <input id="promo-admin-label" type="text" placeholder="🎉 Offre spéciale" style="width:100%;margin-top:0.35rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.6rem;color:#e2e8f0;">
+                    </label>
+                    <div id="promo-admin-current" style="margin-top:1rem;color:#fcd34d;font-weight:700;"></div>
+                    <div style="display:flex;gap:0.7rem;flex-wrap:wrap;margin-top:1rem;">
+                        <button onclick="saveAdminPromo()" style="background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;border:none;border-radius:8px;padding:0.65rem 1.1rem;cursor:pointer;font-weight:700;">🚀 Activer la promotion</button>
+                        <button onclick="disableAdminPromo()" style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.35);border-radius:8px;padding:0.65rem 1.1rem;cursor:pointer;font-weight:700;">⛔ Désactiver</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== SECTION CHANGELOG ===== -->
+            <div id="changelog" class="section">
+                <h2>📝 Éditeur de Changelog</h2>
+
+                <!-- Créer une nouvelle version -->
+                <div style="background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;">
+                    <p style="margin:0 0 0.8rem;font-weight:700;color:#a5b4fc;font-size:0.95rem;">➕ Créer une nouvelle version</p>
+                    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+                        <input type="text" id="cl-new-version" placeholder="v13.10.0" style="flex:1;min-width:120px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                        <input type="text" id="cl-new-date" placeholder="Juillet 2025" style="flex:1;min-width:120px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                        <button class="btn btn-primary" onclick="createChangelogVersion()" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);white-space:nowrap;">📌 Créer la version</button>
+                    </div>
+                </div>
+
+                <!-- Ajouter une entrée -->
+                <div style="background:rgba(16,185,129,0.07);border:1px solid rgba(16,185,129,0.25);border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1.5rem;">
+                    <p style="margin:0 0 0.8rem;font-weight:700;color:#6ee7b7;font-size:0.95rem;">✏️ Ajouter une entrée (dans la version la plus récente)</p>
+                    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;margin-bottom:0.7rem;">
+                        <select id="cl-tag" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;min-width:130px;">
+                            <option value="BOT">🤖 BOT</option>
+                            <option value="FEATURE">✨ FEATURE</option>
+                            <option value="SITE">🌐 SITE</option>
+                            <option value="FIX">🔧 FIX</option>
+                        </select>
+                        <input type="text" id="cl-title" placeholder="Titre de la mise à jour" style="flex:2;min-width:200px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                    </div>
+                    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;">
+                        <input type="text" id="cl-desc" placeholder="Description courte (optionnelle)" style="flex:1;min-width:200px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:0.55rem 0.9rem;color:#e2e8f0;font-size:0.9rem;">
+                        <button class="btn btn-primary" onclick="addChangelogEntry()" style="background:linear-gradient(135deg,#10b981,#059669);white-space:nowrap;">➕ Ajouter l'entrée</button>
+                    </div>
+                </div>
+
+                <!-- Liste des entrées -->
+                <div id="changelog-list" style="display:flex;flex-direction:column;gap:0;">
+                    <p style="color:#64748b;font-style:italic;">Chargement...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        async function loadServers() {
+            try {
+                const res = await fetch('/api/admin/servers', { credentials: 'include' });
+                const servers = await res.json();
+                if (!Array.isArray(servers)) servers = [];
+                
+                // AFFICHER TOUS LES SERVEURS (pas de filtre)
+                document.getElementById('total-servers').textContent = servers.length;
+                
+                // Calculer le nombre total de membres
+                const totalMembers = servers.reduce((sum, s) => sum + (s.members || 0), 0);
+                document.getElementById('total-members').textContent = totalMembers.toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' });
+                
+                const list = document.getElementById('server-list');
+                if (servers.length === 0) {
+                    list.innerHTML = '<p>Aucun serveur configuré</p>';
+                    return;
+                }
+                
+                list.innerHTML = servers.map(s => `
+                    <div class="server-card" onclick="showServerDetails('${s.id}', '${s.name}', ${s.members || 0}, '${s.owner_id || 'N/A'}', '${s.owner_name || 'Inconnu'}')">
+                        <h3>🐱 ${s.name}</h3>
+                        <div class="server-info">
+                            <div>🆔 ID: <code>${s.id}</code></div>
+                            <div>👥 Membres: <strong>${(s.members || 0).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</strong></div>
+                            <div>👑 Owner: <strong>${s.owner_name || 'Inconnu'}</strong></div>
+                            <div style="cursor: pointer; color: #667eea; margin-top: 0.5rem;">👆 Cliquez pour plus d'infos</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Erreur:', e);
+                document.getElementById('server-list').innerHTML = '<p style="color: red;">Erreur lors du chargement</p>';
+            }
+        }
+        
+        async function showServerDetails(id, name, members, ownerId, ownerName) {
+            try {
+                const loader = document.getElementById('loading-overlay');
+                const modal = document.getElementById('server-modal');
+                const title = document.getElementById('modal-title');
+                const content = document.getElementById('modal-content');
+                
+                if (!loader || !modal) {
+                    console.error('❌ Elements NOT FOUND!');
+                    return;
+                }
+                
+                // ✅ Montrer le loading overlay - ULTRA RAPIDE
+                loader.style.visibility = 'visible';
+                
+                // Délai MINIMAL (100ms - juste assez pour voir l'animation)
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // Remplir la modal
+                title.textContent = `📊 ${name}`;
+                content.innerHTML = `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem 1.8rem; border-radius: 10px; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 1rem;">
+                    <div style="width: 48px; height: 48px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">🐱</div>
+                    <div>
+                        <div style="font-size: 1.25rem; font-weight: 700; line-height: 1.2;">${name}</div>
+                        <div style="font-size: 0.8rem; opacity: 0.85; margin-top: 2px;">Panneau d'administration</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+                    <div style="background: #f0f4ff; border: 1px solid #d0d9ff; border-radius: 10px; padding: 1rem 1.2rem;">
+                        <div style="font-size: 0.72rem; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">👥 Membres</div>
+                        <div style="font-size: 1.8rem; font-weight: 800; color: #3730a3; line-height: 1;">${(members || 0).toLocaleString('fr-FR')}</div>
+                    </div>
+                    <div style="background: #fff4f4; border: 1px solid #ffd0d0; border-radius: 10px; padding: 1rem 1.2rem;">
+                        <div style="font-size: 0.72rem; font-weight: 600; color: #e11d48; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem;">👑 Propriétaire</div>
+                        <div style="font-size: 1.1rem; font-weight: 700; color: #be123c; line-height: 1.2; margin-bottom: 0.2rem;">${ownerName || 'Inconnu'}</div>
+                        <div style="font-size: 0.7rem; color: #9ca3af; font-family: monospace;">${ownerId}</div>
+                    </div>
+                </div>
+
+                <div style="background: #f8f9fa; border: 1px solid #e5e7eb; border-radius: 10px; padding: 0.9rem 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem;">
+                    <span style="font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap;">🆔 ID</span>
+                    <code style="font-family: monospace; font-size: 0.85rem; color: #374151; background: white; border: 1px solid #e5e7eb; padding: 0.3rem 0.6rem; border-radius: 6px; word-break: break-all;">${id}</code>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 0.2rem;">
+                    <a href="https://discord.com/channels/${id}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #5865f2; color: white; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: opacity 0.15s;">🔗 Ouvrir Serveur</a>
+                    <a href="https://discord.com/api/oauth2/authorize?client_id=1157699815833088001&permissions=8&scope=bot&guild_id=${id}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #16a34a; color: white; padding: 0.75rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">📩 Ajouter Bot</a>
+                    <button onclick="leaveServer('${id}')" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: #dc2626; color: white; padding: 0.75rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem; width: 100%;">❌ Quitter ce Serveur</button>
+                </div>
+            `;
+            
+                // ✅ Cacher le loading et afficher la modal
+                loader.style.visibility = 'hidden';
+                modal.style.display = 'flex';
+                console.log('✅ Modal VISIBLE');
+            } catch (error) {
+                console.error('❌ ERROR:', error);
+            }
+        }
+        
+        function closeServerModal() {
+            document.getElementById('server-modal').style.display = 'none';
+        }
+        
+        document.getElementById('server-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'server-modal') closeServerModal();
+        });
+
+        function show(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.menu a').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+            if (id === 'stats') loadStats();
+            if (id === 'maintenance') loadMaintenanceSection();
+            if (id === 'sessions') loadTempSessions();
+            if (id === 'changelog') loadChangelog();
+            if (id === 'announce') loadAnnounce();
+            if (id === 'premium-subs') loadPremiumSubs();
+            if (id === 'payments') {
+                loadPaymentSettings();
+                loadAdminPromo();
+            }
+            if (id === 'timeline') {
+                loadTimeline();
+                startTimelineAutoRefresh();
+            } else {
+                stopTimelineAutoRefresh();
+            }
+        }
+
+        let adminPromoCountdownInterval = null;
+
+        async function loadPaymentSettings() {
+            const status = document.getElementById('payment-settings-status');
+            try {
+                const res = await fetch('/api/admin/payment-settings', { credentials: 'include' });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Accès refusé');
+                const settings = data.settings || {};
+                const providers = settings.providers || {};
+                const plans = settings.plans || {};
+                document.getElementById('pay-setting-stripe').checked = providers.stripe !== false;
+                document.getElementById('pay-setting-paypal').checked = providers.paypal !== false;
+                document.getElementById('pay-setting-premium').checked = plans.premium !== false;
+                document.getElementById('pay-setting-premium-plus').checked = plans.premium_plus !== false;
+                const configured = data.configured || {};
+                status.textContent = `Configuré : carte ${configured.stripe ? 'oui' : 'non'} · PayPal ${configured.paypal ? 'oui' : 'non'}`;
+                status.style.color = '#94a3b8';
+            } catch (e) {
+                status.textContent = '❌ ' + e.message;
+                status.style.color = '#fca5a5';
+            }
+        }
+
+        async function savePaymentSettings() {
+            const status = document.getElementById('payment-settings-status');
+            const payload = {
+                providers: {
+                    stripe: document.getElementById('pay-setting-stripe').checked,
+                    paypal: document.getElementById('pay-setting-paypal').checked,
+                },
+                plans: {
+                    premium: document.getElementById('pay-setting-premium').checked,
+                    premium_plus: document.getElementById('pay-setting-premium-plus').checked,
+                },
+            };
+            try {
+                const res = await fetch('/api/admin/payment-settings', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur de sauvegarde');
+                status.textContent = '✅ Réglages enregistrés. Les nouveaux checkouts suivent ces choix.';
+                status.style.color = '#6ee7b7';
+            } catch (e) {
+                status.textContent = '❌ ' + e.message;
+                status.style.color = '#fca5a5';
+            }
+        }
+
+        function promoUtcInputValue(iso) {
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return '';
+            const p = n => String(n).padStart(2, '0');
+            return `${d.getUTCFullYear()}-${p(d.getUTCMonth() + 1)}-${p(d.getUTCDate())}T${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
+        }
+
+        function renderAdminPromo(promo) {
+            const current = document.getElementById('promo-admin-current');
+            if (adminPromoCountdownInterval) clearInterval(adminPromoCountdownInterval);
+            if (!promo || !promo.active || !promo.end_time) {
+                current.textContent = 'Aucune promotion active.';
+                return;
+            }
+            document.getElementById('promo-admin-label').value = promo.label || '';
+            document.getElementById('promo-admin-end').value = promoUtcInputValue(promo.end_time);
+            const first = (promo.items || [])[0];
+            if (first) {
+                document.getElementById('promo-admin-plan').value =
+                    (promo.items || []).some(i => i.plan === 'premium') &&
+                    (promo.items || []).some(i => i.plan === 'premium_plus') ? 'all' : first.plan;
+                document.getElementById('promo-admin-billing').value =
+                    (promo.items || []).some(i => i.billing === 'monthly') &&
+                    (promo.items || []).some(i => i.billing === 'yearly') ? 'all' : first.billing;
+                document.getElementById('promo-admin-price').value = (first.promo_cents / 100).toFixed(2);
+            }
+            const endMs = new Date(promo.end_time).getTime();
+            const tick = () => {
+                const left = Math.max(0, endMs - Date.now());
+                if (!left) {
+                    current.textContent = '⏰ Promotion terminée.';
+                    clearInterval(adminPromoCountdownInterval);
+                    return;
+                }
+                const seconds = Math.floor(left / 1000);
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                current.textContent = `✅ ${promo.label || 'Promotion'} · reste ${days}j ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+            };
+            tick();
+            adminPromoCountdownInterval = setInterval(tick, 1000);
+        }
+
+        async function loadAdminPromo() {
+            try {
+                const res = await fetch('/api/admin/promo', { credentials: 'include' });
+                const promo = await res.json();
+                if (!res.ok) throw new Error(promo.error || 'Erreur de chargement');
+                renderAdminPromo(promo);
+            } catch (e) {
+                document.getElementById('promo-admin-current').textContent = '❌ ' + e.message;
+            }
+        }
+
+        async function saveAdminPromo() {
+            const endInput = document.getElementById('promo-admin-end').value;
+            if (!endInput) {
+                await showAlert('Choisis une date de fin en UTC.');
+                return;
+            }
+            const endDate = new Date(endInput + ':00Z');
+            if (Number.isNaN(endDate.getTime())) {
+                await showAlert('La date de fin est invalide.');
+                return;
+            }
+            const payload = {
+                plan: document.getElementById('promo-admin-plan').value,
+                billing: document.getElementById('promo-admin-billing').value,
+                promo_price: document.getElementById('promo-admin-price').value,
+                end_time: endDate.toISOString(),
+                label: document.getElementById('promo-admin-label').value,
+            };
+            try {
+                const res = await fetch('/api/admin/promo', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur de sauvegarde');
+                renderAdminPromo(data.promo);
+                await showAlert('✅ Promotion activée avec succès.');
+            } catch (e) {
+                await showAlert('❌ ' + e.message);
+            }
+        }
+
+        async function disableAdminPromo() {
+            try {
+                const res = await fetch('/api/admin/promo', {
+                    method: 'DELETE',
+                    credentials: 'include',
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Erreur');
+                renderAdminPromo(data);
+            } catch (e) {
+                await showAlert('❌ ' + e.message);
+            }
+        }
+        
+        let timelineInterval = null;
+        
+        async function loadTimeline() {
+            try {
+                const res = await fetch('/api/admin/maintenance-timeline', { credentials: 'include' });
+                const data = await res.json();
+                _timelineData = data;
+                
+                document.getElementById('timeline-active').textContent = (data.active || []).length;
+                document.getElementById('timeline-scheduled').textContent = (data.scheduled || []).length;
+                document.getElementById('timeline-completed').textContent = (data.completed || []).length;
+                
+                // Actives
+                document.getElementById('timeline-active-list').innerHTML = (data.active || []).length > 0 
+                    ? (data.active || []).map((m) => `<div style="padding: 1rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;"><div><strong>🔴 ${linkify(m.message)}</strong><br><small>Début: ${new Date(m.start_time).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</small></div><div style="gap: 0.5rem; display: flex;"><button onclick="openEditModal(${m._history_idx}, 'active')" style="background: #f39c12; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">✏️ Modifier</button><button onclick="markMaintenance(${m._history_idx}, 'active')" style="background: #27ae60; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">✅ Terminer</button><button onclick="deleteMaintenance(${m._history_idx}, 'active', this)" style="background: #e74c3c; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">🗑️ Supp</button></div></div>`).join('')
+                    : '<p>Aucune maintenance active</p>';
+                
+                // Programmées
+                document.getElementById('timeline-scheduled-list').innerHTML = (data.scheduled || []).length > 0
+                    ? (data.scheduled || []).map((m) => `<div style="padding: 1rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;"><div><strong>🟡 ${linkify(m.message)}</strong><br><small>Programmée: ${new Date(m.scheduled_time).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</small></div><div style="gap: 0.5rem; display: flex;"><button onclick="openEditModal(${m._history_idx}, 'scheduled')" style="background: #f39c12; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">✏️ Modifier</button><button onclick="markMaintenance(${m._history_idx}, 'scheduled')" style="background: #27ae60; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">✅ Lancer</button><button onclick="deleteMaintenance(${m._history_idx}, 'scheduled', this)" style="background: #e74c3c; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">🗑️ Supp</button></div></div>`).join('')
+                    : '<p>Aucune maintenance programmée</p>';
+                
+                // Terminées
+                document.getElementById('timeline-completed-list').innerHTML = (data.completed || []).length > 0
+                    ? (data.completed || []).map((m) => `<div style="padding: 1rem; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;"><div><strong>✅ ${linkify(m.message)}</strong><br><small>Durée: ${m.end_actual ? Math.round((new Date(m.end_actual) - new Date(m.start_time)) / 60000) + ' min' : 'N/A'}</small></div><div><button onclick="deleteMaintenance(${m._history_idx}, 'completed', this)" style="background: #e74c3c; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">🗑️ Supp</button></div></div>`).join('')
+                    : '<p>Aucune maintenance terminée</p>';
+            } catch (e) {
+                console.error('Erreur timeline:', e);
+            }
+        }
+        
+        function startTimelineAutoRefresh() {
+            // Arrête l'intervalle précédent s'il existe
+            if (timelineInterval) clearInterval(timelineInterval);
+            // Recharger chaque 3 secondes
+            timelineInterval = setInterval(loadTimeline, 3000);
+        }
+        
+        function stopTimelineAutoRefresh() {
+            if (timelineInterval) clearInterval(timelineInterval);
+        }
+
+        let currentEditIndex = -1;
+        let currentEditType = '';
+        let _timelineData = { active: [], scheduled: [], completed: [] };
+
+        function openEditModal(index, type) {
+            currentEditIndex = index;
+            currentEditType = type || 'scheduled';
+            const list = _timelineData[type] || [];
+            const m = list[index];
+            if (!m) return;
+            document.getElementById('edit-maint-message').value = m.message || '';
+            let datetime = '';
+            if (type === 'scheduled') {
+                datetime = m.scheduled_time ? new Date(m.scheduled_time).toISOString().slice(0, 16) : '';
+            } else {
+                datetime = m.end_time ? new Date(m.end_time).toISOString().slice(0, 16) : '';
+            }
+            document.getElementById('edit-maint-datetime').value = datetime;
+            document.getElementById('maintenance-edit-modal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('maintenance-edit-modal').style.display = 'none';
+        }
+
+        async function saveMaintenance() {
+            const newDatetime = document.getElementById('edit-maint-datetime').value;
+            const newMessage = document.getElementById('edit-maint-message').value;
+            
+            if (!newDatetime) {
+                await showAlert('❌ Veuillez entrer une date/heure');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/admin/maintenance/update`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        index: currentEditIndex,
+                        type: currentEditType,
+                        datetime: new Date(newDatetime).toISOString(),
+                        message: newMessage
+                    })
+                });
+                if (res.ok) {
+                    closeEditModal();
+                    loadTimeline();
+                } else {
+                    await showAlert('❌ Erreur lors de la modification');
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function loadMaintenanceSection() {
+            try {
+                const res = await fetch('/api/admin/maintenance-timeline', { credentials: 'include' });
+                const data = await res.json();
+                
+                // Maintenances programmées
+                const scheduledHTML = (data.scheduled || []).length > 0
+                    ? (data.scheduled || []).map(m => `<div style="padding: 1rem; border-left: 4px solid #f39c12; background: white; margin-bottom: 1rem; border-radius: 4px;"><strong>🟡 ${linkify(m.message)}</strong><br><small>📅 ${new Date(m.scheduled_time).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</small></div>`).join('')
+                    : '<p style="color: #999;">Aucune maintenance programmée</p>';
+                document.getElementById('maint-section-scheduled').innerHTML = scheduledHTML;
+                
+                // Historique (actives + terminées)
+                const history = [...(data.active || []), ...(data.completed || [])].sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
+                const historyHTML = history.length > 0
+                    ? history.map(m => {
+                        const status = m.status === 'completed' ? '✅' : '🔴';
+                        const duration = m.end_actual ? Math.round((new Date(m.end_actual) - new Date(m.start_time)) / 60000) + ' min' : 'En cours';
+                        return `<div style="padding: 1rem; border-left: 4px solid ${m.status === 'completed' ? '#27ae60' : '#e74c3c'}; background: white; margin-bottom: 1rem; border-radius: 4px;"><strong>${status} ${linkify(m.message)}</strong><br><small>⏰ ${new Date(m.start_time).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })} - ${duration}</small></div>`;
+                    }).join('')
+                    : '<p style="color: #999;">Aucune maintenance dans l\'historique</p>';
+                document.getElementById('maint-section-history').innerHTML = historyHTML;
+            } catch (e) {
+                console.error('Erreur:', e);
+                document.getElementById('maint-section-scheduled').innerHTML = '<p style="color: red;">❌ Erreur de chargement</p>';
+                document.getElementById('maint-section-history').innerHTML = '<p style="color: red;">❌ Erreur de chargement</p>';
+            }
+        }
+
+        async function markMaintenance(index, type) {
+            const label = type === 'scheduled' ? 'lancer' : 'terminer';
+            if (!await showConfirm(`Êtes-vous sûr de vouloir ${label} cette maintenance ?`)) return;
+            try {
+                const res = await fetch(`/api/admin/maintenance/mark-complete`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, index })
+                });
+                if (res.ok) {
+                    loadTimeline();
+                } else {
+                    await showAlert('❌ Erreur: Impossible d\'effectuer cette action');
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function deleteMaintenance(index, type, btn) {
+            if (!await showConfirm('Supprimer cette maintenance ?')) return;
+            
+            const parent = btn ? btn.closest('div[style]') : null;
+            if (parent) {
+                parent.style.opacity = '0.5';
+                parent.style.pointerEvents = 'none';
+            }
+            
+            try {
+                const res = await fetch(`/api/admin/maintenance/delete`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, index })
+                });
+                if (res.ok) {
+                    loadTimeline();
+                } else {
+                    if (parent) {
+                        parent.style.opacity = '1';
+                        parent.style.pointerEvents = 'auto';
+                    }
+                    await showAlert('❌ Erreur: Impossible de supprimer');
+                }
+            } catch (e) {
+                if (parent) {
+                    parent.style.opacity = '1';
+                    parent.style.pointerEvents = 'auto';
+                }
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        function parseDate(dateStr) {
+            // Format: JJ/MM/YYYY HH:MM
+            const match = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4})\s+(\d{2}):(\d{2})/);
+            if (!match) return null;
+            const [_, dd, mm, yyyy, hh, min] = match;
+            return new Date(yyyy, mm - 1, dd, hh, min, 0);
+        }
+
+        async function activateMaintenance(type) {
+            const message = document.getElementById('maint-message').value;
+            
+            if (type === 'immediate') {
+                // Immediate maintenance: starts now, needs end time from dropdowns
+                const endHour = document.getElementById('maint-end-hour').value || '12';
+                const endMin = document.getElementById('maint-end-min').value || '00';
+                const today = new Date();
+                const endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(endHour), parseInt(endMin), 0);
+                
+                if (endTime <= today) {
+                    await showAlert('❌ L\'heure de fin doit être APRÈS maintenant!');
+                    return;
+                }
+                
+                if (!await showConfirm('⚠️ ATTENTION! Vous allez BLOQUER le site pour TOUS les utilisateurs jusqu\'à ' + endTime.toLocaleString('fr-FR') + '!')) return;
+                try {
+                    const res = await fetch('/api/admin/maintenance', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            active: true,
+                            message: message,
+                            end_time: endTime.toISOString()
+                        })
+                    });
+                    if (res.ok) {
+                        await showAlert('🔴 LE SITE EST MAINTENANT EN MAINTENANCE!');
+                        location.reload();
+                    } else {
+                        const responseData = await res.json();
+                        await showAlert('❌ Erreur: ' + (responseData.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    await showAlert('❌ Erreur: ' + e.message);
+                }
+            } else if (type === 'scheduled') {
+                const startDate = document.getElementById('maint-start-date').value;
+                const startHour = document.getElementById('maint-start-hour').value;
+                const startMin = document.getElementById('maint-start-min').value;
+                const endHour = document.getElementById('maint-end-hour').value;
+                const endMin = document.getElementById('maint-end-min').value;
+                
+                if (!startDate || !startHour || !startMin) {
+                    await showAlert('❌ Veuillez sélectionner la date et heure de DÉBUT');
+                    return;
+                }
+                
+                const [year, month, day] = startDate.split('-');
+                const startTime = new Date(year, month - 1, day, startHour, startMin, 0);
+
+                if (startTime <= new Date()) {
+                    await showAlert('❌ L\'heure de début doit être dans le FUTUR!\n\nVérifie la date et l\'heure sélectionnées.');
+                    return;
+                }
+                
+                let endTime = null;
+                if (endHour && endMin) {
+                    endTime = new Date(year, month - 1, day, endHour, endMin, 0);
+                    if (endTime <= startTime) {
+                        await showAlert('❌ L\'heure de fin doit être APRÈS l\'heure de début!');
+                        return;
+                    }
+                }
+                
+                try {
+                    const res = await fetch('/api/admin/maintenance', {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            scheduled: true,
+                            scheduled_time: startTime.toISOString(),
+                            message: message,
+                            end_time: endTime ? endTime.toISOString() : null
+                        })
+                    });
+                    if (res.ok) {
+                        await showAlert('📅 Maintenance programmée avec succès!\n✅ Elle se lancera automatiquement à l\'heure prévue');
+                        loadTimeline();
+                        document.getElementById('maint-message').value = '';
+                    } else {
+                        const responseData = await res.json();
+                        await showAlert('❌ Erreur: ' + (responseData.error || 'Unknown error'));
+                    }
+                } catch (e) {
+                    await showAlert('❌ Erreur: ' + e.message);
+                }
+            }
+        }
+        
+        async function deactivateMaintenance() {
+            if (!await showConfirm('✅ Remettre le site en ligne?')) return;
+            try {
+                const res = await fetch('/api/admin/maintenance', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        active: false,
+                        scheduled: false
+                    })
+                });
+                if (res.ok) {
+                    await showAlert('🟢 Le site est de nouveau DISPONIBLE!');
+                    location.reload();
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function sendBC() {
+            const title = document.getElementById('bc-title').value;
+            const msg = document.getElementById('bc-message').value;
+            if (!title || !msg) { 
+                await showAlert('❌ Veuillez remplir le titre ET le message'); 
+                return; 
+            }
+            try {
+                const res = await fetch('/api/admin/broadcast', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, message: msg })
+                });
+                if (res.ok) {
+                    await showAlert('✅ Broadcast envoyé à tous les serveurs!');
+                    document.getElementById('bc-title').value = '';
+                    document.getElementById('bc-message').value = '';
+                } else {
+                    await showAlert('❌ Erreur lors de l\'envoi du broadcast');
+                }
+            } catch (e) {
+                console.error('Erreur:', e);
+                await showAlert('❌ Erreur de connexion');
+            }
+        }
+
+        async function leaveServer(id) {
+            if (!await showConfirm('⚠️ Êtes-vous sûr? Le bot va quitter ce serveur!')) return;
+            try {
+                const res = await fetch(`/api/admin/leave-server/${id}`, { method: 'POST', credentials: 'include' });
+                if (res.ok) {
+                    await showAlert('✅ Le bot a quitté le serveur!');
+                    closeServerModal();
+                    loadServers();
+                } else {
+                    await showAlert('❌ Erreur lors du départ');
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        let sessionCountdownInterval = null;
+
+        async function generateTempSession() {
+            const permInput = document.querySelector('input[name="perm_level"]:checked');
+            const permission = permInput ? permInput.value : 'read_only';
+            try {
+                const res = await fetch('/api/admin/temp-session', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ permission })
+                });
+                const data = await res.json();
+                if (data.session_id) {
+                    const loginUrl = window.location.origin + '/temp-login';
+                    const permLabel = permission === 'admin' ? '👑 Admin' : '👁️ Lecture seule';
+                    showSessionModal(data.session_id, data.password, permLabel, loginUrl);
+                    loadTempSessions();
+                } else {
+                    await showAlert('❌ Erreur: ' + (data.error || 'Création impossible'));
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        function showSessionModal(sessionId, password, permLabel, loginUrl) {
+            const overlay = document.getElementById('custom-modal-overlay');
+            const msgEl = document.getElementById('custom-modal-msg');
+            const cancelBtn = document.getElementById('custom-modal-cancel');
+            const okBtn = document.getElementById('custom-modal-ok');
+            cancelBtn.style.display = 'none';
+            okBtn.textContent = 'OK, j\'ai noté';
+            okBtn.style.background = '#3b82f6';
+            msgEl.innerHTML = `
+                <div style="text-align:left;">
+                    <div style="font-size:1.05rem;font-weight:700;margin-bottom:1rem;color:#e2e8f0;">✅ Session créée — ${permLabel}</div>
+                    <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                        <div><span style="color:#94a3b8;font-size:0.75rem;display:block;">🆔 ID</span><code style="font-size:1.1rem;font-weight:800;letter-spacing:0.1em;color:#93c5fd;">${sessionId}</code></div>
+                        <button onclick="navigator.clipboard.writeText('${sessionId}')" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#93c5fd;padding:0.25rem 0.6rem;border-radius:5px;cursor:pointer;font-size:0.75rem;">📋 Copier</button>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.07);border-radius:8px;padding:0.8rem 1rem;margin-bottom:0.5rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                        <div><span style="color:#94a3b8;font-size:0.75rem;display:block;">🔑 Mot de passe</span><code style="font-size:1rem;font-weight:700;color:#4ade80;">${password}</code></div>
+                        <button onclick="navigator.clipboard.writeText('${password}')" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.35);color:#4ade80;padding:0.25rem 0.6rem;border-radius:5px;cursor:pointer;font-size:0.75rem;">📋 Copier</button>
+                    </div>
+                    <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:0.6rem 0.9rem;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                        <div><span style="color:#60a5fa;font-size:0.72rem;">🌐 Lien de connexion</span><br><code style="font-size:0.78rem;color:#93c5fd;word-break:break-all;">${loginUrl}</code></div>
+                        <button onclick="navigator.clipboard.writeText('${loginUrl}')" style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.4);color:#93c5fd;padding:0.25rem 0.6rem;border-radius:5px;cursor:pointer;font-size:0.75rem;flex-shrink:0;">📋</button>
+                    </div>
+                    <p style="color:#fbbf24;font-size:0.82rem;margin:0;">⏳ Active dans 2 minutes — note bien ces infos, le mot de passe n'est affiché qu'une seule fois.</p>
+                </div>`;
+            _modalResolve = () => { overlay.classList.remove('active'); };
+            overlay.classList.add('active');
+        }
+
+        function renderSessionCards(sessions) {
+            const container = document.getElementById('temp-sessions-list');
+            if (!sessions.length) {
+                container.innerHTML = '<p style="color: #64748b; font-style: italic;">Aucune session active</p>';
+                return;
+            }
+            const loginUrl = window.location.origin + '/temp-login';
+            container.innerHTML = sessions.map(s => {
+                const isPending = s.status === 'pending';
+                const perm = s.permission || 'read_only';
+                const isAdmin = perm === 'admin';
+                const borderColor = isPending ? '#f59e0b' : (isAdmin ? '#a855f7' : '#22c55e');
+                const permBadge = isAdmin
+                    ? `<span style="background: rgba(168,85,247,0.2); color: #c084fc; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">👑 Admin</span>`
+                    : `<span style="background: rgba(34,197,94,0.15); color: #4ade80; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">👁️ Lecture</span>`;
+                const statusBadge = isPending
+                    ? `<span class="countdown-badge" data-active-at="${s.active_at}" style="background: rgba(245,158,11,0.2); color: #fbbf24; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">⏳ Calcul...</span>`
+                    : `<span style="background: rgba(34,197,94,0.2); color: #4ade80; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">✅ Active</span>`;
+
+                return `
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-left: 4px solid ${borderColor}; border-radius: 10px; padding: 1rem 1.2rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem; flex-wrap: wrap;">
+                                ${permBadge} ${statusBadge}
+                            </div>
+                            <div style="margin-bottom: 0.4rem;">
+                                <span style="color: #94a3b8; font-size: 0.8rem;">🆔 ID</span>
+                                <code style="background: rgba(255,255,255,0.08); color: #e2e8f0; padding: 0.2rem 0.6rem; border-radius: 5px; font-size: 0.95rem; font-weight: 700; margin-left: 0.4rem; letter-spacing: 0.05em;">${s.session_id}</code>
+                                <button onclick="navigator.clipboard.writeText('${s.session_id}')" title="Copier" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.8rem; margin-left: 0.2rem;">📋</button>
+                            </div>
+                            <div style="margin-bottom: 0.4rem;">
+                                <span style="color: #94a3b8; font-size: 0.8rem;">🔑 MDP</span>
+                                <code style="background: rgba(255,255,255,0.08); color: #e2e8f0; padding: 0.2rem 0.6rem; border-radius: 5px; font-size: 0.95rem; font-weight: 700; margin-left: 0.4rem;">${s.password}</code>
+                                <button onclick="navigator.clipboard.writeText('${s.password}')" title="Copier" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.8rem; margin-left: 0.2rem;">📋</button>
+                            </div>
+                            <div style="margin-top: 0.6rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.2); border-radius: 6px; padding: 0.4rem 0.7rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: #60a5fa; font-size: 0.78rem;">🌐 Lien :</span>
+                                <code style="color: #93c5fd; font-size: 0.78rem; word-break: break-all;">${loginUrl}</code>
+                                <button onclick="navigator.clipboard.writeText('${loginUrl}')" title="Copier le lien" style="background: none; border: none; cursor: pointer; color: #64748b; font-size: 0.8rem; flex-shrink: 0;">📋</button>
+                            </div>
+                            <div style="color: #64748b; font-size: 0.75rem; margin-top: 0.5rem;">📅 Créée à ${new Date(s.created_at).toLocaleTimeString('fr-FR')}</div>
+                        </div>
+                        <button onclick="deleteTempSession('${s.session_id}')" style="background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); padding: 0.5rem 1rem; border-radius: 7px; cursor: pointer; font-weight: 600; white-space: nowrap; flex-shrink: 0;">🔒 Fermer</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Lancer le compteur live sur les badges "pending"
+            if (sessionCountdownInterval) clearInterval(sessionCountdownInterval);
+            sessionCountdownInterval = setInterval(() => {
+                document.querySelectorAll('.countdown-badge[data-active-at]').forEach(el => {
+                    const activeAt = new Date(el.dataset.activeAt).getTime();
+                    const left = Math.max(0, Math.floor((activeAt - Date.now()) / 1000));
+                    if (left === 0) {
+                        el.textContent = '✅ Active';
+                        el.style.background = 'rgba(34,197,94,0.2)';
+                        el.style.color = '#4ade80';
+                        el.removeAttribute('data-active-at');
+                        loadTempSessions();
+                    } else {
+                        const m = Math.floor(left / 60);
+                        const s2 = left % 60;
+                        el.textContent = `⏳ ${m}m ${String(s2).padStart(2,'0')}s`;
+                    }
+                });
+            }, 1000);
+        }
+
+        async function loadTempSessions() {
+            try {
+                const res = await fetch('/api/admin/temp-sessions', { credentials: 'include' });
+                const data = await res.json();
+                renderSessionCards(data.sessions || []);
+            } catch (e) {
+                console.log('Erreur chargement sessions:', e);
+            }
+        }
+
+        async function deleteTempSession(sessionId) {
+            try {
+                const res = await fetch('/api/admin/temp-session/' + sessionId, { method: 'DELETE', credentials: 'include' });
+                if (res.ok) loadTempSessions();
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/visit-stats', { credentials: 'include' });
+                const stats = await res.json();
+                
+                // Afficher totaux avec vraies données
+                document.getElementById('total-visits').innerHTML = `<span style="font-size: 2.5rem; font-weight: bold; color: #667eea;">${(stats.total_visits || 0).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</span>`;
+                document.getElementById('mobile-visits').innerHTML = `<span style="font-size: 2.5rem; font-weight: bold; color: #e74c3c;">${(stats.mobile_visits || 0).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</span>`;
+                document.getElementById('desktop-visits').innerHTML = `<span style="font-size: 2.5rem; font-weight: bold; color: #27ae60;">${(stats.desktop_visits || 0).toLocaleString('fr-FR', { timeZone: 'Europe/Brussels' })}</span>`;
+                document.getElementById('mobile-pct').innerHTML = `<span style="font-size: 2.5rem; font-weight: bold; color: #f39c12;">${(stats.mobile_percentage || 0)}%</span>`;
+                
+                // Pages visitées avec style amélioré
+                const pagesHTML = (stats.top_pages || []).length > 0 
+                    ? (stats.top_pages || []).map((p, i) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee; border-left: 4px solid #667eea; background: ${i % 2 ? '#fafafa' : 'white'};">
+                            <div><strong style="color: #333;">${i + 1}. ${p.page}</strong></div>
+                            <div style="text-align: right;"><div style="font-size: 1.5rem; font-weight: bold; color: #667eea;">${p.visits}</div></div>
+                        </div>
+                    `).join('')
+                    : '<p style="text-align: center; color: #999; padding: 2rem;">Pas encore de visites</p>';
+                document.getElementById('stats-pages').innerHTML = pagesHTML;
+                
+                // Pays/IPs avec style amélioré
+                const countriesHTML = (stats.top_countries || []).length > 0
+                    ? (stats.top_countries || []).map((c, i) => `
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee; border-left: 4px solid #764ba2; background: ${i % 2 ? '#fafafa' : 'white'};">
+                            <div><strong style="color: #333;">🌍 ${c.ip}</strong></div>
+                            <div style="text-align: right;"><div style="font-size: 1.5rem; font-weight: bold; color: #764ba2;">${c.visits}</div></div>
+                        </div>
+                    `).join('')
+                    : '<p style="text-align: center; color: #999; padding: 2rem;">Pas encore de visites</p>';
+                document.getElementById('stats-countries').innerHTML = countriesHTML;
+                console.log('✅ Stats réelles chargées:', stats);
+            } catch (e) {
+                console.error('Erreur stats:', e);
+            }
+        }
+
+        function initDateDropdowns() {
+            // Remplir dates (prochains 30 jours)
+            const dateSelect = document.getElementById('maint-start-date');
+            const today = new Date();
+            for (let i = 0; i < 30; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i);
+                const opt = document.createElement('option');
+                // Utiliser les composantes locales (pas toISOString qui repasse en UTC)
+                const y = date.getFullYear();
+                const mo = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                opt.value = `${y}-${mo}-${d}`;
+                opt.textContent = date.toLocaleDateString('fr-FR');
+                if (i === 0) opt.selected = true;
+                dateSelect.appendChild(opt);
+            }
+            
+            // Remplir heures
+            ['maint-start-hour', 'maint-end-hour'].forEach(id => {
+                const sel = document.getElementById(id);
+                for (let h = 0; h < 24; h++) {
+                    const opt = document.createElement('option');
+                    opt.value = String(h).padStart(2, '0');
+                    opt.textContent = String(h).padStart(2, '0') + 'h';
+                    sel.appendChild(opt);
+                }
+            });
+            
+            // Remplir minutes
+            ['maint-start-min', 'maint-end-min'].forEach(id => {
+                const sel = document.getElementById(id);
+                for (let m = 0; m < 60; m += 5) {
+                    const opt = document.createElement('option');
+                    opt.value = String(m).padStart(2, '0');
+                    opt.textContent = String(m).padStart(2, '0') + 'm';
+                    sel.appendChild(opt);
+                }
+            });
+        }
+
+        // Afficher le statut de maintenance au chargement
+        async function updateMaintenanceStatus() {
+            try {
+                const res = await fetch('/api/status', { credentials: 'include' });
+                const data = await res.json();
+                const statusDiv = document.getElementById('maint-status-alert');
+                
+                if (data.maintenance_active) {
+                    const type = data.maintenance_type === 'bot' ? '🤖 BOT' : 
+                                 data.maintenance_type === 'site' ? '🌐 SITE' : '🔧 BOT + SITE';
+                    statusDiv.style.background = '#ffe8e8';
+                    statusDiv.style.borderColor = '#e74c3c';
+                    statusDiv.style.color = '#c0392b';
+                    statusDiv.innerHTML = `🔴 MAINTENANCE ACTIVE - ${type} EN MAINTENANCE`;
+                } else {
+                    statusDiv.style.background = '#e8f5e9';
+                    statusDiv.style.borderColor = '#27ae60';
+                    statusDiv.style.color = '#27ae60';
+                    statusDiv.innerHTML = `✅ MAINTENANCE DÉSACTIVÉE - Tous les services sont opérationnels`;
+                }
+            } catch (e) {
+                console.log('Erreur statut maintenance:', e);
+            }
+        }
+
+        // Load initial data
+        async function initAdmin() {
+            updateMaintenanceStatus();
+            loadServers();
+            loadStats();
+            loadTimeline();
+            loadTempSessions();
+            loadChangelog();
+            initDateDropdowns();
+            
+            // Load maintenance status
+            try {
+                const res = await fetch('/api/admin/maintenance', { credentials: 'include' });
+                const data = await res.json();
+                if (data.active !== undefined) {
+                    document.getElementById('maint-active').checked = data.active;
+                    document.getElementById('maint-message').value = data.message || '';
+                }
+            } catch (e) {
+                console.error('Erreur chargement maintenance:', e);
+            }
+        }
+        
+        // ===== ANNONCE MAINTENANCE =====
+        let _announceData = null;
+
+        async function loadAnnounce() {
+            try {
+                const res = await fetch('/api/admin/maintenance-announce', { credentials: 'include' });
+                const data = await res.json();
+                _announceData = data;
+                document.getElementById('ann-active').checked = !!data.active;
+                document.getElementById('ann-title').value = data.title || '';
+                document.getElementById('ann-start-date').value = data.start_date || '';
+                document.getElementById('ann-intro').value = data.intro || '';
+                document.getElementById('ann-warning').value = data.warning || '';
+                document.getElementById('ann-footer').value = data.footer || '';
+                renderAnnounceSections(data.sections || []);
+            } catch (e) {
+                console.error('Erreur chargement annonce:', e);
+            }
+        }
+
+        function renderAnnounceSections(sections) {
+            const container = document.getElementById('ann-sections-container');
+            container.innerHTML = sections.map((s, si) => `
+                <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:1rem 1.1rem;" data-section-idx="${si}">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.7rem;gap:0.5rem;">
+                        <input type="text" value="${escHtml(s.title||'')}" placeholder="Titre de la section (ex: 🔧 Au programme)"
+                            onchange="updateSectionTitle(${si}, this.value)"
+                            style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:7px;padding:0.45rem 0.8rem;color:#e2e8f0;font-size:0.9rem;font-weight:700;">
+                        <button onclick="removeAnnounceSection(${si})" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.78rem;white-space:nowrap;">🗑️ Suppr.</button>
+                    </div>
+                    <div id="ann-items-${si}" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.6rem;">
+                        ${(s.items||[]).map((item, ii) => `
+                            <div style="display:flex;gap:0.4rem;align-items:flex-start;">
+                                <textarea rows="1" onchange="updateSectionItem(${si},${ii},this.value)"
+                                    style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.4rem 0.7rem;color:#e2e8f0;font-size:0.85rem;resize:vertical;min-height:2.2rem;">${escHtml(item)}</textarea>
+                                <button onclick="removeAnnounceItem(${si},${ii})" style="background:rgba(239,68,68,0.12);color:#f87171;border:1px solid rgba(239,68,68,0.25);padding:0.3rem 0.5rem;border-radius:5px;cursor:pointer;font-size:0.75rem;flex-shrink:0;margin-top:0.1rem;">✕</button>
+                            </div>`).join('')}
+                    </div>
+                    <button onclick="addAnnounceItem(${si})" style="background:rgba(255,255,255,0.06);color:#94a3b8;border:1px solid rgba(255,255,255,0.12);padding:0.3rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.8rem;width:100%;">+ Ajouter un élément</button>
+                </div>`).join('');
+        }
+
+        function escHtml(s) {
+            return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+
+        function getAnnounceSections() {
+            if (!_announceData) return [];
+            return _announceData.sections || [];
+        }
+
+        function updateSectionTitle(si, val) {
+            if (!_announceData) return;
+            if (!_announceData.sections[si]) return;
+            _announceData.sections[si].title = val;
+        }
+
+        function updateSectionItem(si, ii, val) {
+            if (!_announceData) return;
+            if (!_announceData.sections[si]) return;
+            _announceData.sections[si].items[ii] = val;
+        }
+
+        function removeAnnounceSection(si) {
+            if (!_announceData) return;
+            _announceData.sections.splice(si, 1);
+            renderAnnounceSections(_announceData.sections);
+        }
+
+        function removeAnnounceItem(si, ii) {
+            if (!_announceData) return;
+            _announceData.sections[si].items.splice(ii, 1);
+            renderAnnounceSections(_announceData.sections);
+        }
+
+        function addAnnounceItem(si) {
+            if (!_announceData) return;
+            if (!_announceData.sections[si].items) _announceData.sections[si].items = [];
+            _announceData.sections[si].items.push('');
+            renderAnnounceSections(_announceData.sections);
+        }
+
+        function addAnnounceSection() {
+            if (!_announceData) _announceData = { sections: [] };
+            if (!_announceData.sections) _announceData.sections = [];
+            _announceData.sections.push({ title: '', items: [''] });
+            renderAnnounceSections(_announceData.sections);
+        }
+
+        async function saveAnnounce() {
+            if (!_announceData) _announceData = {};
+            const payload = {
+                active:     document.getElementById('ann-active').checked,
+                title:      document.getElementById('ann-title').value.trim(),
+                intro:      document.getElementById('ann-intro').value.trim(),
+                start_date: document.getElementById('ann-start-date').value.trim(),
+                warning:    document.getElementById('ann-warning').value.trim(),
+                footer:     document.getElementById('ann-footer').value.trim(),
+                sections:   _announceData.sections || []
+            };
+            try {
+                const res = await fetch('/api/admin/maintenance-announce', {
+                    method: 'POST', credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await showAlert('✅ Annonce enregistrée !');
+                } else {
+                    await showAlert('❌ ' + (data.error || 'Erreur'));
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        // ===== CHANGELOG EDITOR =====
+        async function loadChangelog() {
+            const list = document.getElementById('changelog-list');
+            if (!list) return;
+            list.innerHTML = '<p style="color:#64748b;">Chargement...</p>';
+            try {
+                const res = await fetch('/api/admin/changelog-editor', { credentials: 'include' });
+                const data = await res.json();
+                renderChangelog(data.sections || []);
+            } catch (e) {
+                list.innerHTML = '<p style="color:#f87171;">Erreur de chargement</p>';
+            }
+        }
+
+        function renderChangelog(sections) {
+            const list = document.getElementById('changelog-list');
+            if (!sections.length) {
+                list.innerHTML = '<p style="color:#64748b;font-style:italic;">Aucune entrée — créez d\'abord une version puis ajoutez des entrées.</p>';
+                return;
+            }
+            const TAG_C = { BOT:'#5865f2', SITE:'#10b981', WEB:'#10b981', FEATURE:'#a855f7', FIX:'#f59e0b', DEFAULT:'#667eea' };
+            const TAG_I = { BOT:'🤖', SITE:'🌐', WEB:'🌐', FEATURE:'✨', FIX:'🔧', DEFAULT:'📝' };
+            const esc = s => String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            list.innerHTML = sections.map(section => `
+                <div style="margin-bottom:1.8rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.7rem;">
+                        <span style="color:#a5b4fc;font-weight:700;font-size:0.95rem;">📌 ${esc(section.version)} — ${esc(section.date)}</span>
+                        <span style="color:#64748b;font-size:0.78rem;">${section.entries.length} entrée${section.entries.length!==1?'s':''}</span>
+                    </div>
+                    ${section.entries.length === 0 ? '<p style="color:#64748b;font-style:italic;font-size:0.83rem;margin:0 0 0.5rem 1rem;">Aucune entrée</p>' : ''}
+                    ${section.entries.map(e => {
+                        const col = TAG_C[e.tag] || TAG_C.DEFAULT;
+                        const ico = TAG_I[e.tag] || '📝';
+                        return `<div style="display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-left:3px solid ${col};border-radius:8px;padding:0.65rem 1rem;margin-bottom:0.45rem;gap:1rem;">
+                            <div style="flex:1;min-width:0;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+                                <span style="background:${col}22;color:${col};border:1px solid ${col}44;border-radius:5px;font-size:0.7rem;font-weight:800;padding:0.15rem 0.5rem;white-space:nowrap;">${ico} ${esc(e.tag)}</span>
+                                <span style="color:#e2e8f0;font-weight:600;font-size:0.88rem;">${esc(e.title||'')}</span>
+                            </div>
+                            <button onclick="deleteChangelogEntry('${esc(section.version)}',${e.index})" style="background:rgba(239,68,68,0.15);color:#f87171;border:1px solid rgba(239,68,68,0.3);padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.78rem;flex-shrink:0;white-space:nowrap;">🗑️ Suppr.</button>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `).join('');
+        }
+
+        async function addChangelogEntry() {
+            const tag = document.getElementById('cl-tag').value;
+            const title = document.getElementById('cl-title').value.trim();
+            const desc = document.getElementById('cl-desc').value.trim();
+            if (!title) { await showAlert('❌ Le titre est requis'); return; }
+            try {
+                const res = await fetch('/api/admin/changelog-editor/entry', {
+                    method: 'POST', credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tag, title, desc })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('cl-title').value = '';
+                    document.getElementById('cl-desc').value = '';
+                    loadChangelog();
+                } else {
+                    await showAlert('❌ ' + (data.error || 'Erreur'));
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function deleteChangelogEntry(version, index) {
+            if (!await showConfirm('⚠️ Supprimer cette entrée du changelog ?')) return;
+            try {
+                const res = await fetch('/api/admin/changelog-editor/entry', {
+                    method: 'DELETE', credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ version, index })
+                });
+                const data = await res.json();
+                if (data.success) { loadChangelog(); }
+                else { await showAlert('❌ ' + (data.error || 'Erreur')); }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        async function createChangelogVersion() {
+            const version = document.getElementById('cl-new-version').value.trim();
+            const date = document.getElementById('cl-new-date').value.trim();
+            if (!version) { await showAlert('❌ Numéro de version requis (ex: v13.10.0)'); return; }
+            try {
+                const res = await fetch('/api/admin/changelog-editor/version', {
+                    method: 'POST', credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ version, date })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('cl-new-version').value = '';
+                    document.getElementById('cl-new-date').value = '';
+                    loadChangelog();
+                } else {
+                    await showAlert('❌ ' + (data.error || 'Erreur'));
+                }
+            } catch (e) {
+                await showAlert('❌ Erreur: ' + e.message);
+            }
+        }
+
+        // ===== SECTION ABONNEMENTS PREMIUM =====
+        let _allPremiumSubs = [];
+
+        async function loadPremiumSubs() {
+            const tbody = document.getElementById('ps-table-body');
+            tbody.innerHTML = '<tr><td colspan="9" style="padding:2rem;text-align:center;color:#64748b;font-style:italic;">Chargement…</td></tr>';
+            try {
+                const res = await fetch('/api/admin/premium-subscriptions', { credentials: 'include' });
+                const data = await res.json();
+                if (data.error) { tbody.innerHTML = `<tr><td colspan="9" style="color:#ef4444;padding:1rem;">${data.error}</td></tr>`; return; }
+                _allPremiumSubs = data.subscriptions || [];
+                updatePremiumCounters(_allPremiumSubs);
+                renderPremiumSubs(_allPremiumSubs);
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="9" style="color:#ef4444;padding:1rem;">Erreur de chargement</td></tr>';
+            }
+        }
+
+        function updatePremiumCounters(subs) {
+            document.getElementById('ps-count-total').textContent = subs.length;
+            document.getElementById('ps-count-active').textContent = subs.filter(s => s.status === 'active' || s.status === 'free_gift').length;
+            document.getElementById('ps-count-expired').textContent = subs.filter(s => s.status === 'expired').length;
+            document.getElementById('ps-count-late').textContent = subs.filter(s => s.status === 'late').length;
+            document.getElementById('ps-count-cancelled').textContent = subs.filter(s => s.status === 'cancelled').length;
+        }
+
+        function filterPremiumSubs() {
+            const q = (document.getElementById('ps-search').value || '').toLowerCase();
+            const filterStatus = document.getElementById('ps-filter-status').value;
+            const filterTier = document.getElementById('ps-filter-tier').value;
+            const filtered = _allPremiumSubs.filter(s => {
+                const matchQ = !q || s.guild_id.includes(q) || s.user_id.includes(q) || s.payment_method.toLowerCase().includes(q);
+                const matchStatus = !filterStatus || s.status === filterStatus;
+                const matchTier = !filterTier || s.tier === filterTier;
+                return matchQ && matchStatus && matchTier;
+            });
+            renderPremiumSubs(filtered);
+        }
+
+        function renderPremiumSubs(subs) {
+            const tbody = document.getElementById('ps-table-body');
+            const empty = document.getElementById('ps-empty');
+            if (subs.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+
+            const STATUS_BADGE = {
+                'active':    '<span style="background:rgba(16,185,129,0.2);color:#34d399;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid rgba(52,211,153,0.3);">🟢 Actif</span>',
+                'free_gift': '<span style="background:rgba(99,102,241,0.2);color:#a5b4fc;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid rgba(165,180,252,0.3);">🎁 Offert</span>',
+                'expired':   '<span style="background:rgba(239,68,68,0.2);color:#fca5a5;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid rgba(252,165,165,0.3);">🔴 Expiré</span>',
+                'late':      '<span style="background:rgba(245,158,11,0.2);color:#fbbf24;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid rgba(251,191,36,0.3);">⚠️ En retard</span>',
+                'cancelled': '<span style="background:rgba(107,114,128,0.2);color:#9ca3af;padding:0.2rem 0.55rem;border-radius:20px;font-size:0.78rem;font-weight:700;border:1px solid rgba(156,163,175,0.3);">❌ Annulé</span>',
+            };
+            const TIER_BADGE = {
+                'premium':      '<span style="color:#fbbf24;font-weight:700;">💎 Premium</span>',
+                'premium_plus': '<span style="color:#c4b5fd;font-weight:700;">👑 Premium+</span>',
+            };
+            const PAY_ICON = {
+                'stripe': '💳', 'card': '💳', 'carte': '💳',
+                'paypal': '<span style="color:#ffc439;font-weight:800;">P</span><span style="color:#003087;font-style:italic;font-weight:800;background:#ffc439;padding:0 2px;border-radius:2px;">P</span>',
+                'manuel': '👤', 'manual': '👤',
+            };
+
+            function fmtDate(iso) {
+                if (!iso) return '<span style="color:#64748b;">—</span>';
+                try {
+                    const d = new Date(iso);
+                    return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+                } catch { return iso; }
+            }
+            function payIcon(method) {
+                const k = (method || '').toLowerCase();
+                return PAY_ICON[k] || ('💳 ' + method);
+            }
+
+            tbody.innerHTML = subs.map((s, i) => {
+                const rowBg = i % 2 === 0 ? 'background:rgba(255,255,255,0.02);' : '';
+                const badge = STATUS_BADGE[s.status] || s.status;
+                const tierBadge = TIER_BADGE[s.tier] || s.tier_label;
+                const expireStyle = s.is_expired ? 'color:#ef4444;' : s.is_late ? 'color:#f59e0b;' : '';
+                return `<tr style="${rowBg}border-bottom:1px solid rgba(255,255,255,0.04);">
+                    <td style="padding:0.65rem 0.9rem;">${badge}</td>
+                    <td style="padding:0.65rem 0.9rem;font-family:monospace;font-size:0.82rem;color:#a5b4fc;">${s.guild_id}</td>
+                    <td style="padding:0.65rem 0.9rem;font-family:monospace;font-size:0.82rem;color:#94a3b8;">${s.user_id || '<span style="color:#475569;">—</span>'}</td>
+                    <td style="padding:0.65rem 0.9rem;">${tierBadge}</td>
+                    <td style="padding:0.65rem 0.9rem;">${payIcon(s.payment_method)}</td>
+                    <td style="padding:0.65rem 0.9rem;color:#cbd5e1;">${s.billing_period}</td>
+                    <td style="padding:0.65rem 0.9rem;color:#94a3b8;font-size:0.82rem;">${fmtDate(s.since)}</td>
+                    <td style="padding:0.65rem 0.9rem;font-size:0.82rem;${expireStyle}">${s.expires ? fmtDate(s.expires) : '<span style="color:#34d399;">∞ À vie</span>'}</td>
+                    <td style="padding:0.65rem 0.9rem;">
+                        <button onclick="navigator.clipboard.writeText('${s.guild_id}')" title="Copier ID serveur" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.3);border-radius:5px;padding:0.25rem 0.5rem;cursor:pointer;font-size:0.75rem;margin-right:0.3rem;">📋 Serveur</button>
+                        ${s.user_id ? `<button onclick="navigator.clipboard.writeText('${s.user_id}')" title="Copier ID utilisateur" style="background:rgba(16,185,129,0.1);color:#6ee7b7;border:1px solid rgba(16,185,129,0.25);border-radius:5px;padding:0.25rem 0.5rem;cursor:pointer;font-size:0.75rem;">📋 User</button>` : ''}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        initAdmin();
+    </script>
+
+<!-- Custom confirm/alert modal -->
+<div id="custom-modal-overlay">
+  <div id="custom-modal-box">
+    <div id="custom-modal-msg"></div>
+    <div id="custom-modal-btns">
+      <button id="custom-modal-cancel" onclick="_modalResolve(false)" style="display:none">Annuler</button>
+      <button id="custom-modal-ok" onclick="_modalResolve(true)">OK</button>
+    </div>
+  </div>
+</div>
+<script>
+
+function linkify(text) {
+    if (!text) return '';
+    return String(text).replace(
+        /(https?:\/\/[^\s<>"']+)/g,
+        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;word-break:break-all;">$1</a>'
+    );
+}
+let _modalResolve = null;
+function showConfirm(msg) {
+    return new Promise(resolve => {
+        _modalResolve = (v) => { document.getElementById('custom-modal-overlay').classList.remove('active'); resolve(v); };
+        document.getElementById('custom-modal-msg').textContent = msg;
+        document.getElementById('custom-modal-cancel').style.display = 'inline-block';
+        document.getElementById('custom-modal-ok').textContent = 'Confirmer';
+        document.getElementById('custom-modal-ok').style.background = '#e74c3c';
+        document.getElementById('custom-modal-overlay').classList.add('active');
+    });
+}
+function showAlert(msg) {
+    return new Promise(resolve => {
+        _modalResolve = () => { document.getElementById('custom-modal-overlay').classList.remove('active'); resolve(); };
+        document.getElementById('custom-modal-msg').textContent = msg;
+        document.getElementById('custom-modal-cancel').style.display = 'none';
+        document.getElementById('custom-modal-ok').textContent = 'OK';
+        document.getElementById('custom-modal-ok').style.background = '#5865f2';
+        document.getElementById('custom-modal-overlay').classList.add('active');
+    });
+}
+</script>
+</body>
+</html>

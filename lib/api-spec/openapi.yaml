@@ -3,13 +3,21 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Miaouscle Bot Dashboard API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: bot
+    description: Bot status and info
+  - name: maintenance
+    description: Maintenance management
+  - name: stats
+    description: Bot statistics
+  - name: logs
+    description: Site logs
 paths:
   /healthz:
     get:
@@ -24,6 +32,114 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /bot/status:
+    get:
+      operationId: getBotStatus
+      tags: [bot]
+      summary: Get bot status
+      description: Returns current bot status including maintenance state, version, and basic info
+      responses:
+        "200":
+          description: Bot status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStatus"
+
+  /bot/stats:
+    get:
+      operationId: getBotStats
+      tags: [stats]
+      summary: Get bot stats
+      description: Returns command usage, server counts, and user activity
+      responses:
+        "200":
+          description: Bot stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotStats"
+
+  /maintenance:
+    get:
+      operationId: getMaintenance
+      tags: [maintenance]
+      summary: Get maintenance state
+      description: Returns current maintenance state for both bot and site
+      responses:
+        "200":
+          description: Maintenance state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceState"
+
+    put:
+      operationId: updateMaintenance
+      tags: [maintenance]
+      summary: Update maintenance state
+      description: Enable or disable maintenance mode for bot and/or site
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MaintenanceUpdate"
+      responses:
+        "200":
+          description: Updated maintenance state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MaintenanceState"
+
+  /maintenance/history:
+    get:
+      operationId: getMaintenanceHistory
+      tags: [maintenance]
+      summary: Get maintenance history
+      description: Returns the list of past maintenance windows
+      responses:
+        "200":
+          description: Maintenance history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MaintenanceRecord"
+
+  /logs:
+    get:
+      operationId: getLogs
+      tags: [logs]
+      summary: Get recent logs
+      description: Returns recent site/bot logs
+      responses:
+        "200":
+          description: Logs list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LogEntry"
+
+  /stats/summary:
+    get:
+      operationId: getStatsSummary
+      tags: [stats]
+      summary: Get stats summary
+      description: Returns aggregated dashboard summary data
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsSummary"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +150,181 @@ components:
       required:
         - status
 
+    MaintenanceEntry:
+      type: object
+      properties:
+        active:
+          type: boolean
+        message:
+          type: ["string", "null"]
+        start_time:
+          type: ["string", "null"]
+        end_time:
+          type: ["string", "null"]
+        show_reason:
+          type: boolean
+      required:
+        - active
+        - show_reason
+
+    MaintenanceState:
+      type: object
+      properties:
+        bot:
+          $ref: "#/components/schemas/MaintenanceEntry"
+        site:
+          $ref: "#/components/schemas/MaintenanceEntry"
+      required:
+        - bot
+        - site
+
+    MaintenanceUpdate:
+      type: object
+      properties:
+        target:
+          type: string
+          enum: [bot, site, both]
+        active:
+          type: boolean
+        message:
+          type: ["string", "null"]
+      required:
+        - target
+        - active
+
+    MaintenanceRecord:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: ["string", "null"]
+        maint_type:
+          type: ["string", "null"]
+        start_time:
+          type: ["string", "null"]
+        end_time:
+          type: ["string", "null"]
+        end_actual:
+          type: ["string", "null"]
+        scheduled_time:
+          type: ["string", "null"]
+      required:
+        - type
+
+    BotStatus:
+      type: object
+      properties:
+        version:
+          type: string
+        maintenance_bot:
+          type: boolean
+        maintenance_site:
+          type: boolean
+        maintenance_message:
+          type: ["string", "null"]
+        total_servers:
+          type: integer
+        total_users:
+          type: integer
+        total_commands_used:
+          type: integer
+      required:
+        - version
+        - maintenance_bot
+        - maintenance_site
+        - total_servers
+        - total_users
+        - total_commands_used
+
+    BotStats:
+      type: object
+      properties:
+        servers:
+          type: object
+          additionalProperties:
+            type: integer
+        users:
+          type: object
+          additionalProperties:
+            type: integer
+        commands:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+        - servers
+        - users
+        - commands
+
+    LogEntry:
+      type: object
+      properties:
+        id:
+          type: string
+        action:
+          type: string
+        details:
+          type: ["string", "null"]
+        timestamp:
+          type: string
+        log_type:
+          type: ["string", "null"]
+      required:
+        - id
+        - action
+        - timestamp
+
+    StatsSummary:
+      type: object
+      properties:
+        total_servers:
+          type: integer
+        total_users:
+          type: integer
+        total_commands:
+          type: integer
+        top_commands:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommandStat"
+        top_servers:
+          type: array
+          items:
+            $ref: "#/components/schemas/ServerStat"
+        maintenance_count:
+          type: integer
+        version:
+          type: string
+      required:
+        - total_servers
+        - total_users
+        - total_commands
+        - top_commands
+        - top_servers
+        - maintenance_count
+        - version
+
+    CommandStat:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+      required:
+        - name
+        - count
+
+    ServerStat:
+      type: object
+      properties:
+        id:
+          type: string
+        count:
+          type: integer
+      required:
+        - id
+        - count

@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support & Contact — Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f111a 0%, #1a1a3e 50%, #0d1117 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        /* ── NAV ── */
+        nav {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo { font-size: 1.4rem; font-weight: 700; text-decoration: none; cursor: pointer; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; list-style: none; }
+        .nav-links a {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: white; }
+        .nav-links a.active { color: #a5b4fc; font-weight: 600; }
+
+        /* ── LAYOUT ── */
+        .container { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem 4rem; }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(88,101,242,0.15);
+            border: 1px solid rgba(88,101,242,0.35);
+            border-radius: 999px;
+            padding: 0.35rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #a5b4fc;
+            margin-bottom: 1.2rem;
+        }
+        .hero h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 50%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+        .hero p { color: rgba(255,255,255,0.55); font-size: 1.05rem; }
+
+        /* ── QUICK CONTACT BAR ── */
+        .quick-bar {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+        .quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.7rem 1.4rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .quick-btn:hover { transform: translateY(-2px); opacity: 0.92; }
+        .qb-discord {
+            background: linear-gradient(135deg, #5865F2, #4752c4);
+            color: white;
+            box-shadow: 0 4px 14px rgba(88,101,242,0.35);
+        }
+        .qb-ticket {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 14px rgba(102,126,234,0.3);
+        }
+        .qb-docs {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.85);
+            border: 1px solid rgba(255,255,255,0.12);
+        }
+
+        /* ── GRID ── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ── CARDS ── */
+        .card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+            border-radius: 16px;
+            padding: 1.8rem;
+            border: 1px solid rgba(255,255,255,0.09);
+            transition: border-color 0.2s;
+        }
+        .card:hover { border-color: rgba(255,255,255,0.16); }
+        .card-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+        .card p {
+            color: rgba(255,255,255,0.6);
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-bottom: 0;
+        }
+
+        /* Discord card */
+        .card-discord {
+            background: linear-gradient(145deg, rgba(88,101,242,0.18) 0%, rgba(88,101,242,0.08) 100%);
+            border-color: rgba(88,101,242,0.35);
+        }
+        .card-discord h2 { color: #a5b4fc; }
+
+        /* ── FORM CARD ── */
+        .form-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid rgba(255,255,255,0.09);
+        }
+        .form-card h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #a5b4fc;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.75);
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.7rem 0.9rem;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.88rem;
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.18);
+        }
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
+        textarea { min-height: 110px; resize: vertical; }
+        select option { background: #1a1a3e; color: #fff; }
+
+        /* Type selector */
+        .type-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.2rem;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 0.6rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: rgba(255,255,255,0.55);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .type-btn.active {
+            background: rgba(102,126,234,0.2);
+            border-color: rgba(102,126,234,0.5);
+            color: #a5b4fc;
+        }
+        .form-panel { display: none; }
+        .form-panel.active { display: block; }
+
+        /* Submit btn */
+        .btn-submit {
+            width: 100%;
+            padding: 0.8rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.2s;
+            margin-top: 0.25rem;
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Status messages */
+        .status-msg {
+            margin-top: 0.9rem;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: none;
+        }
+        .status-msg.success {
+            display: block;
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.35);
+            color: #34d399;
+        }
+        .status-msg.error {
+            display: block;
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.35);
+            color: #f87171;
+        }
+
+        /* ── CONTACT CHANNELS ── */
+        .channel-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+            margin-bottom: 0.6rem;
+            border: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s;
+        }
+        .channel-item:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.14);
+        }
+        .ch-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+        .ch-body { flex: 1; min-width: 0; }
+        .ch-title { font-weight: 600; color: #fff; font-size: 0.88rem; }
+        .ch-desc { color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 1px; }
+        .ch-arrow { color: rgba(255,255,255,0.3); font-size: 0.9rem; }
+
+        /* ── FAQ ACCORDION ── */
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.9rem 0;
+            cursor: pointer;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.88rem;
+            gap: 1rem;
+            user-select: none;
+        }
+        .faq-toggle { color: rgba(255,255,255,0.35); font-size: 0.8rem; transition: transform 0.2s; flex-shrink: 0; }
+        .faq-item.open .faq-toggle { transform: rotate(180deg); }
+        .faq-a {
+            display: none;
+            padding-bottom: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            font-size: 0.85rem;
+            line-height: 1.8;
+        }
+        .faq-item.open .faq-a { display: block; }
+        .faq-a a { color: #a5b4fc; text-decoration: none; }
+        .faq-a a:hover { text-decoration: underline; }
+
+        /* ── TICKET SLA STRIP ── */
+        .sla-strip {
+            display: flex;
+            gap: 0.75rem;
+            margin: 1.2rem 0 0;
+            flex-wrap: wrap;
+        }
+        .sla-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .sla-free { background: rgba(107,114,128,0.15); border: 1px solid rgba(107,114,128,0.3); color: #9ca3af; }
+        .sla-prem { background: rgba(251,191,36,0.12); border: 1px solid rgba(251,191,36,0.3); color: #fbbf24; }
+        .sla-plus { background: rgba(168,85,247,0.12); border: 1px solid rgba(168,85,247,0.3); color: #c084fc; }
+
+        /* ── FOOTER ── */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin-top: 2rem;
+        }
+        .footer a { color: rgba(165,180,252,0.6); text-decoration: none; }
+        .footer a:hover { color: #a5b4fc; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 860px) {
+            .grid-2 { grid-template-columns: 1fr; }
+            .grid-3 { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 600px) {
+            .grid-3 { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.9rem; }
+            .form-row { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .quick-bar { flex-direction: column; align-items: stretch; }
+            .quick-btn { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle Bot</a>
+        <ul class="nav-links">
+            <li><a href="/home">🏠 Accueil</a></li>
+            <li><a href="/docs">📚 Docs</a></li>
+            <li><a href="/premium">💎 Premium</a></li>
+            <li><a href="/support" class="active">🆘 Support</a></li>
+            <li><a href="/about">ℹ️ À propos</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+
+        <!-- ── Hero ── -->
+        <div class="hero">
+            <div class="hero-badge">🆘 Support & Contact</div>
+            <h1>Comment pouvons-nous vous aider ?</h1>
+            <p>Rejoignez notre Discord, signalez un bug ou proposez une idée — on vous répond vite.</p>
+        </div>
+
+        <!-- ── Quick actions ── -->
+        <div class="quick-bar">
+            <a href="https://discord.gg/52fXJ4fwz4" target="_blank" class="quick-btn qb-discord">
+                <span>💬</span> Rejoindre le serveur Discord
+            </a>
+            <a href="https://discord.com/oauth2/authorize?client_id=1157699815833088001" target="_blank" class="quick-btn qb-ticket">
+                <span>➕</span> Ajouter le bot
+            </a>
+            <a href="/docs" class="quick-btn qb-docs">
+                <span>📚</span> Lire la documentation
+            </a>
+        </div>
+
+        <!-- ── Contact channels row ── -->
+        <div class="grid-3" style="margin-bottom:1.5rem;">
+            <div class="card card-discord">
+                <span class="card-icon">💬</span>
+                <h2>Discord</h2>
+                <p>Notre serveur officiel — support, annonces, communauté et preview des nouvelles fonctionnalités.</p>
+                <a href="https://discord.gg/52fXJ4fwz4" target="_blank" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1rem;background:#5865F2;color:white;padding:0.55rem 1.1rem;border-radius:8px;text-decoration:none;font-weight:700;font-size:0.85rem;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    📩 Rejoindre →
+                </a>
+            </div>
+            <div class="card">
+                <span class="card-icon">🎫</span>
+                <h2>Ticket de support</h2>
+                <p>Pour une assistance privée, ouvre un ticket directement sur notre serveur Discord via le bouton dédié.</p>
+                <div class="sla-strip">
+                    <span class="sla-pill sla-free">📩 Basic</span>
+                    <span class="sla-pill sla-prem">⚡ 24 h</span>
+                    <span class="sla-pill sla-plus">⭐ 6 h</span>
+                </div>
+            </div>
+            <div class="card">
+                <span class="card-icon">📧</span>
+                <h2>E-mail</h2>
+                <p>Pour les demandes sensibles ou professionnelles, contactez-nous directement par e-mail.</p>
+                <a href="mailto:matix.off@hotmail.com" style="display:inline-flex;align-items:center;gap:0.4rem;margin-top:1rem;color:#a5b4fc;text-decoration:none;font-weight:600;font-size:0.88rem;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">
+                    matix.off@hotmail.com →
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Form + FAQ row ── -->
+        <div class="grid-2">
+
+            <!-- Form card -->
+            <div class="form-card">
+                <h2>✉️ Nous écrire</h2>
+
+                <!-- Type switcher -->
+                <div class="type-selector">
+                    <button class="type-btn active" onclick="switchType('bug',this)">🐛 Signaler un bug</button>
+                    <button class="type-btn" onclick="switchType('suggestion',this)">💡 Suggestion</button>
+                    <button class="type-btn" onclick="switchType('other',this)">📩 Autre</button>
+                </div>
+
+                <!-- Bug form -->
+                <div class="form-panel active" id="panel-bug">
+                    <form id="form-bug">
+                        <div class="form-group">
+                            <label>Votre pseudo Discord</label>
+                            <input type="text" id="bug-discord" placeholder="pseudo#0000 ou @pseudo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description du bug</label>
+                            <textarea id="bug-desc" placeholder="Décris le problème : ce que tu faisais, ce qui s'est passé, le message d'erreur si présent..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">🚨 Envoyer le signalement</button>
+                        <div class="status-msg" id="status-bug"></div>
+                    </form>
+                </div>
+
+                <!-- Suggestion form -->
+                <div class="form-panel" id="panel-suggestion">
+                    <form id="form-suggestion">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Pseudo Discord</label>
+                                <input type="text" id="sugg-discord" placeholder="pseudo#0000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Catégorie</label>
+                                <select id="sugg-cat" required>
+                                    <option value="">Choisir...</option>
+                                    <option value="Nouvelle Fonctionnalité">✨ Nouvelle fonctionnalité</option>
+                                    <option value="Amélioration">🔧 Amélioration</option>
+                                    <option value="Dashboard">🌐 Dashboard</option>
+                                    <option value="Premium">💎 Premium</option>
+                                    <option value="Autre">📦 Autre</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Votre suggestion</label>
+                            <textarea id="sugg-desc" placeholder="Décris ta suggestion en détail..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">💡 Envoyer la suggestion</button>
+                        <div class="status-msg" id="status-sugg"></div>
+                    </form>
+                </div>
+
+                <!-- Other form -->
+                <div class="form-panel" id="panel-other">
+                    <form id="form-other">
+                        <div class="form-group">
+                            <label>Pseudo Discord</label>
+                            <input type="text" id="other-discord" placeholder="pseudo#0000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Sujet</label>
+                            <input type="text" id="other-subject" placeholder="Résumé de votre message" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea id="other-desc" placeholder="Votre message..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-submit">📩 Envoyer</button>
+                        <div class="status-msg" id="status-other"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- FAQ card -->
+            <div class="form-card">
+                <h2>❓ Questions fréquentes</h2>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Comment configurer le bot ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Utilise <code style="background:rgba(255,255,255,0.1);padding:0.1rem 0.4rem;border-radius:4px;">/config</code> sur ton serveur ou connecte-toi sur le <a href="/dashboard">Dashboard web</a> pour accéder à tous les paramètres.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Comment ouvrir un ticket de support ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Rejoins notre <a href="https://discord.gg/52fXJ4fwz4" target="_blank">serveur Discord</a> et clique sur le bouton 🎫 dans le canal de support. Un canal privé sera créé pour toi. Les membres Premium+ ont une réponse garantie sous 6 h.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Quel est le délai de réponse ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">
+                        Via ticket Discord :<br>
+                        📩 <strong>Basic</strong> — file d'attente standard<br>
+                        ⚡ <strong>Premium</strong> — garanti sous 24 h<br>
+                        ⭐ <strong>Premium+</strong> — garanti sous 6 h<br><br>
+                        Via formulaire ci-contre — généralement sous 24 h.
+                    </div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Le bot ne répond plus, que faire ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Vérifie 1) le statut sur <a href="/status">/status</a>, 2) que le bot est bien présent sur le serveur, 3) qu'il a les permissions requises dans le canal. Si tout semble bon, signale le bug via le formulaire.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Comment activer le Premium sur mon serveur ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Consulte la <a href="/premium">page Premium</a> pour découvrir les offres. Une fois abonné, utilise <code style="background:rgba(255,255,255,0.1);padding:0.1rem 0.4rem;border-radius:4px;">/premium-activate</code> sur ton serveur pour l'activer.</div>
+                </div>
+
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-q">Puis-je proposer une suggestion ? <span class="faq-toggle">▼</span></div>
+                    <div class="faq-a">Absolument ! Utilise l'onglet "💡 Suggestion" dans le formulaire ci-contre, ou la commande <code style="background:rgba(255,255,255,0.1);padding:0.1rem 0.4rem;border-radius:4px;">/suggestion</code> directement sur Discord.</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Direct links strip ── -->
+        <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:1.5rem 1.8rem;margin-top:0.5rem;">
+            <p style="font-size:0.85rem;font-weight:600;color:rgba(255,255,255,0.4);margin-bottom:1rem;text-transform:uppercase;letter-spacing:0.8px;">Liens utiles</p>
+            <div style="display:flex;flex-wrap:wrap;gap:0.75rem;">
+                <a href="https://discord.gg/52fXJ4fwz4" target="_blank" class="channel-item" style="flex:1;min-width:200px;">
+                    <div class="ch-icon">💬</div>
+                    <div class="ch-body"><div class="ch-title">Serveur Discord officiel</div><div class="ch-desc">Support, annonces & communauté</div></div>
+                    <span class="ch-arrow">↗</span>
+                </a>
+                <a href="/docs" class="channel-item" style="flex:1;min-width:200px;">
+                    <div class="ch-icon">📚</div>
+                    <div class="ch-body"><div class="ch-title">Documentation</div><div class="ch-desc">Commandes, config, Premium</div></div>
+                    <span class="ch-arrow">→</span>
+                </a>
+                <a href="/dashboard" class="channel-item" style="flex:1;min-width:200px;">
+                    <div class="ch-icon">⚙️</div>
+                    <div class="ch-body"><div class="ch-title">Dashboard</div><div class="ch-desc">Configurer votre serveur</div></div>
+                    <span class="ch-arrow">→</span>
+                </a>
+                <a href="/premium" class="channel-item" style="flex:1;min-width:200px;">
+                    <div class="ch-icon">💎</div>
+                    <div class="ch-body"><div class="ch-title">Premium</div><div class="ch-desc">Voir les offres et avantages</div></div>
+                    <span class="ch-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>Miaouscle Bot — Créé par <strong>matix</strong> © 2025 · <a href="/docs">Docs</a> · <a href="/premium">Premium</a> · <a href="/about">À propos</a></p>
+    </div>
+
+    <script>
+        /* ── Type switcher ── */
+        function switchType(type, btn) {
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('panel-' + type).classList.add('active');
+        }
+
+        /* ── Generic submit helper ── */
+        async function submitFeedback(payload, statusEl, formEl, btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Envoi en cours…';
+            statusEl.className = 'status-msg';
+            statusEl.style.display = 'none';
+            try {
+                const res = await fetch('/api/submit-feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    statusEl.className = 'status-msg success';
+                    statusEl.textContent = '✅ Message envoyé ! Nous vous répondrons dès que possible.';
+                    formEl.reset();
+                } else {
+                    throw new Error('Serveur : ' + res.status);
+                }
+            } catch (err) {
+                statusEl.className = 'status-msg error';
+                statusEl.textContent = '❌ Erreur lors de l\'envoi. Rejoignez notre Discord pour nous contacter directement.';
+            }
+            btn.disabled = false;
+            btn.textContent = btn.dataset.label || '📩 Envoyer';
+        }
+
+        /* ── Bug report ── */
+        const bugForm = document.getElementById('form-bug');
+        bugForm.querySelector('.btn-submit').dataset.label = '🚨 Envoyer le signalement';
+        bugForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitFeedback({
+                type: 'report',
+                discord: document.getElementById('bug-discord').value,
+                description: document.getElementById('bug-desc').value
+            }, document.getElementById('status-bug'), bugForm, bugForm.querySelector('.btn-submit'));
+        });
+
+        /* ── Suggestion ── */
+        const suggForm = document.getElementById('form-suggestion');
+        suggForm.querySelector('.btn-submit').dataset.label = '💡 Envoyer la suggestion';
+        suggForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitFeedback({
+                type: 'suggestion',
+                discord: document.getElementById('sugg-discord').value,
+                category: document.getElementById('sugg-cat').value,
+                description: document.getElementById('sugg-desc').value
+            }, document.getElementById('status-sugg'), suggForm, suggForm.querySelector('.btn-submit'));
+        });
+
+        /* ── Other ── */
+        const otherForm = document.getElementById('form-other');
+        otherForm.querySelector('.btn-submit').dataset.label = '📩 Envoyer';
+        otherForm.addEventListener('submit', e => {
+            e.preventDefault();
+            submitFeedback({
+                type: 'other',
+                discord: document.getElementById('other-discord').value,
+                subject: document.getElementById('other-subject').value,
+                description: document.getElementById('other-desc').value
+            }, document.getElementById('status-other'), otherForm, otherForm.querySelector('.btn-submit'));
+        });
+    </script>
+</body>
+</html>

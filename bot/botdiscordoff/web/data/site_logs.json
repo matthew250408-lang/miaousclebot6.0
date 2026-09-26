@@ -1,0 +1,612 @@
+{
+  "1764535710211": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1188506879052238988**\n📋 **Changements:**\n  • booster_role: `123456789` → `1419260648772206764`",
+    "timestamp": "2025-11-30T20:48:30.210991"
+  },
+  "1764535762829": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1188506879052238988**\n📋 **Changements:**\n  • booster_role: `1419260648772206764` → `1423714570853286030`",
+    "timestamp": "2025-11-30T20:49:22.829133"
+  },
+  "1764536935074": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1275919656049315880**\n📋 **Changements:**\n  • booster_role: `N/A` → `1419260648772206764`",
+    "timestamp": "2025-11-30T21:08:55.074673"
+  },
+  "1764536952678": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1188506879052238988**\n📋 **Changements:**\n  • booster_role: `None` → `1419260648772206764`",
+    "timestamp": "2025-11-30T21:09:12.678557"
+  },
+  "1764536962078": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1188506879052238988**\n📋 **Changements:**\n  • booster_role: `1419260648772206764` → `1419260648772206764`",
+    "timestamp": "2025-11-30T21:09:22.078923"
+  },
+  "1764537058551": {
+    "action": "Config Mise à Jour",
+    "details": "👤 Utilisateur: **matix.yt**\n🖥️ Serveur: **1188506879052238988**\n📋 **Changements:**\n  • booster_role: `1419260648772206764` → ``",
+    "timestamp": "2025-11-30T21:10:58.551384"
+  },
+  "1764537269206": {
+    "action": "⚙️ Configuration Mise à Jour",
+    "details": "👤 **matix.yt**\n🖥️ Serveur: `1188506879052238988`\n\n📋 **Changements:**\n🌍 Langue: *(vide)* → ✅ **`en`**",
+    "timestamp": "2025-11-30T21:14:29.206526"
+  },
+  "1764537329066": {
+    "action": "⚙️ Configuration Mise à Jour",
+    "details": "👤 **matix.yt**\n🖥️ Serveur: `1188506879052238988`\n\n📋 **Changements:**\n🤖 Automod Actif: *(vide)* → ✅ **`True`**\n📍 Canal Logs: `1406710832762585199` → ✅ `1406710832762585199`",
+    "timestamp": "2025-11-30T21:15:29.066637"
+  },
+  "1764537782781": {
+    "action": "⚙️ Configuration Mise à Jour",
+    "details": "👤 **matix.yt**\n🖥️ Serveur: `1188506879052238988`\n\n📋 **Changements:**\n📍 Canal Logs: `1406710832762585199` → ✂️ **Retiré**",
+    "log_type": "config",
+    "timestamp": "2025-11-30T21:23:02.781035"
+  },
+  "1764537802804": {
+    "action": "⚙️ Configuration Mise à Jour",
+    "details": "👤 **matix.yt**\n🖥️ Serveur: `1188506879052238988`\n\n📋 **Changements:**\n🤖 Automod Actif: `True` → ✂️ **Retiré**",
+    "log_type": "config",
+    "timestamp": "2025-11-30T21:23:22.804874"
+  },
+  "1764537924442": {
+    "action": "⚙️ Configuration Mise à Jour",
+    "details": "👤 **matix.yt**\n🖥️ Serveur: `1188506879052238988`\n\n📋 **Changements:**\n📍 Canal Logs: *(vide)* → ✅ **`1406710832762585199`**",
+    "log_type": "config",
+    "timestamp": "2025-11-30T21:25:24.442810"
+  },
+  "1769004812344": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-21T14:13:32.344306"
+  },
+  "1769004987829": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-21T14:16:27.829851"
+  },
+  "1769005266643": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-21T14:21:06.643738"
+  },
+  "1769007365832": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-21T14:56:05.832652"
+  },
+  "1769007396965": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-21T14:56:36.965439"
+  },
+  "1769103091369": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-22T17:31:31.369734"
+  },
+  "1769103574340": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-22T17:39:34.340422"
+  },
+  "1769103678740": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-01-22T17:41:18.740277"
+  },
+  "1770876476057": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-12T06:07:56.057791"
+  },
+  "1771057919558": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-14T08:31:59.558349"
+  },
+  "1771152098034": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-15T10:41:38.034450"
+  },
+  "1771152125483": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-15T10:42:05.483510"
+  },
+  "1771152185658": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-15T10:43:05.658106"
+  },
+  "1771152199218": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-15T10:43:19.218824"
+  },
+  "1771152223435": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-15T10:43:43.435558"
+  },
+  "1771200950580": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-16T00:15:50.580882"
+  },
+  "1771201583750": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-02-16T00:26:23.750256"
+  },
+  "1773505098149": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-03-14T16:18:18.149368"
+  },
+  "1773505141949": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:19:01.949015"
+  },
+  "1773505173156": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:19:33.156356"
+  },
+  "1773505192810": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:19:52.810273"
+  },
+  "1773505263930": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:21:03.930722"
+  },
+  "1773505870758": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:31:10.758824"
+  },
+  "1773506004596": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:33:24.596088"
+  },
+  "1773506098567": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:34:58.567501"
+  },
+  "1773506505891": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-14T16:41:45.891654"
+  },
+  "1773561235768": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-15T07:53:55.768205"
+  },
+  "1773561303907": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-15T07:55:03.907978"
+  },
+  "1773562137156": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-03-15T08:08:57.156336"
+  },
+  "1774023115328": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1482645302409298003 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-20T16:11:55.328880"
+  },
+  "1774023220903": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-03-20T16:13:40.903340"
+  },
+  "1774023347348": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-20T16:15:47.348452"
+  },
+  "1774023554274": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-03-20T16:19:14.274401"
+  },
+  "1774781810718": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-29T10:56:50.718181"
+  },
+  "1774781835258": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-03-29T10:57:15.258679"
+  },
+  "1776367206547": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:20:06.547506"
+  },
+  "1776367967874": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:32:47.874841"
+  },
+  "1776368462515": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:02.514990"
+  },
+  "1776368465178": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:05.178486"
+  },
+  "1776368471750": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:11.750908"
+  },
+  "1776368482461": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:22.461880"
+  },
+  "1776368485023": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:25.023476"
+  },
+  "1776368486798": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:26.798111"
+  },
+  "1776368488118": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:28.118783"
+  },
+  "1776368508611": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:41:48.611156"
+  },
+  "1776368523335": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-16T19:42:03.335576"
+  },
+  "1776439801436": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-17T15:30:01.436887"
+  },
+  "1776439834175": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-17T15:30:34.175548"
+  },
+  "1776439838287": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-17T15:30:38.287253"
+  },
+  "1776439855309": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-17T15:30:55.309368"
+  },
+  "1776440028371": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-17T15:33:48.371874"
+  },
+  "1776444180434": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-04-17T16:43:00.434588"
+  },
+  "1776502427739": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-18T08:53:47.739482"
+  },
+  "1776515409247": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-18T12:30:09.247146"
+  },
+  "1776525163606": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-04-18T15:12:43.606879"
+  },
+  "1776598877548": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-19T11:41:17.548960"
+  },
+  "1777150856708": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-04-25T21:00:56.708326"
+  },
+  "1777153706320": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-04-25T21:48:26.320161"
+  },
+  "1780697051863": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-05T22:04:11.863350"
+  },
+  "1780742421218": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-06T10:40:21.218510"
+  },
+  "1781454772892": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-14T16:32:52.892363"
+  },
+  "1782218560907": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-23T12:42:40.907225"
+  },
+  "1782229296028": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-23T15:41:36.028927"
+  },
+  "1782229412016": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-23T15:43:32.016139"
+  },
+  "1782229417435": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-23T15:43:37.435813"
+  },
+  "1782229514937": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-23T15:45:14.937417"
+  },
+  "1782275676096": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-24T04:34:36.096052"
+  },
+  "1782285095001": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-24T07:11:35.001872"
+  },
+  "1782292432939": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-24T09:13:52.939961"
+  },
+  "1782379501326": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-25T09:25:01.326791"
+  },
+  "1782429334629": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-25T23:15:34.629065"
+  },
+  "1782433906270": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-26T00:31:46.270359"
+  },
+  "1782585815169": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-06-27T18:43:35.169175"
+  },
+  "1782586843727": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-27T19:00:43.727335"
+  },
+  "1782587262722": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-27T19:07:42.722250"
+  },
+  "1782649427181": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:23:47.181601"
+  },
+  "1782649433258": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:23:53.258407"
+  },
+  "1782649473469": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:24:33.469351"
+  },
+  "1782650108095": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:35:08.095051"
+  },
+  "1782650142997": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:35:42.997484"
+  },
+  "1782650375400": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1188506879052238988 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-06-28T12:39:35.400192"
+  },
+  "1783960971157": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-07-13T16:42:51.157455"
+  },
+  "1784028244203": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-07-14T11:24:04.203223"
+  },
+  "1784388132822": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1528057776536817815 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-18T15:22:12.822159"
+  },
+  "1784388141464": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1528057776536817815 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-18T15:22:21.464358"
+  },
+  "1784388318584": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1528057776536817815 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-18T15:25:18.584685"
+  },
+  "1784846815436": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-07-23T22:46:55.436586"
+  },
+  "1784848038443": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1429878491876167872 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-23T23:07:18.443427"
+  },
+  "1784848058844": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1429878491876167872 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-23T23:07:38.844476"
+  },
+  "1784850064690": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1429878491876167872 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-23T23:41:04.690947"
+  },
+  "1784850076144": {
+    "action": "Mise à jour Configuration",
+    "details": "La configuration du serveur 1429878491876167872 a été modifiée via le Dashboard.",
+    "log_type": "config",
+    "timestamp": "2026-07-23T23:41:16.144738"
+  },
+  "1788248895798": {
+    "action": "Connexion Admin",
+    "details": "L'administrateur matix s'est connecté au panel de contrôle.",
+    "log_type": "security",
+    "timestamp": "2026-09-01T07:48:15.798918"
+  }
+}

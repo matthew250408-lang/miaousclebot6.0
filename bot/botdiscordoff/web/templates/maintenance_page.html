@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maintenance - Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .maintenance-container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .maintenance-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+        
+        .maintenance-type {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px;
+            margin: 2rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .maintenance-message {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #f5f5f5;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        
+        .status-item {
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .status-item.active {
+            background: #ffe5e5;
+            color: #d63031;
+            border: 2px solid #d63031;
+        }
+        
+        .status-item.available {
+            background: #e5f5e5;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+        }
+        
+        .status-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+        
+        .info-box {
+            background: #f0f8ff;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+            text-align: left;
+            color: #333;
+        }
+        
+        #timer-display {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #667eea;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .countdown {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 1rem;
+            font-style: italic;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102,126,234,0.3);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .maintenance-container {
+                padding: 2rem;
+            }
+            
+            .maintenance-icon { font-size: 3.5rem; }
+            h1 { font-size: 1.8rem; }
+            .maintenance-message { font-size: 0.95rem; padding: 1rem; }
+            .status-details { grid-template-columns: 1fr; }
+            .button-group { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-icon">🔧</div>
+        
+        <h1>Maintenance en Cours</h1>
+        
+        <!-- Rendu COMPLET côté serveur avec Jinja2 - PAS DE MODIFICATION DOM = ZERO CLIGNOTEMENT -->
+        <div class="maintenance-type">
+            {% if maintenance_type == 'bot' %}
+                🤖 Bot Discord en Maintenance
+            {% elif maintenance_type == 'site' %}
+                🌐 Site Web en Maintenance
+            {% else %}
+                🔧 Services en Maintenance
+            {% endif %}
+        </div>
+        
+        <div class="maintenance-message">
+            {{ message or "🔧 Nous effectuons une maintenance importante..." }}
+        </div>
+        
+        <div class="status-details">
+            {% if bot_online %}
+                <div class="status-item available">
+                    <div class="status-icon">🤖</div>
+                    <div>Discord Bot</div>
+                    <div class="status-label">Opérationnel ✅</div>
+                </div>
+            {% else %}
+                <div class="status-item active">
+                    <div class="status-icon">🤖</div>
+                    <div>Discord Bot</div>
+                    <div class="status-label">Hors ligne ❌</div>
+                </div>
+            {% endif %}
+            
+            {% if site_online %}
+                <div class="status-item available">
+                    <div class="status-icon">🌐</div>
+                    <div>Site Web</div>
+                    <div class="status-label">Opérationnel ✅</div>
+                </div>
+            {% else %}
+                <div class="status-item active">
+                    <div class="status-icon">🌐</div>
+                    <div>Site Web</div>
+                    <div class="status-label">Hors ligne ❌</div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box">
+            <h3>⏱️ Temps restant estimé</h3>
+            <p>La maintenance est en cours. Temps restant :</p>
+            <div id="timer-display">--:--:--</div>
+            <div class="countdown" id="countdown-text">Calcul du temps restant...</div>
+        </div>
+        
+        <script>
+            const endTimeStr = "{{ maint_end }}";
+            const timerDisplay = document.getElementById('timer-display');
+            const countdownText = document.getElementById('countdown-text');
+
+            function updateTimer() {
+                if (!endTimeStr || endTimeStr === 'None') {
+                    timerDisplay.textContent = "--:--:--";
+                    countdownText.textContent = "Fin de maintenance non définie (Bot)";
+                    return;
+                }
+
+                const endTime = new Date(endTimeStr).getTime();
+                const now = new Date().getTime();
+                const distance = endTime - now;
+
+                if (distance < 0) {
+                    timerDisplay.textContent = "00:00:00";
+                    countdownText.textContent = "La maintenance devrait être terminée. Rechargez la page.";
+                    return;
+                }
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                timerDisplay.textContent = 
+                    (hours < 10 ? "0" + hours : hours) + ":" + 
+                    (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+                    (seconds < 10 ? "0" + seconds : seconds);
+                
+                countdownText.textContent = "Le site reviendra en ligne automatiquement.";
+            }
+
+            if (endTimeStr && endTimeStr !== 'None') {
+                setInterval(updateTimer, 1000);
+                updateTimer();
+            } else {
+                timerDisplay.textContent = "∞";
+                countdownText.textContent = "Maintenance manuelle en cours.";
+            }
+        </script>
+        
+        <div class="button-group">
+            <a href="/" class="btn btn-secondary">← Retour à l'accueil</a>
+            <a href="https://discord.gg/miaouscle" class="btn btn-primary" target="_blank">💬 Discord Support</a>
+        </div>
+    </div>
+    
+    <!-- ZERO JavaScript - TOUT est rendu côté serveur (Jinja2) -->
+    <!-- Aucune modification DOM = AUCUN CLIGNOTEMENT -->
+    
+</body>
+</html>

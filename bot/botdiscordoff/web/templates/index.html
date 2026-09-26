@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; color: #333; }
+        
+        nav { background: rgba(255,255,255,0.95); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #667eea; text-decoration: none; cursor: pointer; }
+        .nav-right { display: flex; gap: 1rem; }
+        .nav-link { color: #667eea; text-decoration: none; font-weight: 600; }
+        .discord-btn { background: #5865F2; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; text-decoration: none; font-weight: 600; }
+        .discord-btn:hover { background: #4752C4; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        .hero { text-align: center; color: white; margin-bottom: 3rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem; }
+        
+        .sections-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+        .section-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s; cursor: pointer; text-decoration: none; color: #333; }
+        .section-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
+        
+        .card-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .card-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .card-desc { color: #666; font-size: 0.95rem; line-height: 1.6; }
+        
+        .section-card.primary .card-title { color: #667eea; }
+        .section-card.secondary .card-title { color: #d63031; }
+        .section-card.info .card-title { color: #00b4d8; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .sections-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/home" class="logo" aria-label="Retour à l'accueil">🐱 Miaouscle Bot</a>
+        <div class="nav-right">
+            <a href="/docs" class="nav-link">📚 Docs</a>
+            <a href="/support" class="nav-link">🆘 Support</a>
+            {% if session.user %}
+                <a href="/dashboard" class="discord-btn">📊 Aller au Dashboard</a>
+                <a href="/logout" class="discord-btn" style="background: #e74c3c;">Logout</a>
+            {% else %}
+                <a href="/login" class="discord-btn">🔗 Se Connecter (Discord)</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Miaouscle Bot Dashboard</h1>
+            <p>Gérez votre serveur Discord de manière simple et efficace</p>
+        </div>
+
+        <div class="sections-grid text-center">
+            <a href="/login" class="section-card primary">
+                <div class="card-icon">👤</div>
+                <div class="card-title">Dashboard Utilisateur</div>
+                <div class="card-desc">Connectez-vous avec Discord pour configurer vos serveurs.</div>
+            </a>
+
+            <a href="/admin-login" class="section-card secondary">
+                <div class="card-icon">👑</div>
+                <div class="card-title">Panel Administrateur</div>
+                <div class="card-desc">Gestion complète: serveurs, maintenance, broadcasts et statistiques.</div>
+            </a>
+
+            <a href="/docs" class="section-card info">
+                <div class="card-icon">📚</div>
+                <div class="card-title">Documentation</div>
+                <div class="card-desc">Guide complet des commandes, configuration et système de niveaux.</div>
+            </a>
+
+            <a href="/support" class="section-card info">
+                <div class="card-icon">🆘</div>
+                <div class="card-title">Support & Communauté</div>
+                <div class="card-desc">Rejoignez notre Discord, signalez des bugs ou proposez des suggestions.</div>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

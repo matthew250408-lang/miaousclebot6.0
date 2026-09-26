@@ -1,0 +1,68 @@
+[
+  {
+    "session_id": "404FF4E6139F",
+    "password": "LnQnHDLcZWwWPw",
+    "created_at": "2025-12-01T21:13:26.546510",
+    "active_at": "2025-12-01T21:15:26.546517",
+    "status": "closed",
+    "closed_at": "2025-12-02T00:40:59.672110"
+  },
+  {
+    "session_id": "BD9C6E65D9E3",
+    "password": "E-pu3VdyjIZ_Rg",
+    "created_at": "2025-12-01T21:13:47.398499",
+    "active_at": "2025-12-01T21:15:47.398506",
+    "status": "closed",
+    "closed_at": "2025-12-01T21:13:59.526766"
+  },
+  {
+    "session_id": "7079BF54211A",
+    "password": "1gmo1iFlPTz6Gg",
+    "created_at": "2026-01-11T18:19:44.074380",
+    "active_at": "2026-01-11T18:21:44.074386",
+    "status": "closed",
+    "closed_at": "2026-01-11T18:25:13.380500"
+  },
+  {
+    "session_id": "BE39173358BA",
+    "password": "k-1CpQhd5LNIxw",
+    "created_at": "2026-01-11T18:23:59.038060",
+    "active_at": "2026-01-11T18:25:59.038067",
+    "status": "closed",
+    "closed_at": "2026-01-11T18:24:05.699234"
+  },
+  {
+    "session_id": "CA4C1873E8B1",
+    "password": "DbdrOLbC5JtjkA",
+    "created_at": "2026-03-29T11:00:58.958759",
+    "active_at": "2026-03-29T11:02:58.958765",
+    "status": "closed",
+    "closed_at": "2026-03-29T11:07:10.330979"
+  },
+  {
+    "session_id": "933533D8FB77",
+    "password": "EevbPHgz_XVhsA",
+    "created_at": "2026-04-16T19:32:56.979516",
+    "active_at": "2026-04-16T19:34:56.979523",
+    "status": "closed",
+    "closed_at": "2026-06-25T09:41:28.295395"
+  },
+  {
+    "session_id": "C5BEC1FA4850",
+    "password": "rbjCAx7eHO_SXA",
+    "permission": "read_only",
+    "created_at": "2026-06-24T07:21:34.038162",
+    "active_at": "2026-06-24T07:23:34.038169",
+    "status": "closed",
+    "closed_at": "2026-06-25T09:41:29.311078"
+  },
+  {
+    "session_id": "16BDAAA67C35",
+    "password": "_cNtAYlBFw8iJA",
+    "permission": "read_only",
+    "created_at": "2026-07-14T11:24:13.357296",
+    "active_at": "2026-07-14T11:26:13.357301",
+    "status": "closed",
+    "closed_at": "2026-09-01T07:52:22.846167"
+  }
+]

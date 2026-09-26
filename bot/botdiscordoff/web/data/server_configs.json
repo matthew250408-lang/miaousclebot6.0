@@ -1,0 +1,62 @@
+{
+  "123456789": {
+    "name": "Server Principal",
+    "members": 250,
+    "language": "fr",
+    "booster_role": "456789123",
+    "welcome_channel": "789456123",
+    "log_channel": "654321987"
+  },
+  "987654321": {
+    "name": "Community Server",
+    "members": 150,
+    "language": "fr",
+    "booster_role": "147258369",
+    "welcome_channel": "258369147",
+    "log_channel": "369147258"
+  },
+  "1188506879052238988": {
+    "xp_role": "1190368934814290072",
+    "language": "fr",
+    "anti_raid": {
+      "action": "lockdown",
+      "window": 10,
+      "enabled": true,
+      "threshold": 5,
+      "log_channel_id": null,
+      "min_account_age_days": 7
+    },
+    "xp_enabled": true,
+    "log_channel": "1406710832762585199",
+    "booster_role": "1419260648772206764",
+    "automod_action": "mute",
+    "automod_active": false,
+    "automod_enabled": true,
+    "goodbye_channel": null,
+    "welcome_channel": 1188506880012714071,
+    "log_notifications": {
+      "ban": true,
+      "mute": true,
+      "unban": true
+    },
+    "welcome_dm_enabled": true,
+    "nickname_request_channel": "1417899832479186954"
+  },
+  "1345222391990583426": {
+    "language": "en",
+    "log_channel": 1444665073564913674
+  },
+  "1315765877664387083": {},
+  "1275919656049315880": {
+    "booster_role": "1419260648772206764"
+  },
+  "1346931264233406485": {},
+  "1427362753911193613": {},
+  "1482645302409298003": {
+    "log_channel": 1494416459370070057
+  },
+  "1349077976016486450": {},
+  "1463545768316113082": {
+    "log_channel": 1497554844548857926
+  }
+}

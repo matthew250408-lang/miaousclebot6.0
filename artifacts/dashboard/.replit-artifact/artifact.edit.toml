@@ -1,0 +1,18 @@
+kind = "web"
+previewPath = "/"
+title = "Miaouscle Dashboard"
+version = "1.0.0"
+id = "artifacts/dashboard"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 5000
+
+[services.development]
+run = "pnpm --filter @workspace/dashboard run dev"

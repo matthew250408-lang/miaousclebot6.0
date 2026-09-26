@@ -1,0 +1,61 @@
+{
+  "1188506879052238988": {
+    "nickname_request_channel": 1417899832479186954,
+    "daily_xp_enabled": true,
+    "log_channel": 1406710832762585199,
+    "goodbye_channel": 1238549289039302737,
+    "welcome_channel": 1188506880012714071,
+    "welcome_message": "Bienvenue {user} sur le serveur {guild} \nJ'espère que tu t'y plairas ^^",
+    "goodbye_message": "{user} À quitté le serveur !",
+    "language": "fr",
+    "automod_channel": 1406710832762585199,
+    "booster_role": 1419260648772206764
+  },
+  "1407711441183834143": {
+    "welcome_channel": 1407711441657663650,
+    "goodbye_channel": 1407711441657663650,
+    "log_channel": 1444665084898181152
+  },
+  "1405506789474308159": {
+    "goodbye_channel": 1405508422434029711,
+    "goodbye_message": "Au revoir {user}, nous espérons de te revoir bientôt",
+    "daily_xp_enabled": true
+  },
+  "333949691962195969": {
+    "welcome_channel": 826699940750295070,
+    "goodbye_channel": 826699940750295070,
+    "log_channel": 826699940750295070,
+    "log_notifications": {
+      "ban": false
+    },
+    "daily_xp_enabled": true
+  },
+  "1417179139042971672": {
+    "language": "en"
+  },
+  "1346931264233406485": {
+    "welcome_channel": 1346931264858624012
+  },
+  "1323389079026663494": {
+    "welcome_channel": 1402357944464441445,
+    "nickname_request_channel": 1349463643485507608,
+    "log_channel": 1349463643485507608
+  },
+  "1315765877664387083": {},
+  "1429878491876167872": {
+    "log_channel": 1444665095631274095
+  },
+  "1345222391990583426": {
+    "language": "en",
+    "log_channel": 1444665073564913674
+  },
+  "1195986200322900020": {
+    "log_channel": 1444665067378573363
+  },
+  "1349077976016486450": {
+    "log_channel": 1444665079407579258
+  },
+  "1427362753911193613": {
+    "log_channel": 1444665090098987154
+  }
+}

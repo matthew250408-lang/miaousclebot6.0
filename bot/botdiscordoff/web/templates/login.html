@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Miaouscle Bot</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: linear-gradient(145deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        h1 { color: #fff; margin-bottom: 1.5rem; text-align: center; }
+        
+        .error {
+            background: rgba(239,68,68,0.2);
+            color: #f87171;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(248,113,113,0.3);
+            display: {{ 'block' if error else 'none' }};
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label { display: block; margin-bottom: 0.5rem; color: #fff; font-weight: 600; }
+        input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            font-size: 1rem;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+        input::placeholder { color: rgba(255,255,255,0.4); }
+        input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 5px rgba(102,126,234,0.3); }
+
+        .btn {
+            width: 100%;
+            padding: 0.8rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover { background: #5568d3; }
+
+        .back { text-align: center; margin-top: 1rem; }
+        .back a { color: #a5b4fc; text-decoration: none; }
+        .back a:hover { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>👑 Mode Propriétaire</h1>
+        
+        {% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+        <form method="POST" action="/admin-login">
+            <div class="form-group">
+                <label>ID Propriétaire</label>
+                <input type="text" name="owner_id" required placeholder="Votre ID">
+            </div>
+            <div class="form-group">
+                <label>Mot de passe</label>
+                <input type="password" name="owner_password" required placeholder="Votre mot de passe">
+            </div>
+            <button class="btn">Se connecter</button>
+        </form>
+
+        <div class="back">
+            <a href="/">← Retour</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+kind = "web"
+previewPath = "/"
+title = "Bot Web Dashboard"
+version = "1.0.0"
+
+[[services]]
+localPort = 5000
+name = "Bot Web Dashboard"
+paths = ["/"]
+
+[services.development]
+run = "cd botdiscordoff && python web/app.py"

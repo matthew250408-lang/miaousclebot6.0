@@ -1,0 +1,19 @@
+[project]
+name = "repl-nix-workspace"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "aiofiles>=24.1.0",
+    "discord-py>=2.6.0",
+    "flask>=3.1.2",
+    "flask-cors>=6.0.1",
+    "gunicorn>=25.3.0",
+    "openai>=2.8.1",
+    "pillow>=12.2.0",
+    "psycopg[binary]>=3.3.3",
+    "pyjwt>=2.10.1",
+    "python-dotenv>=1.2.1",
+    "requests>=2.32.5",
+    "stripe>=15.1.0",
+]

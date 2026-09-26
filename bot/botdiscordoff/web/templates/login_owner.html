@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion Propriétaire - Miaouscle Bot</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--bg-light);
+            border: 2px solid var(--danger);
+            border-radius: 15px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 20px 60px rgba(245, 101, 101, 0.2);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h2 {
+            margin: 0;
+            color: var(--danger);
+        }
+
+        .login-header p {
+            color: #cbd5e0;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.1);
+        }
+
+        .error-message {
+            background: rgba(245, 101, 101, 0.1);
+            border: 1px solid var(--danger);
+            color: #fc8181;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, var(--danger), #fc8181);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(245, 101, 101, 0.3);
+        }
+
+        .btn-back {
+            width: 100%;
+            padding: 0.75rem;
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-back:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .security-note {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            color: #cbd5e0;
+            font-size: 0.9rem;
+            margin-top: 1.5rem;
+        }
+
+        .security-note strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <h2>👑 Connexion Propriétaire</h2>
+                <p>Accès administrateur sécurisé</p>
+            </div>
+
+            {% if error %}
+            <div class="error-message">
+                ❌ {{ error }}
+            </div>
+            {% endif %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label for="owner_id">Identifiant du Propriétaire:</label>
+                    <input type="password" id="owner_id" name="owner_id" required placeholder="••••••••••••••••" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="owner_password">Mot de Passe Propriétaire:</label>
+                    <input type="password" id="owner_password" name="owner_password" required placeholder="••••••••" autocomplete="off">
+                </div>
+
+                <button type="submit" class="btn-login">
+                    🔐 Se Connecter
+                </button>
+
+                <button type="button" class="btn-back" onclick="goBack()">
+                    ← Retour
+                </button>
+            </form>
+
+            <div class="security-note">
+                <strong>🔒 Sécurité:</strong><br>
+                Les identifiants sont masqués pour votre protection. Assurez-vous que personne ne vous observe.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = '/login-choice';
+        }
+
+        // Masquer les inputs au focus
+        document.getElementById('owner_id').addEventListener('focus', function() {
+            this.style.letterSpacing = '0.3em';
+        });
+
+        document.getElementById('owner_password').addEventListener('focus', function() {
+            this.style.letterSpacing = '0.3em';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "active": true,
+  "title": "📢 Maintenance à venir – Miaoucle Bot",
+  "intro": "Une maintenance est prévu pour miaouscle bot !",
+  "start_date": "13 septembre 2026 à 22h00",
+  "sections": [
+    {
+      "title": "🔧 Au programme :",
+      "items": [
+        "Nous ne connaissons pas encore les raisons de la maintenance, veuillez nous excuser.",
+        "Des informations vous seront communiquer prochainement !"
+      ]
+    }
+  ],
+  "warning": "Les services seront temporairement désactiver sur le site !",
+  "footer": "— L'équipe de Miaoucle Bot 🐾"
+}

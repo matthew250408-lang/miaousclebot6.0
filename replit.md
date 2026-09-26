@@ -1,45 +1,48 @@
-# [Project name]
+# Bot 2026 — Miaouscle Bot
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Bot Discord Miaouscle avec dashboard web Flask pour administrer les serveurs, les tickets, la modération, les niveaux et les fonctionnalités Premium.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `uv run python web/app.py` depuis `bot/botdiscordoff` — lancer le dashboard (port 5000)
+- `uv run python main.py` depuis `bot/botdiscordoff` — lancer le bot Discord
+- Le bouton Run lance automatiquement les deux workflows.
+- `uv sync --frozen` depuis `bot/botdiscordoff` — installer les dépendances Python
+- Secret requis : `DISCORD_TOKEN`
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Python 3.11+, `uv`
+- Bot : `discord.py`
+- Dashboard : Flask + Gunicorn
+- Stockage : fichiers JSON locaux, avec support PostgreSQL pour certaines configurations
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `bot/botdiscordoff/main.py` — point d’entrée du bot Discord
+- `bot/botdiscordoff/web/app.py` — dashboard Flask
+- `bot/botdiscordoff/cogs/` — fonctionnalités Discord
+- `bot/botdiscordoff/utils/` — services et stockage partagés
+- `bot/botdiscordoff/web/templates/` — pages du dashboard
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Le bot et le dashboard sont deux processus distincts lancés en parallèle.
+- Le dashboard utilise le port 5000 et le bot ne publie pas de port web.
+- Les données locales du dashboard restent dans `bot/botdiscordoff/web/data/`.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+Miaouscle Bot fournit des outils de gestion Discord : modération, anti-raid, tickets, niveaux XP, rôles Premium, statistiques, maintenance et administration depuis un dashboard web.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Réponses et interface en français lorsque c'est pertinent.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Le secret `DISCORD_TOKEN` doit être enregistré dans les Secrets Replit ; ne jamais le mettre dans un fichier ou dans le chat.
+- Les workflows générés pour les anciens artifacts ne sont pas nécessaires pour lancer Bot 2026 ; utiliser `Project`.
 
 ## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Voir `bot/botdiscordoff/README.md` et `bot/botdiscordoff/CHANGELOG.md` pour le contexte du projet.

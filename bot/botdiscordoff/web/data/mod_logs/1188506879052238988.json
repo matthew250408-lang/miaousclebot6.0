@@ -1,0 +1,175 @@
+{
+  "logs": [
+    {
+      "ts": "2026-06-06T19:15:01.987509+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1241066735873036434,
+      "user_name": "zebrave_",
+      "channel_id": 1238582028509909044,
+      "channel_name": "🗯・chat-staff",
+      "reason": "Raison",
+      "content": "**** la jpp"
+    },
+    {
+      "ts": "2026-06-06T19:15:23.796301+00:00",
+      "kind": "mod",
+      "action": "unmute",
+      "user_id": 1241066735873036434,
+      "user_name": "zebrave_",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "❌ Non configuré",
+      "duration": null,
+      "sanction_id": "UM-060626-Q50JY"
+    },
+    {
+      "ts": "2026-06-06T19:16:00.241312+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1140296215469240401,
+      "user_name": "nixo.yt",
+      "channel_id": 1238582028509909044,
+      "channel_name": "🗯・chat-staff",
+      "reason": "Raison",
+      "content": "plus **** ?"
+    },
+    {
+      "ts": "2026-06-06T19:16:24.676810+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1140296215469240401,
+      "user_name": "nixo.yt",
+      "channel_id": 1238582028509909044,
+      "channel_name": "🗯・chat-staff",
+      "reason": "Raison",
+      "content": "plus ****"
+    },
+    {
+      "ts": "2026-06-06T19:17:16.588217+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1140296215469240401,
+      "user_name": "nixo.yt",
+      "channel_id": 1238582028509909044,
+      "channel_name": "🗯・chat-staff",
+      "reason": "Raison",
+      "content": "****"
+    },
+    {
+      "ts": "2026-06-13T16:14:21.530351+00:00",
+      "kind": "mod",
+      "action": "unban",
+      "user_id": null,
+      "user_name": "1512882241347387515",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "test",
+      "duration": null,
+      "sanction_id": "UB-130626-JDM2U"
+    },
+    {
+      "ts": "2026-06-13T16:17:27.296317+00:00",
+      "kind": "mod",
+      "action": "unban",
+      "user_id": null,
+      "user_name": "1512884212947226756",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "x",
+      "duration": null,
+      "sanction_id": "UB-130626-M7R68"
+    },
+    {
+      "ts": "2026-06-25T23:32:41.596931+00:00",
+      "kind": "mod",
+      "action": "unmute",
+      "user_id": 1346797461104234576,
+      "user_name": "timeo.dbssn",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "❌ Non configuré",
+      "duration": null,
+      "sanction_id": "UM-250626-OBXYR"
+    },
+    {
+      "ts": "2026-06-28T12:31:22.388660+00:00",
+      "kind": "automod",
+      "action": "url_link",
+      "user_id": 1512884212947226756,
+      "user_name": "testsdsddz",
+      "channel_id": 1188506880012714071,
+      "channel_name": "🗣️・discussion",
+      "reason": "Lien non autorisé : belgiantrain.be",
+      "content": "https://www.belgiantrain.be/fr/"
+    },
+    {
+      "ts": "2026-06-28T12:39:58.606388+00:00",
+      "kind": "automod",
+      "action": "url_link",
+      "user_id": 1512884212947226756,
+      "user_name": "testsdsddz",
+      "channel_id": 1188506880012714071,
+      "channel_name": "🗣️・discussion",
+      "reason": "Lien non autorisé : youtube.com",
+      "content": "youtube.com"
+    },
+    {
+      "ts": "2026-06-28T12:40:22.338723+00:00",
+      "kind": "automod",
+      "action": "url_link",
+      "user_id": 1512884212947226756,
+      "user_name": "testsdsddz",
+      "channel_id": 1188506880012714071,
+      "channel_name": "🗣️・discussion",
+      "reason": "Lien non autorisé : tenor.com",
+      "content": "https://tenor.com/view/oh-hiiii-oh-hi-hi-hello-lizard-gif-5877185002260097302"
+    },
+    {
+      "ts": "2026-07-14T16:19:16.292212+00:00",
+      "kind": "mod",
+      "action": "ban",
+      "user_id": null,
+      "user_name": "917464047018999838",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "/",
+      "duration": null,
+      "sanction_id": "B-140726-147U2"
+    },
+    {
+      "ts": "2026-09-01T08:05:12.279924+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1322335022581026898,
+      "user_name": "lorenzobls_64033",
+      "channel_id": 1238544743135445134,
+      "channel_name": "👾・commandes",
+      "reason": "Motivo",
+      "content": "**"
+    },
+    {
+      "ts": "2026-09-01T08:05:24.579451+00:00",
+      "kind": "automod",
+      "action": "forbidden_words",
+      "user_id": 1322335022581026898,
+      "user_name": "lorenzobls_64033",
+      "channel_id": 1238544743135445134,
+      "channel_name": "👾・commandes",
+      "reason": "Motivo",
+      "content": "****"
+    },
+    {
+      "ts": "2026-09-12T11:22:56.174229+00:00",
+      "kind": "mod",
+      "action": "kick",
+      "user_id": 318312854816161792,
+      "user_name": "DraftBot",
+      "moderator_id": 1140296215469240401,
+      "moderator_name": "nixo.yt",
+      "reason": "ne me sert plus",
+      "duration": null,
+      "sanction_id": "K-120926-UC1Y6"
+    }
+  ]
+}
