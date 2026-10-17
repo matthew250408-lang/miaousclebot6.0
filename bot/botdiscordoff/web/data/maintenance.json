@@ -1,8 +1,8 @@
 {
   "bot": {
-    "active": false,
-    "message": "",
-    "start_time": null,
+    "active": true,
+    "message": "🔧 Maintenance en cours - Nous travaillons à l'amélioration du service",
+    "start_time": "2026-10-17T11:54:28.457641+00:00",
     "end_time": null,
     "show_reason": true
   },
